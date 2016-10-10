@@ -34,6 +34,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "ffi-vix_disk_lib",        "~>1.0.2"  # used by lib/VixDiskLib
   s.add_runtime_dependency "fog-openstack",           "=0.1.15"
   s.add_runtime_dependency "hawkular-client",         "=2.7.0"
+  s.add_runtime_dependency "highline",                "~> 1.6.21" # Needed for the appliance_console
   s.add_runtime_dependency "httpclient",              "~>2.7.1"
   s.add_runtime_dependency "image-inspector-client",  "~>1.0.3"
   s.add_runtime_dependency "iniparse"
@@ -61,6 +62,8 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "sys-uname",               "~>1.0.1"
   s.add_runtime_dependency "trollop",                 "~>2.0"
   s.add_runtime_dependency "uuidtools",               "~>2.1.3"
+  s.add_runtime_dependency "winrm",                   "~>2.1"
+  s.add_runtime_dependency "winrm-elevated",          "~>1.0.1"
   s.add_runtime_dependency "zip-zip",                 "~>0.3.0"
 
   s.add_development_dependency "camcorder"
@@ -71,4 +74,9 @@ Gem::Specification.new do |s|
   s.add_development_dependency "vcr",          "~>3.0.0"
   s.add_development_dependency "webmock",      "~>1.12"
   s.add_development_dependency "xml-simple",   "~>1.1.0"
+  # HACK: These conditionals will not work with a normal released gem.  This will only work as a git source where the gemspec is evaluated.
+  # Linux-only section
+  if RbConfig::CONFIG["host_os"].include?("linux")
+    s.add_runtime_dependency "linux_block_device", ">=0.1.0"
+  end
 end

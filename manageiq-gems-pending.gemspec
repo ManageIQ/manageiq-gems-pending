@@ -17,4 +17,13 @@ Gem::Specification.new do |s|
   s.files = Dir["{lib}/**/*", "LICENSE.txt", "Rakefile", "README.md"]
 
   s.required_ruby_version = "> 2.2.2"
+
+  s.add_development_dependency "camcorder"
+  s.add_development_dependency "coveralls"
+  s.add_development_dependency "rspec",        "~>3.5.0"
+  s.add_development_dependency "test-unit"
+  s.add_development_dependency "timecop",      "~>0.7.3"
+  s.add_development_dependency "vcr",          "~>3.0.0"
+  s.add_development_dependency "webmock",      "~>1.12"
+  s.add_development_dependency "xml-simple",   "~>1.1.0"
 end

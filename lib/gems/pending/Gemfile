@@ -61,20 +61,3 @@ gem "winrm-elevated",          "~>1.0.1",           :require => false
 if RbConfig::CONFIG["host_os"].include?("linux")
   gem "linux_block_device", ">=0.1.0", :require => false
 end
-
-### Start of gems excluded from the appliances.
-# The gems listed below do not need to be packaged until we find it necessary or useful.
-# Only add gems here that we do not need on an appliance.
-#
-unless ENV['APPLIANCE']
-  group :test do
-    gem "camcorder",                    :require => false
-    gem "coveralls",                    :require => false
-    gem "rspec",         "~>3.5.0",     :require => false
-    gem "test-unit",                    :require => false
-    gem "timecop",       "~>0.7.3",     :require => false
-    gem "vcr",           "~>3.0.0",     :require => false
-    gem "webmock",       "~>1.12",      :require => false
-    gem "xml-simple",    "~>1.1.0",     :require => false  # Used by test/xml/tc_xmlhash_methods.rb
-  end
-end

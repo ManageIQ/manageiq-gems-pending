@@ -15,4 +15,6 @@ Gem::Specification.new do |s|
   s.license     = "Apache"
 
   s.files = Dir["{lib}/**/*", "LICENSE.txt", "Rakefile", "README.md"]
+
+  s.required_ruby_version = "> 2.2.2"
 end

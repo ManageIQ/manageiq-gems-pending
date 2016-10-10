@@ -1,4 +1,4 @@
-require_relative '../bundler_setup'
+require_relative '../lib/manageiq/gems/pending'
 require 'vcr'
 
 if ENV["TRAVIS"]
@@ -11,6 +11,11 @@ require 'logger'
 $log ||= Logger.new("/dev/null")
 # $log ||= Logger.new(STDOUT)
 # $log.level = Logger::DEBUG
+
+# HACK: For Appliance console logging tests
+require 'tmpdir'
+RAILS_ROOT = Pathname.new(Dir.mktmpdir("manageiq-gems-pending"))
+Dir.mkdir(RAILS_ROOT.join("log"))
 
 # Requires supporting files with custom matchers and macros, etc,
 # in ./support/ and its subdirectories.

@@ -1,4 +1,4 @@
-require_relative "../bundler_setup"
+require_relative '../lib/manageiq/gems/pending'
 
 if ENV["TRAVIS"]
   require 'coveralls'

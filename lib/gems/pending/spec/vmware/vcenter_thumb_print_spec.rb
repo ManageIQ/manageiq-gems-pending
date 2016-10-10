@@ -1,5 +1,5 @@
-require_relative '../../vmware/vcenter_thumb_print'
-require_relative '../../vmware/esx_thumb_print'
+require 'vmware/vcenter_thumb_print'
+require 'vmware/esx_thumb_print'
 
 describe VcenterThumbPrint do
   VCHOST = "localhost"

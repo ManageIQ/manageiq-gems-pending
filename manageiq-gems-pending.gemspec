@@ -40,6 +40,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "iniparse"
   s.add_runtime_dependency "kubeclient",              "=2.1.0"
   s.add_runtime_dependency "linux_admin",             "~>0.19.0"
+  s.add_runtime_dependency "linux_block_device",      "~>0.2.1"
   s.add_runtime_dependency "log4r",                   "=1.1.8"
   s.add_runtime_dependency "memoist",                 "~>0.14.0"
   s.add_runtime_dependency "memory_buffer",           ">=0.1.0"
@@ -74,9 +75,4 @@ Gem::Specification.new do |s|
   s.add_development_dependency "vcr",          "~>3.0.0"
   s.add_development_dependency "webmock",      "~>1.12"
   s.add_development_dependency "xml-simple",   "~>1.1.0"
-  # HACK: These conditionals will not work with a normal released gem.  This will only work as a git source where the gemspec is evaluated.
-  # Linux-only section
-  if RbConfig::CONFIG["host_os"].include?("linux")
-    s.add_runtime_dependency "linux_block_device", ">=0.1.0"
-  end
 end

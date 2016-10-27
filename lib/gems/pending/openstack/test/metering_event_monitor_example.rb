@@ -3,7 +3,7 @@ EMS_USERNAME.freeze = ""
 EMS_PASSWORD.freeze = ""
 
 # Following lines with require seem to be broken, copy code to rails console...
-# require_relative '../../bundler_setup'
+# require 'manageiq-gems-pending'
 require 'openstack/openstack_handle'
 # require 'openstack/events/openstack_ceilometer_event_monitor'
 

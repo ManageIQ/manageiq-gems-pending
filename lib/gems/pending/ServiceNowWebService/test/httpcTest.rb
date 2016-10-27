@@ -1,4 +1,4 @@
-require_relative '../../bundler_setup'
+require 'manageiq-gems-pending'
 require 'httpclient'
 
 # body = %q{<?xml version="1.0" encoding="UTF-8"?><soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" soap:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body><insert xmlns="http://www.service-now.com/"><agent xsi:type="xsd:string">Rich</agent><queue xsi:type="xsd:string">input</queue><topic xsi:type="xsd:string">Open Incident</topic><name xsi:type="xsd:string">admin</name><source xsi:type="xsd:string">70.91.104.157</source><payload xsi:type="xsd:string">&lt;notification&gt;&lt;id&gt;arg0&lt;/id&gt;&lt;category&gt;arg1&lt;/category&gt;&lt;notify&gt;arg2&lt;/notify&gt;&lt;severity&gt;arg3&lt;/severity&gt;&lt;short_description&gt;arg4&lt;/short_description&gt;&lt;description&gt;arg5&lt;/description&gt;&lt;/notification&gt;</payload></insert></soap:Body></soap:Envelope>}

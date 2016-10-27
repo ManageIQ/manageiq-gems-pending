@@ -2,7 +2,7 @@ EMS_IP       = ""
 EMS_USERNAME = ""
 EMS_PASSWORD = ""
 
-require_relative '../../bundler_setup'
+require 'manageiq-gems-pending'
 require 'openstack/openstack_handle'
 
 begin

@@ -8,7 +8,7 @@ require "tempfile"
 describe ApplianceConsole::DatabaseConfiguration do
   before do
     @old_key_root = MiqPassword.key_root
-    MiqPassword.key_root = File.join(GEMS_PENDING_ROOT, "spec/support")
+    MiqPassword.key_root = ManageIQ::Gems::Pending.root.join("spec/support")
     @config = described_class.new
   end
 

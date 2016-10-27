@@ -3,7 +3,7 @@ require "appliance_console/internal_database_configuration"
 describe ApplianceConsole::InternalDatabaseConfiguration do
   before do
     @old_key_root = MiqPassword.key_root
-    MiqPassword.key_root = File.join(GEMS_PENDING_ROOT, "spec/support")
+    MiqPassword.key_root = ManageIQ::Gems::Pending.root.join("spec/support")
     @config = described_class.new
   end
 

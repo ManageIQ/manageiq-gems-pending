@@ -1,3 +1,5 @@
+require 'pathname'
+
 module ManageIQ
   module Gems
     module Pending

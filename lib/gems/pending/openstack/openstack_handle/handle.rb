@@ -12,7 +12,8 @@ module OpenstackHandle
       "Image"    => "Compute",
       "Volume"   => "Compute",
       "Storage"  => nil,
-      "Metering" => nil
+      "Metering" => nil,
+      "Metric"   => nil,
     }
 
     SERVICE_NAME_MAP = {
@@ -27,7 +28,8 @@ module OpenstackHandle
       "Orchestration" => :orchestration,
       "Planning"      => :planning,
       "Introspection" => :introspection,
-      "Workflow"      => :workflow
+      "Workflow"      => :workflow,
+      "Metric"        => :metric,
     }
 
     def self.try_connection(security_protocol, ssl_options = {})
@@ -76,6 +78,8 @@ module OpenstackHandle
         Fog::Openstack.const_get(service).new(opts)
       elsif service == "Workflow"
         Fog::Workflow::OpenStack.new(opts)
+      elsif service == "Metric"
+        Fog::Metric::OpenStack.new(opts)
       else
         Fog.const_get(service).new(opts)
       end
@@ -294,6 +298,15 @@ module OpenstackHandle
       connect(:service => "Workflow", :tenant_name => tenant_name)
     end
     alias_method :connect_workflow, :workflow_service
+
+    def metric_service(tenant_name = nil)
+      connect(:service => "Metric", :tenant_name => tenant_name)
+    end
+    alias_method :connect_metric, :metric_service
+
+    def detect_metric_service(tenant_name = nil)
+      detect_service("Metric", tenant_name)
+    end
 
     def detect_workflow_service(tenant_name = nil)
       detect_service("Workflow", tenant_name)

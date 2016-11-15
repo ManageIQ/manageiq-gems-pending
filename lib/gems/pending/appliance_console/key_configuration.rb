@@ -5,7 +5,7 @@ require 'active_support/all'
 require 'util/miq-password'
 
 module ApplianceConsole
-  CERT_DIR = ENV['KEY_ROOT']
+  CERT_DIR = ENV['KEY_ROOT'] || RAILS_ROOT.join("certs")
   KEY_FILE = "#{CERT_DIR}/v2_key"
 
   class KeyConfiguration

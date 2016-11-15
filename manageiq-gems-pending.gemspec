@@ -38,7 +38,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "httpclient",              "~>2.7.1"
   s.add_runtime_dependency "image-inspector-client",  "~>1.0.3"
   s.add_runtime_dependency "iniparse"
-  s.add_runtime_dependency "kubeclient",              "=2.1.0"
+  s.add_runtime_dependency "kubeclient",              "=2.2.0"
   s.add_runtime_dependency "linux_admin",             "~>0.19.0"
   s.add_runtime_dependency "linux_block_device",      "~>0.2.1"
   s.add_runtime_dependency "log4r",                   "=1.1.8"

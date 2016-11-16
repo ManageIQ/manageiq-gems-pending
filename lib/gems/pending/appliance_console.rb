@@ -7,10 +7,7 @@ $LOAD_PATH.push(File.dirname(__FILE__))
 
 require 'pathname'
 
-RAILS_ROOT = [
-  Pathname.new("/var/www/miq/vmdb"),
-  Pathname.new(File.expand_path(File.join(__dir__, "../..")))
-].detect { |f| File.exist?(f) }
+RAILS_ROOT ||= Pathname.new("/var/www/miq/vmdb") if File.exist?("/var/www/miq/vmdb")
 
 # Set up Environment
 ENV['BUNDLE_GEMFILE'] ||= RAILS_ROOT.join("Gemfile").to_s

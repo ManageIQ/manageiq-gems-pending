@@ -15,8 +15,7 @@ class VixDiskLibError < RuntimeError
 end
 
 SERVER_PATH = File.expand_path(__dir__)
-MIQ_ROOT    = File.expand_path(File.join(SERVER_PATH, "../../.."))
-LOG_DIR     = File.join(MIQ_ROOT, "log")
+LOG_DIR     = ENV["LOG"]
 LOG_FILE    = File.join(LOG_DIR, "vim.log")
 
 class VixDiskLib

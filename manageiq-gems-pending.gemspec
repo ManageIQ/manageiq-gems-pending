@@ -23,7 +23,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "activesupport",           "~> 5.0.0"
   s.add_runtime_dependency "addressable",             "~> 2.4"
   s.add_runtime_dependency "awesome_spawn",           "~> 1.4"
-  s.add_runtime_dependency "azure-armrest",           "=0.3.9"
+  s.add_runtime_dependency "azure-armrest",           "~> 0.3.12"
   s.add_runtime_dependency "bcrypt",                  "~> 3.1.10"
   s.add_runtime_dependency "binary_struct",           "~> 2.1"
   s.add_runtime_dependency "bundler",                 ">= 1.8.4" # rails-assets requires bundler >= 1.8.4, see: https://rails-assets.org/

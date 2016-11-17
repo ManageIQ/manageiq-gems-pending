@@ -2,12 +2,10 @@ require 'pathname'
 require 'fileutils'
 require 'net/scp'
 require 'active_support/all'
-
-RAILS_ROOT ||= Pathname.new(__dir__).join("../../..")
 require 'util/miq-password'
 
 module ApplianceConsole
-  CERT_DIR = "#{RAILS_ROOT}/certs"
+  CERT_DIR = ENV['KEY_ROOT'] || RAILS_ROOT.join("certs")
   KEY_FILE = "#{CERT_DIR}/v2_key"
 
   class KeyConfiguration

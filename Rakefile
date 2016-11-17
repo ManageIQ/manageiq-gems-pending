@@ -1,20 +1,11 @@
-begin
-  require 'rspec/core'
-  require 'rspec/core/rake_task'
-rescue LoadError
-else
-  desc "Run all specs in spec directory"
-  RSpec::Core::RakeTask.new do |t|
-    # from: vmdb's EvmTestHelper.init_rspec_task
-    rspec_opts = ['--options', "\"#{ManageIQ::Gems::Pending.root.join(".rspec_ci")}\""] + (rspec_opts || []) if ENV['CI']
-    t.rspec_opts = rspec_opts
-    t.verbose = false
-    t.pattern = './spec{,/*/**}/*_spec.rb'
-  end
-end
-
+require 'bundler/gem_tasks'
+require 'rspec/core/rake_task'
 require 'rake'
 require 'rake/testtask'
+
+RSpec::Core::RakeTask.new(:spec) do |t|
+  t.rspec_opts = "--options #{File.expand_path(".rspec_ci", __dir__)}" if ENV['CI']
+end
 
 Rake::TestTask.new do |t|
   t.test_files = FileList['test/ts_*.rb'] - ['test/ts_mdfs.rb', 'test/ts_metadata.rb']

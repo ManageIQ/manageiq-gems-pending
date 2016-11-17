@@ -1,4 +1,6 @@
-require_relative '../lib/manageiq/gems/pending'
+$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
+require 'manageiq/gems/pending'
+
 require 'vcr'
 
 if ENV["TRAVIS"]
@@ -12,7 +14,7 @@ $log ||= Logger.new("/dev/null")
 # $log ||= Logger.new(STDOUT)
 # $log.level = Logger::DEBUG
 
-# HACK: For Appliance console logging tests
+# For Appliance console logging tests
 require 'tmpdir'
 RAILS_ROOT = Pathname.new(Dir.mktmpdir("manageiq-gems-pending"))
 Dir.mkdir(RAILS_ROOT.join("log"))
@@ -28,7 +30,7 @@ RSpec.configure do |config|
 
   if ENV["TRAVIS"]
     config.after(:suite) do
-      require "spec/coverage_helper.rb"
+      require_relative "coverage_helper"
     end
   end
 

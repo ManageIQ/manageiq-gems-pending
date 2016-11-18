@@ -15,8 +15,6 @@ class VixDiskLibError < RuntimeError
 end
 
 SERVER_PATH = File.expand_path(__dir__)
-LOG_DIR     = ENV["LOG"]
-LOG_FILE    = File.join(LOG_DIR, "vim.log")
 
 class VixDiskLib
   VIXDISKLIB_FLAG_OPEN_READ_ONLY = FFI::VixDiskLib::API::VIXDISKLIB_FLAG_OPEN_READ_ONLY
@@ -97,6 +95,8 @@ class VixDiskLib
     end
 
     my_env["LD_LIBRARY_PATH"] = (my_env["LD_LIBRARY_PATH"].to_s.split(':') << VIXDISKLIB_PATH).compact.join(":")
+    raise VixDiskLibError, "VixDiskLib.connect() failed: No $vim_log defined" unless $vim_log
+    my_env["LOG_FILE"] = $vim_log.logdev.filename.to_s
     my_env
   end
 
@@ -111,7 +111,7 @@ class VixDiskLib
     server_cmd = "ruby #{SERVER_PATH}/VixDiskLibServer.rb"
     $vim_log.info "VixDiskLib.start_service: running command = #{server_cmd}"
     pid = Kernel.spawn(my_env, server_cmd,
-                       [:out, :err]     => [LOG_FILE, "a"],
+                       [:out, :err]     => [my_env["LOG_FILE"], "a"],
                        :unsetenv_others => true,
                        3                => uri_writer,
                        4                => proc_reader)

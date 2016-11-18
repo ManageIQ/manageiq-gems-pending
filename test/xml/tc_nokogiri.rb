@@ -177,7 +177,8 @@ class NokogiriXmlMethods < Minitest::Test
     xml = @xml
     assert_kind_of(@xml_klass::Document, xml)
 
-    frozen_text = "A&P".freeze
+    "A&P".freeze
+    # frozen_text = "A&P".freeze
     # assert_nothing_raised {xml.root.text = frozen_text}
     # TODO: Fix decoding of special characters
     # assert_equal("A&P", xml.root.text)

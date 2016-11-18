@@ -24,7 +24,6 @@ if $log.nil?
       log = Log4r::Logger[logName]
       if log.nil?
         log = Log4r::Logger.new(logName)
-        p = defaultFormatter
 
         # Initialize logging header
         log.miqLogHeader(fileName, false)

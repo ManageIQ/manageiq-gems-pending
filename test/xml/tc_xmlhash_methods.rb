@@ -156,7 +156,7 @@ class TestXmlHashMethods < Minitest::Test
     assert_respond_to(xml, :xmlPatch)
     xml_old = XmlHash.load(simple_xml_text)
     stats = {}
-    xml_diff = xml.xmlDiff(xml_old, stats)
+    xml.xmlDiff(xml_old, stats)
     assert_equal(0, stats[:adds])
     assert_equal(0, stats[:deletes])
     assert_equal(0, stats[:updates])

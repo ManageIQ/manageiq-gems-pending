@@ -1,10 +1,8 @@
-require_relative '../lib/manageiq/gems/pending'
-require 'vcr'
+require "simplecov"
+SimpleCov.start { command_name "spec" }
 
-if ENV["TRAVIS"]
-  require 'coveralls'
-  Coveralls.wear_merged! { add_filter("/spec/") }
-end
+$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
+require 'manageiq/gems/pending'
 
 # Initialize the global logger that might be expected
 require 'logger'
@@ -12,7 +10,7 @@ $log ||= Logger.new("/dev/null")
 # $log ||= Logger.new(STDOUT)
 # $log.level = Logger::DEBUG
 
-# HACK: For Appliance console logging tests
+# For Appliance console logging tests
 require 'tmpdir'
 RAILS_ROOT = Pathname.new(Dir.mktmpdir("manageiq-gems-pending"))
 Dir.mkdir(RAILS_ROOT.join("log"))
@@ -26,9 +24,9 @@ RSpec.configure do |config|
     Module.clear_all_cache_with_timeout if Module.respond_to?(:clear_all_cache_with_timeout)
   end
 
-  if ENV["TRAVIS"]
+  if ENV["CI"]
     config.after(:suite) do
-      require "spec/coverage_helper.rb"
+      require_relative "coverage_helper"
     end
   end
 

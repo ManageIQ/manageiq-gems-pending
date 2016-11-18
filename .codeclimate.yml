@@ -1,0 +1,42 @@
+---
+exclude_paths:
+- ".git/"
+- "**.svg"
+- "**.wsdl"
+- "**.xml"
+- "**.xsd"
+- "**.yaml"
+- "**.yml"
+- "spec/"
+- "test/"
+- "tmp/"
+engines:
+  brakeman:
+    # very slow :sad_panda:
+    enabled: false
+  bundler-audit:
+    # requires Gemfile.lock
+    enabled: false
+  csslint:
+    enabled: false
+  duplication:
+    enabled: true
+    config:
+      languages:
+      - ruby
+  eslint:
+    enabled: false
+  fixme:
+    # let's enable later
+    enabled: false
+  markdownlint:
+    # let's enable later
+    enabled: false
+  rubocop:
+    enabled: true
+    config: '.rubocop_cc.yml'
+ratings:
+  paths:
+  - Gemfile.lock
+  - "**.rake"
+  - "**.rb"

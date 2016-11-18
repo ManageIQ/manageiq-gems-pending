@@ -1,12 +1,11 @@
+require "manageiq/gems/pending/version"
+
 module ManageIQ
   module Gems
     module Pending
       def self.root
-        Pathname.new(File.join(__dir__, "../../.."))
+        @root ||= Pathname.new(__dir__).join("../../..")
       end
     end
   end
 end
-
-$LOAD_PATH << ManageIQ::Gems::Pending.root.join("lib", "gems", "pending").to_s
-$LOAD_PATH << ManageIQ::Gems::Pending.root.join("lib", "gems", "pending", "util").to_s

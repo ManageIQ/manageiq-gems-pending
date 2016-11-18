@@ -1,11 +1,7 @@
-require_relative '../lib/manageiq/gems/pending'
+require 'simplecov'
+SimpleCov.start { command_name "test" }
 
-if ENV["TRAVIS"]
-  require 'coveralls'
-  Coveralls.wear_merged! { add_filter("/test/") }
-end
+$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
+require 'manageiq/gems/pending'
 
 require 'minitest/autorun'
-
-# Push the lib directory onto the load path
-$:.push(File.expand_path(File.join(File.dirname(__FILE__), '..')))

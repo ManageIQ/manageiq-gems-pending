@@ -1,12 +1,8 @@
+require "simplecov"
+SimpleCov.start { command_name "spec" }
+
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'manageiq/gems/pending'
-
-require 'vcr'
-
-if ENV["TRAVIS"]
-  require 'coveralls'
-  Coveralls.wear_merged! { add_filter("/spec/") }
-end
 
 # Initialize the global logger that might be expected
 require 'logger'
@@ -28,7 +24,7 @@ RSpec.configure do |config|
     Module.clear_all_cache_with_timeout if Module.respond_to?(:clear_all_cache_with_timeout)
   end
 
-  if ENV["TRAVIS"]
+  if ENV["CI"]
     config.after(:suite) do
       require_relative "coverage_helper"
     end

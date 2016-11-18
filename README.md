@@ -1,5 +1,11 @@
 # ManageIQ::Gems::Pending
 
+[![Gem Version](https://badge.fury.io/rb/manageiq-gems-pending.svg)](http://badge.fury.io/rb/manageiq-gems-pending)
+[![Build Status](https://travis-ci.org/ManageIQ/manageiq-gems-pending.svg)](https://travis-ci.org/ManageIQ/manageiq-gems-pending)
+[![Code Climate](https://codeclimate.com/github/ManageIQ/manageiq-gems-pending.svg)](https://codeclimate.com/github/ManageIQ/manageiq-gems-pending)
+[![Test Coverage](https://codeclimate.com/github/ManageIQ/manageiq-gems-pending/badges/coverage.svg)](https://codeclimate.com/github/ManageIQ/manageiq-providers-amazon/coverage)
+[![Dependency Status](https://gemnasium.com/ManageIQ/manageiq-gems-pending.svg)](https://gemnasium.com/ManageIQ/manageiq-gems-pending)
+
 Code extracted from ManageIQ/manageiq gems/pending directory in an effort to reduce complexity of ManageIQ/manageiq repository.
 
 ## Installation

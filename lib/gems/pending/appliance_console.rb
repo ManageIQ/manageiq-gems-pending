@@ -345,8 +345,6 @@ Static Network Configuration
 
       when I18n.t("advanced_settings.dbrestore")
         say("#{selection}\n\n")
-        ApplianceConsole::Utilities.bail_if_db_connections "preventing a database restore"
-
         task_params = []
         uri = nil
 
@@ -393,6 +391,8 @@ Static Network Configuration
             File.delete(DB_RESTORE_FILE)
           elsif !rake_success
             say("\nDatabase restore failed")
+            connections = ApplianceConsole::Utilities.db_connections - 1
+            say("\nThere are #{connections} connection preventing a database restore") if connections > 0
           end
         end
         press_any_key

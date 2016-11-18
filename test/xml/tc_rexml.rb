@@ -7,7 +7,7 @@ class TestBaseXmlMethods < Minitest::Test
 
   def setup
     @xml_klass = REXML
-    @xml_string = default_test_xml if @xml_string.nil?
+    @xml_string ||= default_test_xml
     @xml = MiqXml.load(@xml_string, @xml_klass)
   end
 

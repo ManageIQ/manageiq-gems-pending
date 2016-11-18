@@ -119,6 +119,12 @@ if $log.nil?
 
   module Log4r
     class Logger
+      alias :orig_initialize :initialize
+      def initialize(*args)
+        orig_initialize(*args)
+        @miqFileName = nil
+      end
+
       def summary(args)
         summ args
       end

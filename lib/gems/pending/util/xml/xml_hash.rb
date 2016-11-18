@@ -172,8 +172,7 @@ module XmlHash
     end
 
     def elements
-      return @elements if @elements
-      @elements = Elements.new(self)
+      @elements ||= Elements.new(self)
     end
 
     def has_elements?
@@ -320,8 +319,7 @@ module XmlHash
     end
 
     def elements
-      return @elements if @elements
-      @elements = Elements.new(self)
+      @elements ||= Elements.new(self)
     end
 
     def parent

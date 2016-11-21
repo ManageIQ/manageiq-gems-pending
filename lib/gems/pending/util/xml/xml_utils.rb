@@ -44,7 +44,6 @@ class XmlFind
 
   def self.findElementInt(paths, ele)
     if paths.length > 0
-      found = false
       searchStr = paths[0]
       paths = paths[1..paths.length]
       # puts "Search String: #{searchStr}"

@@ -8,7 +8,7 @@ class NokogiriXmlMethods < Minitest::Test
 
   def setup
     @xml_klass = Nokogiri::XML
-    @xml_string = default_test_xml if @xml_string.nil?
+    @xml_string ||= default_test_xml
     @xml = MiqXml.load(@xml_string, :nokogiri)
   end
 
@@ -177,7 +177,8 @@ class NokogiriXmlMethods < Minitest::Test
     xml = @xml
     assert_kind_of(@xml_klass::Document, xml)
 
-    frozen_text = "A&P".freeze
+    "A&P".freeze
+    # frozen_text = "A&P".freeze
     # assert_nothing_raised {xml.root.text = frozen_text}
     # TODO: Fix decoding of special characters
     # assert_equal("A&P", xml.root.text)

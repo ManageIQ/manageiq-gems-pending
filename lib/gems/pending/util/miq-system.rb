@@ -15,7 +15,7 @@ class MiqSystem
 
       begin
         mtime = File.mtime(filename)
-      rescue Errno::ENOENT => err
+      rescue Errno::ENOENT
         @@cpu_usage_vmstat_output_mtime = @@cpu_usage_computed_value = nil
         return nil
       end
@@ -131,7 +131,7 @@ class MiqSystem
       AwesomeSpawn.run!("df", :params => ["-T", "-P", "-i", file]).output.lines.each do |line|
         lArray = line.strip.split(" ")
         next if lArray.length != 7
-        fsname, type, total, used, free, used_percentage, mount_point = lArray
+        fsname, _type, total, used, free, used_percentage, _mount_point = lArray
         next unless total =~ /[0-9]+/
         h = result.detect { |hh| hh[:filesystem] == fsname }
         next if h.nil?

@@ -172,8 +172,7 @@ module XmlHash
     end
 
     def elements
-      return @elements if @elements
-      @elements = Elements.new(self)
+      @elements ||= Elements.new(self)
     end
 
     def has_elements?
@@ -219,7 +218,7 @@ module XmlHash
 
     def child=(object)
       if object.kind_of?(Hash)
-        x = self[:child] << object
+        self[:child] << object
         object.parent = self
       elsif object.respond_to?(:to_xml)
       else
@@ -320,8 +319,7 @@ module XmlHash
     end
 
     def elements
-      return @elements if @elements
-      @elements = Elements.new(self)
+      @elements ||= Elements.new(self)
     end
 
     def parent
@@ -536,7 +534,6 @@ module XmlHash
 
     def self.findElementInt(paths, ele)
       if paths.length > 0
-        found = false
         searchStr = paths[0]
         paths = paths[1..paths.length]
         # puts "Search String: #{searchStr}"

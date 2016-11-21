@@ -109,7 +109,7 @@ module MiqXmlDiff
   end
 
   def miq_compare_get_element_index(ele)
-    p = ele.parent
+    # p = ele.parent
     # n = p.elements.index(ele)
     0
   end

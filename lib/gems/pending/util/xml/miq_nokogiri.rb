@@ -133,7 +133,7 @@ begin
 
         def self.loadFile(filename)
           Nokogiri::XML::Document.new(filename)
-        rescue => err
+        rescue
           $log.warn "Unable to load XML document with Nokogiri, retrying with REXML" if $log
           from_xml(filename, true)
         end
@@ -144,7 +144,7 @@ begin
           begin
             # Create a parser and pass in the string data
             Nokogiri::XML::Document.parse(data, nil, nil, Nokogiri::XML::ParseOptions::RECOVER)
-          rescue => err
+          rescue
             from_xml(data, false)
           end
         end

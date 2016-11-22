@@ -13,9 +13,7 @@ require 'VixDiskLib/vdl_wrapper'
 class VixDiskLibError < RuntimeError
 end
 
-MIQ_ROOT    = File.expand_path(File.join(__dir__, "../../.."))
-LOG_DIR     = File.join(MIQ_ROOT, "log")
-LOG_FILE    = File.join(LOG_DIR, "vim.log")
+LOG_FILE    = ENV["LOG_FILE"]
 
 $vim_log = VMDBLogger.new LOG_FILE
 

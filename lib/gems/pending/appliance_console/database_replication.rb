@@ -47,19 +47,23 @@ Replication Server Configuration
     end
 
     def create_config_file(host)
-      File.open(REPMGR_CONFIG, "w") do |f|
-        f.puts("cluster=#{cluster_name}")
-        f.puts("node=#{node_number}")
-        f.puts("node_name=#{host}")
-        f.puts("conninfo='host=#{host} user=#{database_user} dbname=#{database_name}'")
-        f.puts("use_replication_slots=1")
-        f.puts("pg_basebackup_options='--xlog-method=stream'")
-        f.puts("failover=automatic\n")
-        f.puts("promote_command='repmgr standby promote'\n")
-        f.puts("follow_command='repmgr standby follow'\n")
-        f.puts("logfile=#{REPMGR_LOG}\n")
-      end
+      File.write(REPMGR_CONFIG, config_file_contents(host))
       true
+    end
+
+    def config_file_contents(host)
+      <<-EOS.strip_heredoc
+        cluster=#{cluster_name}
+        node=#{node_number}
+        node_name=#{host}
+        conninfo='host=#{host} user=#{database_user} dbname=#{database_name}'
+        use_replication_slots=1
+        pg_basebackup_options='--xlog-method=stream'
+        failover=automatic
+        promote_command='repmgr standby promote'
+        follow_command='repmgr standby follow'
+        logfile=#{REPMGR_LOG}
+      EOS
     end
 
     def generate_cluster_name

@@ -57,6 +57,14 @@ describe ApplianceConsole::DatabaseReplication do
   end
 
   context "#create_config_file" do
+    it "writes the config file contents" do
+      expect(subject).to receive(:config_file_contents).and_return("the contents")
+      expect(File).to receive(:write).with(described_class::REPMGR_CONFIG, "the contents")
+      expect(subject.create_config_file("host")).to be true
+    end
+  end
+
+  context "#config_file_contents" do
     let(:expected_config_file) do
       <<-EOS.strip_heredoc
         cluster=clustername
@@ -72,31 +80,13 @@ describe ApplianceConsole::DatabaseReplication do
       EOS
     end
 
-    before do
+    it "returns the correct contents" do
       subject.cluster_name      = "clustername"
       subject.node_number       = "nodenumber"
       subject.database_name     = "databasename"
       subject.database_user     = "user"
 
-      @temp_file = Tempfile.new(subject.class.name.split("::").last.downcase)
-      stub_const("ApplianceConsole::DatabaseReplication::REPMGR_CONFIG", @temp_file.path)
-    end
-
-    after do
-      @temp_file.close
-      @temp_file.unlink
-    end
-
-    it "should correctly populate the config file" do
-      subject.create_config_file("host")
-      expect(File.read(@temp_file.path)).to eq(expected_config_file)
-    end
-
-    it "should overwrite an existing config file" do
-      subject.create_config_file("differenthostname")
-      subject.create_config_file("host")
-
-      expect(File.read(@temp_file.path)).to eq(expected_config_file)
+      expect(subject.config_file_contents("host")).to eq(expected_config_file)
     end
   end
 

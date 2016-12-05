@@ -126,8 +126,8 @@ module ApplianceConsole
       just_ask(prompt, default)
     end
 
-    def ask_for_integer(prompt, range = nil)
-      just_ask(prompt, nil, INT_REGEXP, "an integer", Integer) { |q| q.in = range if range }
+    def ask_for_integer(prompt, range = nil, default = nil)
+      just_ask(prompt, default, INT_REGEXP, "an integer", Integer) { |q| q.in = range if range }
     end
 
     def ask_for_disk(disk_name, verify = true)
@@ -185,7 +185,7 @@ module ApplianceConsole
 
     def just_ask(prompt, default = nil, validate = nil, error_text = nil, klass = nil)
       ask("Enter the #{prompt}: ", klass) do |q|
-        q.default = default if default
+        q.default = default.to_s if default
         q.validate = validate if validate
         q.responses[:not_valid] = error_text ? "Please provide #{error_text}" : "Please provide in the specified format"
         yield q if block_given?

@@ -398,6 +398,12 @@ describe ApplianceConsole::Prompts do
       expect(subject.ask_for_integer("prompt", 1..10)).to eq(5)
       expect_heard ["Enter the prompt: ", error, prompt + error, prompt]
     end
+
+    it "works with a default" do
+      say ""
+      expect(subject.ask_for_integer("prompt", nil, 1234)).to eq(1234)
+      expect_heard("Enter the prompt: |1234| ")
+    end
   end
 
   context "#ask_yn?" do

@@ -141,6 +141,7 @@ Host:     #{host}
 Username: #{username}
 Database: #{database}
 FRIENDLY
+      output << "Port:     #{port}\n" if port
       output << "Region:   #{region}\n" if region
       output
     end

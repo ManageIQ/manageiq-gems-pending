@@ -77,6 +77,7 @@ describe ApplianceConsole::Cli do
     config_double = double(:activate => false)
     expect(ApplianceConsole::ExternalDatabaseConfiguration).to receive(:new)
       .with(:host        => 'host',
+            :port        => 5432,
             :database    => 'db',
             :region      => 1,
             :username    => 'user',
@@ -89,11 +90,12 @@ describe ApplianceConsole::Cli do
   end
 
   it "should handle remote databases (and setup region)" do
-    subject.parse(%w(--hostname host --dbname db --username user --password pass -r 1))
+    subject.parse(%w(--hostname host --port 1234 --dbname db --username user --password pass -r 1))
     expect_v2_key
     expect(subject).to receive(:say)
     expect(ApplianceConsole::ExternalDatabaseConfiguration).to receive(:new)
       .with(:host        => 'host',
+            :port        => 1234,
             :database    => 'db',
             :region      => 1,
             :username    => 'user',
@@ -105,11 +107,12 @@ describe ApplianceConsole::Cli do
   end
 
   it "should handle remote databases (not setting up region)" do
-    subject.parse(%w(--hostname host --dbname db --username user --password pass))
+    subject.parse(%w(--hostname host --port 1234 --dbname db --username user --password pass))
     expect_v2_key
     expect(subject).to receive(:say)
     expect(ApplianceConsole::ExternalDatabaseConfiguration).to receive(:new)
       .with(:host        => 'host',
+            :port        => 1234,
             :database    => 'db',
             :username    => 'user',
             :password    => 'pass',

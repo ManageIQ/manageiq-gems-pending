@@ -146,6 +146,7 @@ describe ApplianceConsole::DatabaseConfiguration do
       subject.password = nil
 
       expect(subject).to receive(:just_ask).with(/hostname/i, "defaulthost", anything, anything).and_return("newhost")
+      expect(subject).to receive(:just_ask).with(/port/i, 5432, anything, anything, anything).and_return(5432)
       expect(subject).to receive(:just_ask).with(/the database/i, "defaultdb").and_return("x")
       expect(subject).to receive(:just_ask).with(/user/i, "defaultuser").and_return("x")
       expect(subject).to receive(:just_ask).with(/password/i, nil).twice.and_return("x")
@@ -157,6 +158,7 @@ describe ApplianceConsole::DatabaseConfiguration do
       subject.password = "defaultpass"
 
       expect(subject).to receive(:just_ask).with(/hostname/i, anything, anything, anything).and_return("x")
+      expect(subject).to receive(:just_ask).with(/port/i, anything, anything, anything, anything).and_return(5432)
       expect(subject).to receive(:just_ask).with(/the database/i, anything).and_return("x")
       expect(subject).to receive(:just_ask).with(/user/i,     anything).and_return("x")
       expect(subject).to receive(:just_ask).with(/password/i, "********").and_return("********")
@@ -166,6 +168,7 @@ describe ApplianceConsole::DatabaseConfiguration do
 
     it "should ask for user/password (with confirm) if not local" do
       expect(subject).to receive(:just_ask).with(/hostname/i, anything, anything, anything).and_return("host")
+      expect(subject).to receive(:just_ask).with(/port/i, anything, anything, anything, anything).and_return(5432)
       expect(subject).to receive(:just_ask).with(/the database/i, anything).and_return("x")
       expect(subject).to receive(:just_ask).with(/user/i,     anything).and_return("x")
       expect(subject).to receive(:just_ask).with(/password/i, anything).twice.and_return("the password")

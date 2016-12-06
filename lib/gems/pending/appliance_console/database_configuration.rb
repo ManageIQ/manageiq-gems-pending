@@ -114,6 +114,7 @@ module ApplianceConsole
 
     def ask_for_database_credentials
       self.host     = ask_for_ip_or_hostname("database hostname or IP address", host) if host.blank? || !local?
+      self.port     = ask_for_integer("port number", nil, default_port) unless local?
       self.database = just_ask("name of the database on #{host}", database) unless local?
       self.username = just_ask("username", username) unless local?
       count = 0
@@ -271,6 +272,10 @@ FRIENDLY
           raise ArgumentError, "Invalid argument: #{k}"
         end
       end
+    end
+
+    def default_port
+      5432
     end
   end
 end

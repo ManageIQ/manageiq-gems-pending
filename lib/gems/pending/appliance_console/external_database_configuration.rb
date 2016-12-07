@@ -9,7 +9,7 @@ module ApplianceConsole
 
     def set_defaults
       self.username = "root"
-      self.port     = default_port
+      self.port     = DEFAULT_PORT
       self.database = "vmdb_production"
     end
 

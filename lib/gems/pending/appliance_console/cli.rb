@@ -100,6 +100,7 @@ module ApplianceConsole
         opt :region,   "Region Number",      :type => :integer, :short => "r"
         opt :internal, "Internal Database",                     :short => 'i'
         opt :hostname, "Database Hostname",  :type => :string,  :short => 'h'
+        opt :port,     "Database Port",      :type => :integer,                :default => 5432
         opt :username, "Database Username",  :type => :string,  :short => 'U', :default => "root"
         opt :password, "Database Password",  :type => :string,  :short => "p"
         opt :dbname,   "Database Name",      :type => :string,  :short => "d", :default => "vmdb_production"
@@ -188,6 +189,7 @@ module ApplianceConsole
       say "configuring external database"
       config = ApplianceConsole::ExternalDatabaseConfiguration.new({
         :host        => options[:hostname],
+        :port        => options[:port],
         :database    => options[:dbname],
         :region      => options[:region],
         :username    => options[:username],

@@ -28,6 +28,7 @@ module ApplianceConsole
     # 9223372 won't be a full region though, so we're not including it.
     # TODO: This information should be shared outside of appliance console code and MiqRegion.
     REGION_RANGE = 0..9223371
+    DEFAULT_PORT = 5432
 
     include ApplianceConsole::Logging
 
@@ -114,6 +115,7 @@ module ApplianceConsole
 
     def ask_for_database_credentials
       self.host     = ask_for_ip_or_hostname("database hostname or IP address", host) if host.blank? || !local?
+      self.port     = ask_for_integer("port number", nil, port) unless local?
       self.database = just_ask("name of the database on #{host}", database) unless local?
       self.username = just_ask("username", username) unless local?
       count = 0
@@ -140,6 +142,7 @@ Host:     #{host}
 Username: #{username}
 Database: #{database}
 FRIENDLY
+      output << "Port:     #{port}\n" if port
       output << "Region:   #{region}\n" if region
       output
     end

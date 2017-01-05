@@ -11,7 +11,7 @@ module ApplianceConsole
     LOGFILE_NAME = "miq_logs".freeze
     MIQ_LOGS_CONF = Pathname.new("/etc/logrotate.d/miq_logs.conf").freeze
 
-    attr_accessor :size, :disk, :current_logrotate_count, :new_logrotate_count
+    attr_accessor :size, :disk, :current_logrotate_count, :new_logrotate_count, :evm_was_running
 
     include ApplianceConsole::Logging
 
@@ -21,6 +21,7 @@ module ApplianceConsole
 
       self.size = MiqSystem.disk_usage(LOGFILE_DIRECTORY)[0][:total_bytes]
       self.current_logrotate_count = /rotate\s+(\d+)/.match(File.read(MIQ_LOGS_CONF))[1]
+      self.evm_was_running = LinuxAdmin::Service.new("evmserverd").running?
     end
 
     def activate
@@ -102,12 +103,14 @@ module ApplianceConsole
     end
 
     def start_evm
+      return true unless evm_was_running
       say 'Starting EVM'
       LinuxAdmin::Service.new("evmserverd").enable.start
       LinuxAdmin::Service.new("httpd").enable.start
     end
 
     def stop_evm
+      return true unless evm_was_running
       say 'Stopping EVM'
       LinuxAdmin::Service.new("evmserverd").stop
       LinuxAdmin::Service.new("httpd").stop

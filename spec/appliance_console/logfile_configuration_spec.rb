@@ -25,6 +25,7 @@ describe ApplianceConsole::LogfileConfiguration do
   let(:miq_logs_conf) { Tempfile.new(@spec_name.downcase) }
 
   before do
+    allow(LinuxAdmin::Service).to receive(:new).and_return(double(@spec_name, :running? => true))
     @spec_name = File.basename(__FILE__).split(".rb").first.freeze
     stub_const("ApplianceConsole::LogfileConfiguration::MIQ_LOGS_CONF", miq_logs_conf)
     miq_logs_conf.write(original_miq_logs_conf)
@@ -89,22 +90,43 @@ describe ApplianceConsole::LogfileConfiguration do
       EOT
     end
 
-    it "stops and starts evm and configures the logfile disk" do
-      subject.new_logrotate_count = 3
-      subject.disk = double(@spec_name, :size => "9999999", :path => "fake disk")
+    context "evm was running" do
+      it "stops and starts evm and configures the logfile disk" do
+        subject.new_logrotate_count = 3
+        subject.disk = double(@spec_name, :size => "9999999", :path => "fake disk")
+  
+        expect(ApplianceConsole::LogicalVolumeManagement).to receive(:new).and_return(double(@spec_name, :setup => true))
+        expect(File).to receive(:executable?).with("/sbin/restorecon").and_return(true)
+        expect(AwesomeSpawn).to receive(:run!).with('/sbin/restorecon -R -v /var/www/miq/vmdb/log')
+        expect(FileUtils).to receive(:mkdir_p).with("#{ApplianceConsole::LogfileConfiguration::LOGFILE_DIRECTORY}/apache")
+        expect(LinuxAdmin::Service).to receive(:new).and_return(double(@spec_name, :stop => nil)).twice
+        expect(AwesomeSpawn)
+          .to receive(:run!).with('/usr/sbin/semanage fcontext -a -t httpd_log_t "#{LOGFILE_DIRECTORY.to_path}(/.*)?"')
+        expect(LinuxAdmin::Service)
+          .to receive(:new).and_return(double(@spec_name, :enable => double(@spec_name, :start => true))).twice
+  
+        expect(subject.activate).to be true
+        expect(File.read(miq_logs_conf)).to eq(expected_miq_logs_conf)
+      end
+    end
 
-      expect(ApplianceConsole::LogicalVolumeManagement).to receive(:new).and_return(double(@spec_name, :setup => true))
-      expect(File).to receive(:executable?).with("/sbin/restorecon").and_return(true)
-      expect(AwesomeSpawn).to receive(:run!).with('/sbin/restorecon -R -v /var/www/miq/vmdb/log')
-      expect(FileUtils).to receive(:mkdir_p).with("#{ApplianceConsole::LogfileConfiguration::LOGFILE_DIRECTORY}/apache")
-      expect(LinuxAdmin::Service).to receive(:new).and_return(double(@spec_name, :stop => nil)).twice
-      expect(AwesomeSpawn)
-        .to receive(:run!).with('/usr/sbin/semanage fcontext -a -t httpd_log_t "#{LOGFILE_DIRECTORY.to_path}(/.*)?"')
-      expect(LinuxAdmin::Service)
-        .to receive(:new).and_return(double(@spec_name, :enable => double(@spec_name, :start => true))).twice
-
-      expect(subject.activate).to be true
-      expect(File.read(miq_logs_conf)).to eq(expected_miq_logs_conf)
+    context "evm was not running" do
+      it "configures the logfile disk but does not stops and starts evm" do
+        subject.evm_was_running = false
+        subject.new_logrotate_count = 3
+        subject.disk = double(@spec_name, :size => "9999999", :path => "fake disk")
+  
+        expect(ApplianceConsole::LogicalVolumeManagement).to receive(:new).and_return(double(@spec_name, :setup => true))
+        expect(File).to receive(:executable?).with("/sbin/restorecon").and_return(true)
+        expect(AwesomeSpawn).to receive(:run!).with('/sbin/restorecon -R -v /var/www/miq/vmdb/log')
+        expect(FileUtils).to receive(:mkdir_p).with("#{ApplianceConsole::LogfileConfiguration::LOGFILE_DIRECTORY}/apache")
+        expect(AwesomeSpawn)
+          .to receive(:run!).with('/usr/sbin/semanage fcontext -a -t httpd_log_t "#{LOGFILE_DIRECTORY.to_path}(/.*)?"')
+        expect(LinuxAdmin::Service).to_not receive(:new)
+  
+        expect(subject.activate).to be true
+        expect(File.read(miq_logs_conf)).to eq(expected_miq_logs_conf)
+      end
     end
   end
 end

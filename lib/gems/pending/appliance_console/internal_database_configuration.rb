@@ -136,11 +136,13 @@ module ApplianceConsole
       conn = PG.connect(:user => "postgres", :dbname => "postgres")
       esc_pass = conn.escape_string(password)
       conn.exec("CREATE ROLE #{username} WITH LOGIN CREATEDB SUPERUSER PASSWORD '#{esc_pass}'")
+      conn.exec("CREATE ROLE awx WITH LOGIN PASSWORD '#{esc_pass}'")
     end
 
     def create_postgres_database
       conn = PG.connect(:user => "postgres", :dbname => "postgres")
       conn.exec("CREATE DATABASE #{database} OWNER #{username} ENCODING 'utf8'")
+      conn.exec("CREATE DATABASE awx OWNER awx ENCODING 'utf8'")
     end
 
     def relabel_postgresql_dir

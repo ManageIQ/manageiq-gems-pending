@@ -86,9 +86,9 @@ module ApplianceConsole
 
     def activate_new_disk
       return true unless disk
-      stop_evm
+      stop_evm if evm_was_running
       initialize_logfile_disk
-      start_evm
+      start_evm if evm_was_running
       true
     end
 
@@ -103,14 +103,12 @@ module ApplianceConsole
     end
 
     def start_evm
-      return true unless evm_was_running
       say 'Starting EVM'
       LinuxAdmin::Service.new("evmserverd").enable.start
       LinuxAdmin::Service.new("httpd").enable.start
     end
 
     def stop_evm
-      return true unless evm_was_running
       say 'Stopping EVM'
       LinuxAdmin::Service.new("evmserverd").stop
       LinuxAdmin::Service.new("httpd").stop

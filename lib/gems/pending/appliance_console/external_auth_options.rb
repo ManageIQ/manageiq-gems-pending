@@ -32,7 +32,7 @@ module ApplianceConsole
       skip = apply + 1
       selection = 0
       while selection < apply
-        say("\nChoose External Authentication Options to update:")
+        say("\nExternal Authentication Options:")
         cnt = 1
         EXT_AUTH_OPTIONS.keys.each do |key|
           current_state = selected_value(key)
@@ -42,7 +42,7 @@ module ApplianceConsole
         say("#{apply}) Apply updates")
         say("#{skip}) Skip updates")
         show_updates
-        selection = ask_for_integer("Choose option 1-#{skip}", 1..skip)
+        selection = ask_for_integer("option number to apply", 1..skip)
         if selection < apply
           key = EXT_AUTH_OPTIONS.keys[selection - 1]
           @updates[key] = !selected_value(key)

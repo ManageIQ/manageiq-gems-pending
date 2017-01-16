@@ -127,6 +127,8 @@ module MiqException
   class MiqNetworkRouterAddInterfaceError < Error; end
   class MiqNetworkRouterRemoveInterfaceError < Error; end
 
+  class MiqNetworkPortNotDefinedError < Error; end
+
   class MiqVolumeValidationError < Error; end
   class MiqVolumeCreateError < Error; end
   class MiqVolumeUpdateError < Error; end

@@ -24,20 +24,18 @@ class MiqPassword
   end
 
   def decrypt(str, legacy = false)
-    if str.nil? || str.empty?
-      str
-    else
-      ver, enc = self.class.split(str)
-      return "" if enc.empty?
+    return str if str.nil? || str.empty?
 
-      ver ||= "0" # if we don't know what it is, just assume legacy
-      key_name = (ver == "2" && legacy) ? "alt" : "v#{ver}"
+    ver, enc = self.class.split(str)
+    return "" if enc.empty?
 
-      begin
-        self.class.keys[key_name].decrypt64(enc).force_encoding('UTF-8')
-      rescue
-        raise MiqPasswordError, "can not decrypt v#{ver}_key encrypted string"
-      end
+    ver ||= "0" # if we don't know what it is, just assume legacy
+    key_name = (ver == "2" && legacy) ? "alt" : "v#{ver}"
+
+    begin
+      self.class.keys[key_name].decrypt64(enc).force_encoding('UTF-8')
+    rescue
+      raise MiqPasswordError, "can not decrypt v#{ver}_key encrypted string"
     end
   end
 

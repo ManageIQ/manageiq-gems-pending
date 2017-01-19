@@ -1,6 +1,7 @@
 require "active_support/all"
 require "appliance_console/external_httpd_authentication"
 require "appliance_console/prompts"
+require "linux_admin"
 
 describe ApplianceConsole::ExternalHttpdAuthentication do
   let(:host) { "this.server.com" }
@@ -143,6 +144,22 @@ describe ApplianceConsole::ExternalHttpdAuthentication do
       subject.enable_kerberos_dns_lookups
       expect(File.read(@test_kerberos_config)).to eq(expected_kerberos_config)
       expect(File.read("#{@test_kerberos_config.path}.miqbkp")).to eq(expected_kerberos_config)
+    end
+  end
+
+  context "#post_activation" do
+    before do
+      @spec_name = File.basename(__FILE__).split(".rb").first.freeze
+    end
+
+    it "when http is not running it is not restarted" do
+      allow(subject).to receive(:say)
+      httpd_service = double(@spec_name, :running? => false)
+      expect(httpd_service).not_to receive(:restart)
+      allow(LinuxAdmin::Service).to receive(:new).with("httpd").and_return(httpd_service)
+      sssd_service = double(@spec_name, :restart => double(@spec_name, :enable => true))
+      allow(LinuxAdmin::Service).to receive(:new).with("sssd").and_return(sssd_service)
+      subject.post_activation
     end
   end
 end

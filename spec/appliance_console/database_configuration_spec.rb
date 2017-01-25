@@ -323,12 +323,6 @@ describe ApplianceConsole::DatabaseConfiguration do
     context "#merged_settings" do
       subject { @config.merged_settings["production"] }
 
-      it "should remove host/password from previous values for localhost" do
-        @config.host = "localhost"
-        @config.port = "123"
-        expect(subject).not_to include("host", "port", "password")
-      end
-
       it "should inherit unchanged non-core values" do
         expect(subject).to include("encoding" => "utf8", "pools" => "5")
       end

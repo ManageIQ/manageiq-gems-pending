@@ -150,10 +150,10 @@ FRIENDLY
     def settings_hash
       {
         'adapter'  => 'postgresql',
-        'host'     => local? ? nil : host,
-        'port'     => local? ? nil : port,
+        'host'     => local? ? "localhost" : host,
+        'port'     => port,
         'username' => username,
-        'password' => local? ? nil : password.presence,
+        'password' => password.presence,
         'database' => database
       }
     end

@@ -149,7 +149,7 @@ module ApplianceConsole
 
       if verify && disk.nil?
         say ""
-        raise MiqSignalError unless are_you_sure?(" you don't want to partion the #{disk_name}")
+        raise MiqSignalError unless are_you_sure?(" you don't want to partition the #{disk_name}")
       end
       disk
     end

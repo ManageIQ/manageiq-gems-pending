@@ -2,15 +2,15 @@ require "appliance_console/database_maintenance_periodic"
 
 describe ApplianceConsole::DatabaseMaintenancePeriodic do
   before do
-    @test_crontab_1 = Tempfile.new("crontab")
-    stub_const("ApplianceConsole::DatabaseMaintenancePeriodic::CRONTAB_FILE", @test_crontab_1.path)
+    @test_crontab1 = Tempfile.new("crontab")
+    stub_const("ApplianceConsole::DatabaseMaintenancePeriodic::CRONTAB_FILE", @test_crontab1.path)
     allow(subject).to receive(:say)
     allow(subject).to receive(:clear_screen)
     allow(subject).to receive(:agree)
   end
 
   after do
-    FileUtils.rm_f(@test_crontab_1.path)
+    FileUtils.rm_f(@test_crontab1.path)
   end
 
   describe "#confirm" do

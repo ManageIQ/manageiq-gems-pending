@@ -254,7 +254,7 @@ describe ApplianceConsole::Prompts do
         expect_heard [
           "No partition found for database disk. You probably want to add an unpartitioned disk and try again.",
           "",
-          "Are you sure you don't want to partion the database disk? (Y/N): ",
+          "Are you sure you don't want to partition the database disk? (Y/N): ",
         ]
       end
 
@@ -264,7 +264,7 @@ describe ApplianceConsole::Prompts do
         expect_heard [
           "No partition found for special disk. You probably want to add an unpartitioned disk and try again.",
           "",
-          "Are you sure you don't want to partion the special disk? (Y/N): ",
+          "Are you sure you don't want to partition the special disk? (Y/N): ",
         ]
       end
 

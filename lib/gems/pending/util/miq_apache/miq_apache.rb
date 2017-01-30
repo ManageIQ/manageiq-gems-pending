@@ -207,6 +207,7 @@ module MiqApache
       opts[:redirects].to_miq_a.each_with_object("") do |redirect, content|
         if redirect == "/"
           content << "RewriteRule ^/ui/service(?!/(assets|images|img|styles|js|fonts|vendor|gettext)) /ui/service/index.html [L]\n"
+          content << "RewriteRule ^/self_service(.*) /ui/service$1 [R]\n"
           content << "RewriteCond \%{REQUEST_URI} !^/ws\n"
           content << "RewriteCond \%{REQUEST_URI} !^/proxy_pages\n"
           content << "RewriteCond \%{REQUEST_URI} !^/saml2\n"

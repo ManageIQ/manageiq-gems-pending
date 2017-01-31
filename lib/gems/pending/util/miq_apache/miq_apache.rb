@@ -206,7 +206,8 @@ module MiqApache
     def self.create_redirects_config(opts = {})
       opts[:redirects].to_miq_a.each_with_object("") do |redirect, content|
         if redirect == "/"
-          content << "RewriteRule ^/ui/service(?!/(assets|images|img|styles|js|fonts|vendor|gettext)) /ui/service/index.html [L]\n"
+          content << "RewriteCond %{REQUEST_URI} !(\.css|\.js)$ [NC]\n"
+          content << "RewriteRule ^/ui/service(?!/(assets|data|images|img|styles|js|fonts|vendor|gettext)) /ui/service/index.html [L]\n"
           content << "RewriteCond \%{REQUEST_URI} !^/ws\n"
           content << "RewriteCond \%{REQUEST_URI} !^/proxy_pages\n"
           content << "RewriteCond \%{REQUEST_URI} !^/saml2\n"

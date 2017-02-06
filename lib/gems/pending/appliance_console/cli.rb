@@ -70,6 +70,10 @@ module ApplianceConsole
       options[:tmpdisk]
     end
 
+    def log_disk?
+      options[:logdisk]
+    end
+
     def extauth_opts?
       options[:extauth_opts]
     end
@@ -111,6 +115,7 @@ module ApplianceConsole
         opt :sshpassword, "SSH password",    :type => :string
         opt :verbose,  "Verbose",            :type => :boolean, :short => "v"
         opt :dbdisk,   "Database Disk Path", :type => :string
+        opt :logdisk,  "Log Disk Path",      :type => :string
         opt :tmpdisk,   "Temp storage Disk Path", :type => :string
         opt :uninstall_ipa, "Uninstall IPA Client", :type => :boolean,         :default => false
         opt :ipaserver,  "IPA Server FQDN",  :type => :string
@@ -141,6 +146,7 @@ module ApplianceConsole
       create_key if key?
       set_db if database?
       config_tmp_disk if tmp_disk?
+      config_log_disk if log_disk?
       uninstall_ipa if uninstall_ipa?
       install_ipa if install_ipa?
       install_certs if certs?
@@ -269,13 +275,27 @@ module ApplianceConsole
         config = ApplianceConsole::TempStorageConfiguration.new(:disk => tmp_disk)
         config.activate
       else
-        choose_disk = disk.try(:path)
-        if choose_disk
-          say "could not find disk #{options[:tmpdisk]}"
-          say "if you pass auto, it will choose: #{choose_disk}"
-        else
-          say "no disks with a free partition"
-        end
+        report_disk_error
+      end
+    end
+
+    def config_log_disk
+      if (log_disk = disk_from_string(options[:logdisk]))
+        say "creating log disk"
+        config = ApplianceConsole::LogfileConfiguration.new(:disk => log_disk)
+        config.activate
+      else
+        report_disk_error
+      end
+    end
+
+    def report_disk_error
+      choose_disk = disk.try(:path)
+      if choose_disk
+        say "could not find disk #{options[:logdisk]}"
+        say "if you pass auto, it will choose: #{choose_disk}"
+      else
+        say "no disks with a free partition"
       end
     end
 

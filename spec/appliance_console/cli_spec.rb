@@ -227,6 +227,38 @@ describe ApplianceConsole::Cli do
     end
   end
 
+  context "#set_server_state" do
+    let(:evm_service) { double("evmserved") }
+    before do
+      allow(LinuxAdmin::Service).to receive(:new).with("evmserverd").and_return(evm_service)
+    end
+
+    it "state is start" do
+      expect(evm_service).to receive(:running?).and_return(false)
+      expect(evm_service).to receive(:start)
+      subject.parse(%w(--server start)).run
+    end
+
+    it "state is stop" do
+      expect(evm_service).to receive(:running?).and_return(true)
+      expect(evm_service).to receive(:stop)
+      subject.parse(%w(--server stop)).run
+    end
+
+    it "state is restart" do
+      expect(evm_service).to receive(:running?).and_return(true)
+      expect(evm_service).to receive(:restart)
+      subject.parse(%w(--server restart)).run
+    end
+
+    it "state is wrong" do
+      expect(evm_service).to receive(:running?).and_return(true)
+      expect do
+        subject.parse(%w(--server aa)).run
+      end.to raise_error(/Invalid server action/)
+    end
+  end
+
   context "#config_tmp_disk" do
     it "configures disk" do
       expect(subject).to receive(:disk_from_string).with('x').and_return('/dev/x')

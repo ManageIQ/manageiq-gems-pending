@@ -439,6 +439,19 @@ describe ApplianceConsole::Cli do
     end
   end
 
+  context "#set_time_zone" do
+    it "should set timezone" do
+      expect(subject).to receive(:say)
+      expect(ApplianceConsole::TimezoneConfiguration).to receive(:activate)
+      subject.parse(%w(--timezone Europe/Madrid)).run
+    end
+
+    it "should not set timezone" do
+      expect(subject).to receive(:say)
+      subject.parse(%w(--timezone ss/dd)).run
+    end
+  end
+
   context "#disk_from_string" do
     before do
       allow(LinuxAdmin::Disk).to receive_messages(:local => [

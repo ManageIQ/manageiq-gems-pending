@@ -1,4 +1,5 @@
 require "appliance_console/cli"
+require "appliance_console/timezone_configuration"
 
 describe ApplianceConsole::Cli do
   subject { described_class.new }
@@ -448,6 +449,23 @@ describe ApplianceConsole::Cli do
       it "should install certs if all params are specified" do
         expect(subject.parse(%w(--postgres-client-cert --postgres-server-cert --http-cert))).to be_certs
       end
+    end
+  end
+
+  context "#set_time_zone" do
+    let(:timezone) { double("time zone") }
+    it "should set timezone" do
+      expect(subject).to receive(:say)
+      expect(ApplianceConsole::TimezoneConfiguration).to receive(:new).with("Europe/Madrid").and_return(timezone)
+      expect(timezone).to receive(:activate).and_return(true)
+      subject.parse(%w(--timezone Europe/Madrid)).run
+    end
+
+    it "should not set timezone" do
+      expect(subject).to receive(:say)
+      expect(ApplianceConsole::TimezoneConfiguration).to receive(:new).with("ss/dd").and_return(timezone)
+      expect(timezone).to receive(:activate).and_return(false)
+      subject.parse(%w(--timezone ss/dd)).run
     end
   end
 

@@ -75,6 +75,10 @@ module ApplianceConsole
       options[:logdisk]
     end
 
+    def time_zone?
+      options[:timezone]
+    end
+
     def extauth_opts?
       options[:extauth_opts]
     end
@@ -125,6 +129,7 @@ module ApplianceConsole
         opt :ipadomain,     "IPA Server domain (optional)", :type => :string
         opt :iparealm,      "IPA Server realm (optional)", :type => :string
         opt :ca,                   "CA name used for certmonger",       :type => :string,  :default => "ipa"
+        opt :timezone,             "Time zone",                         :type => :string
         opt :postgres_client_cert, "install certs for postgres client", :type => :boolean
         opt :postgres_server_cert, "install certs for postgres server", :type => :boolean
         opt :http_cert,            "install certs for http server",     :type => :boolean
@@ -136,7 +141,7 @@ module ApplianceConsole
 
     def run
       Trollop.educate unless set_host? || key? || database? || tmp_disk? || log_disk? ||
-                             uninstall_ipa? || install_ipa? || certs? || extauth_opts?
+                             uninstall_ipa? || install_ipa? || certs? || extauth_opts? || time_zone?
       if set_host?
         system_hosts = LinuxAdmin::Hosts.new
         system_hosts.hostname = options[:host]
@@ -146,6 +151,7 @@ module ApplianceConsole
       end
       create_key if key?
       set_db if database?
+      set_time_zone if time_zone?
       config_tmp_disk if tmp_disk?
       config_log_disk if log_disk?
       uninstall_ipa if uninstall_ipa?
@@ -212,6 +218,15 @@ module ApplianceConsole
 
       # enable/start related services
       config.post_activation
+    end
+
+    def set_time_zone
+      timezone_config = ApplianceConsole::TimezoneConfiguration.new(options[:timezone])
+      if timezone_config.activate
+        say("Timezone configured")
+      else
+        say("Timezone not configured")
+      end
     end
 
     def key_configuration

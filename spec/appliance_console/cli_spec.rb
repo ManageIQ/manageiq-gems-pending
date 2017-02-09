@@ -255,6 +255,46 @@ describe ApplianceConsole::Cli do
     end
   end
 
+  context "#config_log_disk" do
+    it "configures disk" do
+      expect(subject).to receive(:disk_from_string).with('x').and_return('/dev/x')
+      expect(subject).to receive(:say)
+      expect(ApplianceConsole::LogfileConfiguration).to receive(:new)
+        .with(:disk => '/dev/x')
+        .and_return(double(:activate => true))
+
+      subject.parse(%w(--logdisk x)).run
+    end
+
+    it "configures disk with auto" do
+      expect(subject).to receive(:disk_from_string).with('auto').and_return('/dev/x')
+      expect(subject).to receive(:say)
+      expect(ApplianceConsole::LogfileConfiguration).to receive(:new)
+        .with(:disk => '/dev/x')
+        .and_return(double(:activate => true))
+
+      subject.parse(%w(--logdisk auto)).run
+    end
+
+    it "suggests disk with unknown disk" do
+      expect(subject).to receive(:disk_from_string).with('abc').and_return(nil)
+      expect(subject).to receive(:disk).and_return(double(:path => 'dev-good'))
+      expect(subject).to receive(:say).with(/abc/)
+      expect(subject).to receive(:say).with(/dev-good/)
+      expect(ApplianceConsole::LogfileConfiguration).not_to receive(:new)
+
+      subject.parse(%w(--logdisk abc)).run
+    end
+
+    it "complains when no disks available" do
+      expect(subject).to receive(:disk_from_string).with('abc').and_return(nil)
+      expect(subject).to receive(:disk).and_return(nil)
+      expect(subject).to receive(:say).with(/no disk/)
+      expect(ApplianceConsole::LogfileConfiguration).not_to receive(:new)
+
+      subject.parse(%w(--logdisk abc)).run
+    end
+  end
   # private methods
   # mostly handles by context "#key" and cli_specs focused on internal/external database
   context "parse" do

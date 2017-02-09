@@ -15,8 +15,8 @@ module ApplianceConsole
 
     include ApplianceConsole::Logging
 
-    def initialize
-      self.disk                = nil
+    def initialize(config = {})
+      self.disk                = config[:disk]
       self.new_logrotate_count = nil
 
       self.size = MiqSystem.disk_usage(LOGFILE_DIRECTORY)[0][:total_bytes]

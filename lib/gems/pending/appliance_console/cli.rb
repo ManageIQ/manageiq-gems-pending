@@ -12,6 +12,7 @@ require 'appliance_console/key_configuration'
 require 'appliance_console/principal'
 require 'appliance_console/certificate'
 require 'appliance_console/certificate_authority'
+require 'appliance_console/logfile_configuration'
 
 # support for appliance_console methods
 unless defined?(say)
@@ -134,7 +135,7 @@ module ApplianceConsole
     end
 
     def run
-      Trollop.educate unless set_host? || key? || database? || tmp_disk? ||
+      Trollop.educate unless set_host? || key? || database? || tmp_disk? || log_disk? ||
                              uninstall_ipa? || install_ipa? || certs? || extauth_opts?
       if set_host?
         system_hosts = LinuxAdmin::Hosts.new
@@ -275,7 +276,7 @@ module ApplianceConsole
         config = ApplianceConsole::TempStorageConfiguration.new(:disk => tmp_disk)
         config.activate
       else
-        report_disk_error
+        report_disk_error(options[:tmpdisk])
       end
     end
 
@@ -285,14 +286,14 @@ module ApplianceConsole
         config = ApplianceConsole::LogfileConfiguration.new(:disk => log_disk)
         config.activate
       else
-        report_disk_error
+        report_disk_error(options[:logdisk])
       end
     end
 
-    def report_disk_error
+    def report_disk_error(missing_disk)
       choose_disk = disk.try(:path)
       if choose_disk
-        say "could not find disk #{options[:logdisk]}"
+        say "could not find disk #{missing_disk}"
         say "if you pass auto, it will choose: #{choose_disk}"
       else
         say "no disks with a free partition"

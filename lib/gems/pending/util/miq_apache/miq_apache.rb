@@ -213,6 +213,7 @@ module MiqApache
           content << "RewriteCond \%{REQUEST_URI} !^/saml2\n"
           content << "RewriteCond \%{REQUEST_URI} !^/api\n"
           content << "RewriteCond \%{REQUEST_URI} !^/ansibleapi\n"
+          content << "RewriteCond \%{REQUEST_URI} !^/cws\n"
           content << "RewriteCond \%{DOCUMENT_ROOT}/\%{REQUEST_FILENAME} !-f\n"
           content << "RewriteRule ^#{redirect} balancer://#{opts[:cluster]}\%{REQUEST_URI} [P,QSA,L]\n"
         else

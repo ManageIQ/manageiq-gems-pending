@@ -19,21 +19,9 @@ Dir.mkdir(RAILS_ROOT.join("log"))
 # in ./support/ and its subdirectories.
 Dir[File.expand_path(File.join(__dir__, 'support/**/*.rb'))].each { |f| require f }
 
-class TrollopEducateSpecError < StandardError; end
-class TrollopDieSpecError < StandardError; end
-
 RSpec.configure do |config|
   config.after(:each) do
     Module.clear_all_cache_with_timeout if Module.respond_to?(:clear_all_cache_with_timeout)
-  end
-
-  config.before(:each) do
-    err_string = <<-EOF.strip_heredoc
-      Don't allow methods that exit the calling process to be executed in specs.
-      If you were testing that we call Trollop.educate or Trollop.die, expect that a TrollopEducateSpecError or TrollopDieSpecError be raised instead
-    EOF
-    allow(Trollop).to receive(:educate).and_raise(TrollopEducateSpecError.new(err_string))
-    allow(Trollop).to receive(:die).and_raise(TrollopDieSpecError.new(err_string))
   end
 
   if ENV["CI"]

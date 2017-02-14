@@ -3,6 +3,18 @@ require "appliance_console/cli"
 describe ApplianceConsole::Cli do
   subject { described_class.new }
 
+  describe "#parse" do
+    it "fails if a region is not specified for a local database" do
+      expect { subject.parse(%w(--internal)) }.to raise_error(TrollopDieSpecError)
+    end
+  end
+
+  describe "#run" do
+    it "should educate if parameters are not passed" do
+      expect { subject.parse([]).run }.to raise_error(TrollopEducateSpecError)
+    end
+  end
+
   it "should set hostname if defined" do
     expect_any_instance_of(LinuxAdmin::Hosts).to receive(:hostname=).with('host1')
     expect_any_instance_of(LinuxAdmin::Hosts).to receive(:save).and_return(true)

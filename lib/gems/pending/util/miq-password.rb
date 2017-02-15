@@ -2,6 +2,7 @@ require 'ezcrypto'
 require 'encryption/CryptString'
 require 'base64'
 require 'yaml'
+require 'util/extensions/miq-deep'
 
 class MiqPassword
   class MiqPasswordError < StandardError; end
@@ -70,6 +71,32 @@ class MiqPassword
 
   def self.encrypted?(str)
     !!split(str).first
+  end
+
+  def self.encrypt_hash(values, &block)
+    hash_values = values.deep_clone
+
+    hash_values.each { |k, val| hash_values[k] = encrypt_hash(val, &block) if val.kind_of?(Hash) }
+
+    hash_values.select { |f, _| yield f }.each do |key, val|
+      next if val.strip.empty?
+      hash_values[key] = try_encrypt(val)
+    end
+
+    hash_values
+  end
+
+  def self.decrypt_hash(values, &block)
+    hash_values = values.deep_clone
+
+    hash_values.each { |k, val| hash_values[k] = decrypt_hash(val, &block) if val.kind_of?(Hash) }
+
+    hash_values.select { |f, _| yield f }.each do |key, val|
+      next if val.strip.empty?
+      hash_values[key] = try_decrypt(val)
+    end
+
+    hash_values
   end
 
   def self.md5crypt(str)

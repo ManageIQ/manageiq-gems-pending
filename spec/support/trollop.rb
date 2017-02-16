@@ -1,3 +1,6 @@
+require 'active_support/core_ext/string/strip'
+require 'trollop'
+
 class TrollopEducateSpecError < StandardError; end
 class TrollopDieSpecError < StandardError; end
 

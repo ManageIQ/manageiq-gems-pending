@@ -91,7 +91,6 @@ NETWORK_INTERFACE = "eth0".freeze
 
 module ApplianceConsole
   eth0 = LinuxAdmin::NetworkInterface.new(NETWORK_INTERFACE)
-  ip = eth0.address
   # Because it takes a few seconds, get the region once in the outside loop
   region = ApplianceConsole::DatabaseConfiguration.region
   clear_screen
@@ -99,9 +98,6 @@ module ApplianceConsole
   # Calling stty to provide the equivalent line settings when the console is run via an ssh session or
   # over the virtual machine console.
   system("stty -echoprt ixany iexten echoe echok")
-
-  say("#{I18n.t("product.name")} Virtual Appliance\n")
-  say("To administer this appliance, browse to https://#{ip}\n")
 
   loop do
     begin

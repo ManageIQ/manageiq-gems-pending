@@ -27,8 +27,11 @@ include HighLine::SystemExtensions
 
 require 'i18n'
 locales_dir = ENV['CONTAINER'] ? "container" : "appliance"
-LOCALES = File.expand_path(File.join("appliance_console/locales", locales_dir, "*.yml"), __dir__)
-I18n.load_path = Dir[LOCALES].sort
+locales_paths = [
+  File.expand_path(File.join("appliance_console/locales", locales_dir, "*.yml"), __dir__),
+  File.expand_path(File.join("productization/appliance_console/locales", locales_dir, "*.yml"), RAILS_ROOT)
+]
+locales_paths.each { |p| I18n.load_path += Dir[p].sort }
 I18n.enforce_available_locales = true
 I18n.backend.load_translations
 

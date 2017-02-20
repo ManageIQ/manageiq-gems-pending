@@ -93,7 +93,6 @@ module ApplianceConsole
   eth0 = LinuxAdmin::NetworkInterface.new(NETWORK_INTERFACE)
   # Because it takes a few seconds, get the region once in the outside loop
   region = ApplianceConsole::DatabaseConfiguration.region
-  clear_screen
 
   # Calling stty to provide the equivalent line settings when the console is run via an ssh session or
   # over the virtual machine console.

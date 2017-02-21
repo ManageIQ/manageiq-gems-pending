@@ -35,6 +35,8 @@ locales_paths.each { |p| I18n.load_path += Dir[p].sort }
 I18n.enforce_available_locales = true
 I18n.backend.load_translations
 
+SCAP_RULES_DIR = File.expand_path("productization/appliance_console/config", RAILS_ROOT)
+
 $terminal.wrap_at = 80
 $terminal.page_at = 35
 
@@ -595,7 +597,7 @@ Static Network Configuration
 
       when I18n.t("advanced_settings.scap")
         say("#{selection}\n\n")
-        ApplianceConsole::Scap.new.lockdown
+        ApplianceConsole::Scap.new(SCAP_RULES_DIR).lockdown
         press_any_key
 
       when I18n.t("advanced_settings.summary")

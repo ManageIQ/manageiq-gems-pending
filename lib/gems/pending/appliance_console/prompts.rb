@@ -6,7 +6,7 @@ module ApplianceConsole
   module Prompts
     CLEAR_CODE    = `clear`
     IPV4_REGEXP   = Resolv::IPv4::Regex
-    IP_REGEXP     = Resolv::IPv4::Regex
+    IP_REGEXP     = Regexp.union(Resolv::IPv4::Regex, Resolv::IPv6::Regex).freeze
     DOMAIN_REGEXP = /^[a-z0-9]+([\-\.]{1}[a-z0-9]+)*(\.[a-z]{2,13})?$/
     INT_REGEXP    = /^[0-9]+$/
     HOSTNAME_REGEXP = /^(([a-zA-Z]|[a-zA-Z][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])$/

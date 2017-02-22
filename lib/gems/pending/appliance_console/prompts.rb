@@ -5,6 +5,7 @@ module ApplianceConsole
 
   module Prompts
     CLEAR_CODE    = `clear`
+    IPV4_REGEXP   = Resolv::IPv4::Regex
     IP_REGEXP     = Resolv::IPv4::Regex
     DOMAIN_REGEXP = /^[a-z0-9]+([\-\.]{1}[a-z0-9]+)*(\.[a-z]{2,13})?$/
     INT_REGEXP    = /^[0-9]+$/
@@ -68,8 +69,12 @@ module ApplianceConsole
       just_ask(prompt, default, validate, error_text, &block)
     end
 
-    def ask_for_ip_or_none(prompt, default = nil)
-      validation = ->(p) { p.empty? || p =~ /^'?NONE'?$/i || p =~ IP_REGEXP }
+    def ask_for_ipv4(prompt, default)
+      ask_for_ip(prompt, default, IPV4_REGEXP)
+    end
+
+    def ask_for_ipv4_or_none(prompt, default = nil)
+      validation = ->(p) { p.empty? || p =~ /^'?NONE'?$/i || p =~ IPV4_REGEXP }
       ask_for_ip(prompt, default, validation).gsub(/^'?NONE'?$/i, "")
     end
 

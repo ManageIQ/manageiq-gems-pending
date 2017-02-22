@@ -78,14 +78,14 @@ module ApplianceConsole
       data_dir_empty? &&
         initialize_postgresql_disk if disk
         PostgresAdmin.prep_data_directory &&
-        relabel_postgresql_dir &&
-        generate_cluster_name &&
-        create_config_file(standby_host) &&
-        clone_standby_server &&
-        start_postgres &&
-        register_standby_server &&
-        write_pgpass_file &&
-        (run_repmgrd_configuration ? start_repmgrd : true)
+          relabel_postgresql_dir &&
+          generate_cluster_name &&
+          create_config_file(standby_host) &&
+          clone_standby_server &&
+          start_postgres &&
+          register_standby_server &&
+          write_pgpass_file &&
+          (run_repmgrd_configuration ? start_repmgrd : true)
     end
 
     def data_dir_empty?

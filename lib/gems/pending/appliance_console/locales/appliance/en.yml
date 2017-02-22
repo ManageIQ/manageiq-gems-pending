@@ -4,10 +4,7 @@ en:
     name: ManageIQ
   advanced_settings:
     menu_order:
-    - dhcp
-    - static
-    - testnet
-    - hostname
+    - networking
     - timezone
     - datetime
     - dbrestore
@@ -25,10 +22,7 @@ en:
     - shutdown
     - summary
     - quit
-    dhcp: Set DHCP Network Configuration
-    static: Set Static Network Configuration
-    testnet: Test Network Configuration
-    hostname: Set Hostname
+    networking: Set-up Networking
     timezone: Set Timezone
     datetime: Set Date and Time
     dbrestore: Restore Database From Backup

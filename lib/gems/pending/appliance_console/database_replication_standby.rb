@@ -38,7 +38,7 @@ module ApplianceConsole
     end
 
     def choose_disk
-       @disk = ask_for_disk("database disk")
+      @disk = ask_for_disk("database disk")
     end
 
     def initialize_postgresql_disk

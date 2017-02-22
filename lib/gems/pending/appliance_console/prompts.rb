@@ -1,9 +1,11 @@
+require 'resolv'
+
 module ApplianceConsole
   CANCEL = 'Cancel'.freeze
 
   module Prompts
     CLEAR_CODE    = `clear`
-    IP_REGEXP     = /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
+    IP_REGEXP     = Resolv::IPv4::Regex
     DOMAIN_REGEXP = /^[a-z0-9]+([\-\.]{1}[a-z0-9]+)*(\.[a-z]{2,13})?$/
     INT_REGEXP    = /^[0-9]+$/
     HOSTNAME_REGEXP = /^(([a-zA-Z]|[a-zA-Z][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])$/

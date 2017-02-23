@@ -30,7 +30,7 @@ module ApplianceConsole
           u = URI(a)
           # validate it has a hostname/ip and a share
           u.scheme == expected_scheme &&
-            (u.host =~ HOSTNAME_REGEXP || u.host =~ IP_REGEXP) &&
+            (u.host =~ HOSTNAME_REGEXP || u.hostname =~ IP_REGEXP) &&
             !u.path.empty?
         end
       end

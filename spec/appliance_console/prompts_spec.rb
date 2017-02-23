@@ -58,6 +58,13 @@ describe ApplianceConsole::Prompts do
       expect(subject.ask_for_uri("prompt", "nfs")).to eq(response)
       expect_heard ["Enter the prompt: ", "Please provide a valid URI", prompt]
     end
+
+    it 'supports IPv6' do
+      response = 'nfs://[d:e:a:d:b:e:e:f]/path/file.txt'
+      say response
+      expect(subject.ask_for_uri('prompt', 'nfs')).to eq(response)
+      expect_heard('Enter the prompt: ')
+    end
   end
 
   context "#ask_for_many" do

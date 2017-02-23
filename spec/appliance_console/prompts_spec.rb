@@ -135,22 +135,27 @@ describe ApplianceConsole::Prompts do
       expect_heard "Enter the prompt: |1.1.1.1| "
     end
 
+    it 'supports ipv6' do
+      say '::1'
+      expect(subject.ask_for_ip('prompt', '1.1.1.1')).to eq('::1')
+    end
+
     context "#or_none" do
       it "should handle default" do
         say ""
-        expect(subject.ask_for_ip_or_none("prompt", "1.1.1.1")).to eq("1.1.1.1")
+        expect(subject.ask_for_ipv4_or_none("prompt", "1.1.1.1")).to eq("1.1.1.1")
         expect_heard("Enter the prompt: |1.1.1.1| ")
       end
 
       it "should handle blank" do
         say ""
-        expect(subject.ask_for_ip_or_none("prompt")).to eq("")
+        expect(subject.ask_for_ipv4_or_none("prompt")).to eq("")
         expect_heard("Enter the prompt: ")
       end
 
       it "should handle none" do
         say "none"
-        expect(subject.ask_for_ip_or_none("prompt", "1.1.1.1")).to eq("")
+        expect(subject.ask_for_ipv4_or_none("prompt", "1.1.1.1")).to eq("")
         expect_heard("Enter the prompt: |1.1.1.1| ")
       end
     end
@@ -166,6 +171,11 @@ describe ApplianceConsole::Prompts do
         say "2.2.2.2"
         expect(subject.ask_for_ip_or_hostname("prompt", "1.1.1.1")).to eq("2.2.2.2")
         expect_heard("Enter the prompt: |1.1.1.1| ")
+      end
+
+      it 'supports ipv6' do
+        say 'dead:beef::1'
+        expect(subject.ask_for_ip('prompt', '1.1.1.1')).to eq('dead:beef::1')
       end
 
       it "should handle hostname" do

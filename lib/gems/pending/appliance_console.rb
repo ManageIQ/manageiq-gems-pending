@@ -171,11 +171,11 @@ To modify the configuration, use a web browser to access the management page.
         say("Static Network Configuration\n\n")
         say("Enter the new static network configuration settings.\n\n")
 
-        new_ip   = ask_for_ip("IP Address", ip)
-        new_mask = ask_for_ip("Netmask", mask)
-        new_gw   = ask_for_ip("Gateway", gw)
-        new_dns1 = ask_for_ip("Primary DNS", dns1)
-        new_dns2 = ask_for_ip_or_none("Secondary DNS (Enter 'none' for no value)")
+        new_ip   = ask_for_ipv4("IP Address", ip)
+        new_mask = ask_for_ipv4("Netmask", mask)
+        new_gw   = ask_for_ipv4("Gateway", gw)
+        new_dns1 = ask_for_ipv4("Primary DNS", dns1)
+        new_dns2 = ask_for_ipv4_or_none("Secondary DNS (Enter 'none' for no value)")
 
         new_search_order = ask_for_many("domain", "Domain search order", order)
 

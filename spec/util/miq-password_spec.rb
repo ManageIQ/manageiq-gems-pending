@@ -277,7 +277,7 @@ describe MiqPassword do
   end
 
   describe ".add_legacy_key" do
-    let(:v0_key)  { CryptString.new(nil, "AES-128-CBC", "9999999999999999", "5555555555555555") }
+    let(:v0_key)  { MiqPassword::Key.new(nil, "AES-128-CBC", "9999999999999999", "5555555555555555") }
     let(:v1_key)  { MiqPassword.generate_symmetric }
 
     it "ignores bad key filename" do

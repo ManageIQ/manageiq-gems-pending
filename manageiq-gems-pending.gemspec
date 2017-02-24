@@ -20,9 +20,9 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = "> 2.2.2"
 
-  s.add_runtime_dependency "actionpack",              "~> 5.0.0"
-  s.add_runtime_dependency "activerecord",            "~> 5.0.0" # used by appliance_console
-  s.add_runtime_dependency "activesupport",           "~> 5.0.0"
+  s.add_runtime_dependency "actionpack",              "~> 5.0"
+  s.add_runtime_dependency "activerecord",            "~> 5.0" # used by appliance_console
+  s.add_runtime_dependency "activesupport",           "~> 5.0"
   s.add_runtime_dependency "addressable",             "~> 2.4"
   s.add_runtime_dependency "awesome_spawn",           "~> 1.4"
   s.add_runtime_dependency "azure-armrest",           "~> 0.5.2"

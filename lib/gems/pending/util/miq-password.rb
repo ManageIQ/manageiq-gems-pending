@@ -1,4 +1,3 @@
-require 'ezcrypto'
 require 'openssl'
 require 'base64'
 require 'yaml'

@@ -142,7 +142,7 @@ class MiqPassword
   end
 
   def self.load_v2_key
-    ez_load("v2_key") || begin
+    load_key_file("v2_key") || begin
       key_file = File.expand_path("v2_key", key_root)
       msg = <<-EOS
 #{key_file} doesn't exist!
@@ -158,7 +158,7 @@ EOS
   end
 
   def self.add_legacy_key(filename, type = "alt")
-    key = ez_load(filename, type != :v0)
+    key = load_key_file(filename, type != :v0)
     keys[type.to_s] = key if key
     key
   end
@@ -176,7 +176,7 @@ EOS
 
   protected
 
-  def self.ez_load(filename, recent = true)
+  def self.load_key_file(filename, recent = true)
     return filename if filename.respond_to?(:decrypt64)
 
     # if it is an absolute path, or relative to pwd, leave as is
@@ -185,7 +185,9 @@ EOS
     if !File.exist?(filename)
       nil
     elsif recent
-      EzCrypto::Key.load(filename)
+      params = YAML.load_file(filename)
+      algorithm, key, iv = params.values_at(:algorithm, :key, :iv)
+      Key.new(algorithm, key && Base64.decode64(key), iv && Base64.decode64(iv))
     else
       params = YAML.load_file(filename)
       Key.new(*params.values_at(:algorithm, :key, :iv))
@@ -217,6 +219,10 @@ EOS
 
     def decrypt64(str)
       decrypt(Base64.decode64(str))
+    end
+
+    def to_s
+      Base64.encode64(@key).chomp
     end
 
     private

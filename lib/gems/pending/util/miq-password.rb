@@ -169,12 +169,14 @@ EOS
   end
 
   def self.generate_symmetric(filename = nil)
-    EzCrypto::Key.generate(:algorithm => "aes-256-cbc").tap do |key|
-      key.store(filename) if filename
-    end
+    Key.new.tap { |key| store_key_file(filename, key) if filename }
   end
 
   protected
+
+  def self.store_key_file(filename, key)
+    File.write(filename, key.to_h.to_yaml)
+  end
 
   def self.load_key_file(filename, recent = true)
     return filename if filename.respond_to?(:decrypt64)
@@ -201,8 +203,8 @@ EOS
   class Key
     def initialize(algorithm = nil, key = nil, iv = nil)
       @algorithm = algorithm || "aes-256-cbc"
-      @key       = key
-      @raw_key   = key && Base64.decode64(key)
+      @key       = key || generate_key
+      @raw_key   = Base64.decode64(@key)
       @iv        = iv
       @raw_iv    = iv && Base64.decode64(iv)
     end
@@ -227,7 +229,23 @@ EOS
       @key
     end
 
+    def to_h
+      {
+        :algorithm => @algorithm,
+        :key       => @key
+      }.tap do |h|
+        h[:iv] = @iv if @iv
+      end
+    end
+
     private
+
+    KEY_SIZE = 32
+
+    def generate_key
+      raise "key can only be generated for the aes-256-cbc algorithm" unless @algorithm == "aes-256-cbc"
+      Base64.encode64(Digest::SHA256.digest(OpenSSL::Random.random_bytes(KEY_SIZE))[0, KEY_SIZE])
+    end
 
     def apply(mode, str)
       c = OpenSSL::Cipher.new(@algorithm)

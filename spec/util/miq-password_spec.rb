@@ -357,7 +357,7 @@ describe MiqPassword do
 
   def with_key
     Dir.mktmpdir('test-key-root') do |d|
-      MiqPassword.generate_symmetric.store("#{d}/my-key")
+      MiqPassword.generate_symmetric("#{d}/my-key")
       yield d, "my-key"
     end
   end

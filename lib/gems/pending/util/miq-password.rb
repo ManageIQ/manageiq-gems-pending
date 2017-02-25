@@ -188,7 +188,7 @@ EOS
       EzCrypto::Key.load(filename)
     else
       params = YAML.load_file(filename)
-      Key.new(nil, params[:algorithm], params[:key], params[:iv])
+      Key.new(*params.values_at(:algorithm, :key, :iv))
     end
   end
 
@@ -197,36 +197,37 @@ EOS
   end
 
   class Key
-    def initialize(_str = nil, enc_alg = nil, key = nil, iv = nil)
-      @enc_alg = enc_alg
-      @key     = key
-      @iv      = iv
+    def initialize(algorithm = nil, key = nil, iv = nil)
+      @algorithm = algorithm || "aes-256-cbc"
+      @key       = key
+      @iv        = iv
+    end
+
+    def encrypt(str)
+      apply(:encrypt, str)
     end
 
     def encrypt64(str)
-      cip = OpenSSL::Cipher::Cipher.new(@enc_alg)
-      cip.encrypt
-      cip.key = @key
-      cip.iv  = @iv
-
-      es = cip.update(str)
-      es << cip.final
-      [es].pack('m')
+      Base64.encode64(encrypt(str))
     end
-    alias_method :encrypt, :encrypt64
+
+    def decrypt(str)
+      apply(:decrypt, str)
+    end
 
     def decrypt64(str)
-      cip = OpenSSL::Cipher::Cipher.new(@enc_alg)
-      cip.decrypt
-      cip.key = @key
-      cip.iv  = @iv
-
-      rs = cip.update(str.unpack('m').join)
-      rs << cip.final
-
-      rs
+      decrypt(Base64.decode64(str))
     end
-    alias_method :decrypt, :decrypt64
+
+    private
+
+    def apply(mode, str)
+      c = OpenSSL::Cipher.new(@algorithm)
+      c.public_send(mode)
+      c.key = @key
+      c.iv  = @iv if @iv
+      c.update(str) << c.final
+    end
   end
 end
 

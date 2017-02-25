@@ -201,6 +201,13 @@ EOS
   end
 
   class Key
+    GENERATED_KEY_SIZE = 32
+
+    def self.generate_key(password = nil, salt = nil)
+      password ||= OpenSSL::Random.random_bytes(GENERATED_KEY_SIZE)
+      Base64.encode64(Digest::SHA256.digest("#{password}#{salt}")[0, GENERATED_KEY_SIZE]).chomp
+    end
+
     def initialize(algorithm = nil, key = nil, iv = nil)
       @algorithm = algorithm || "aes-256-cbc"
       @key       = key || generate_key
@@ -214,7 +221,7 @@ EOS
     end
 
     def encrypt64(str)
-      Base64.encode64(encrypt(str))
+      Base64.encode64(encrypt(str)).chomp
     end
 
     def decrypt(str)
@@ -240,11 +247,9 @@ EOS
 
     private
 
-    KEY_SIZE = 32
-
     def generate_key
       raise "key can only be generated for the aes-256-cbc algorithm" unless @algorithm == "aes-256-cbc"
-      Base64.encode64(Digest::SHA256.digest(OpenSSL::Random.random_bytes(KEY_SIZE))[0, KEY_SIZE])
+      self.class.generate_key
     end
 
     def apply(mode, str)

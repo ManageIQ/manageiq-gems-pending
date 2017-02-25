@@ -186,11 +186,11 @@ EOS
       nil
     elsif recent
       params = YAML.load_file(filename)
-      algorithm, key, iv = params.values_at(:algorithm, :key, :iv)
-      Key.new(algorithm, key && Base64.decode64(key), iv && Base64.decode64(iv))
+      Key.new(*params.values_at(:algorithm, :key, :iv))
     else
       params = YAML.load_file(filename)
-      Key.new(*params.values_at(:algorithm, :key, :iv))
+      algorithm, key, iv = params.values_at(:algorithm, :key, :iv)
+      Key.new(algorithm, key && Base64.encode64(key), iv && Base64.encode64(iv))
     end
   end
 
@@ -202,7 +202,9 @@ EOS
     def initialize(algorithm = nil, key = nil, iv = nil)
       @algorithm = algorithm || "aes-256-cbc"
       @key       = key
+      @raw_key   = key && Base64.decode64(key)
       @iv        = iv
+      @raw_iv    = iv && Base64.decode64(iv)
     end
 
     def encrypt(str)
@@ -222,7 +224,7 @@ EOS
     end
 
     def to_s
-      Base64.encode64(@key).chomp
+      @key
     end
 
     private
@@ -230,8 +232,8 @@ EOS
     def apply(mode, str)
       c = OpenSSL::Cipher.new(@algorithm)
       c.public_send(mode)
-      c.key = @key
-      c.iv  = @iv if @iv
+      c.key = @raw_key
+      c.iv  = @raw_iv if @raw_iv
       c.update(str) << c.final
     end
   end

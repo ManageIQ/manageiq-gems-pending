@@ -204,7 +204,7 @@ EOS
 
     def self.generate_key(password = nil, salt = nil)
       password ||= OpenSSL::Random.random_bytes(GENERATED_KEY_SIZE)
-      Base64.encode64(Digest::SHA256.digest("#{password}#{salt}")[0, GENERATED_KEY_SIZE]).chomp
+      Base64.strict_encode64(Digest::SHA256.digest("#{password}#{salt}")[0, GENERATED_KEY_SIZE])
     end
 
     def initialize(algorithm = nil, key = nil, iv = nil)
@@ -220,7 +220,7 @@ EOS
     end
 
     def encrypt64(str)
-      Base64.encode64(encrypt(str)).chomp
+      Base64.strict_encode64(encrypt(str))
     end
 
     def decrypt(str)

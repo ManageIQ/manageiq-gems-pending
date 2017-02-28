@@ -20,11 +20,6 @@ describe ApplianceConsole::DatabaseReplicationStandby do
     allow(subject).to receive(:ask_for_password_or_none)
   end
 
-  it "#choose_disk" do
-    expect(@config).to receive(:ask_for_disk)
-    @config.choose_disk
-  end
-
   context "#ask_questions" do
     before do
       expect(subject).to receive(:ask_for_unique_cluster_node_number)

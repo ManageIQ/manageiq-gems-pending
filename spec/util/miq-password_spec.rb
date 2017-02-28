@@ -277,7 +277,7 @@ describe MiqPassword do
   end
 
   describe ".add_legacy_key" do
-    let(:v0_key)  { CryptString.new(nil, "AES-128-CBC", "9999999999999999", "5555555555555555") }
+    let(:v0_key)  { MiqPassword::Key.new("AES-128-CBC", Base64.encode64("9999999999999999"), Base64.encode64("5555555555555555")) }
     let(:v1_key)  { MiqPassword.generate_symmetric }
 
     it "ignores bad key filename" do
@@ -323,8 +323,8 @@ describe MiqPassword do
 
   describe "#recrypt" do
     context "#with ambigious keys" do
-      let(:old_key) { EzCrypto::Key.decode("JZjTdiuOzWlTHUkBZSGj9BmWEoswxvImWuwD/xN87s0=", :algorithm => "aes-256-cbc") }
-      let(:v2_key)  { EzCrypto::Key.decode("5ysYUd3Qrjj7DDplmEJHmnrFBEPS887JwOQv0jFYq2g=", :algorithm => "aes-256-cbc") }
+      let(:old_key) { MiqPassword::Key.new("aes-256-cbc", "JZjTdiuOzWlTHUkBZSGj9BmWEoswxvImWuwD/xN87s0=") }
+      let(:v2_key)  { MiqPassword::Key.new("aes-256-cbc", "5ysYUd3Qrjj7DDplmEJHmnrFBEPS887JwOQv0jFYq2g=") }
       let(:v1_key)  { MiqPassword.generate_symmetric }
 
       before do
@@ -357,7 +357,7 @@ describe MiqPassword do
 
   def with_key
     Dir.mktmpdir('test-key-root') do |d|
-      MiqPassword.generate_symmetric.store("#{d}/my-key")
+      MiqPassword.generate_symmetric("#{d}/my-key")
       yield d, "my-key"
     end
   end

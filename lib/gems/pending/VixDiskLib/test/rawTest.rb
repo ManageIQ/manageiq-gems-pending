@@ -1,6 +1,6 @@
 $:.push("#{File.dirname(__FILE__)}/..")
 
-require "ezcrypto"
+require "util/miq-password"
 require "VixDiskLib_raw"
 
 vmdk =  "/vmfs/volumes/StarM2-LUN1/VMmini-101/VMmini-101.vmdk"
@@ -14,7 +14,7 @@ conParms = {
 }
 
 def getKey
-  EzCrypto::Key.with_password "55555", "999999999", :algorithm => "aes-256-cbc"
+  MiqPassword::Key.new("aes-256-cbc", MiqPassword::Key.generate_key("55555", "999999999"))
 end
 
 puts "***** cs1"

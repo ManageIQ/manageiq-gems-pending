@@ -1,5 +1,4 @@
-require 'ezcrypto'
-require 'encryption/CryptString'
+require 'openssl'
 require 'base64'
 require 'yaml'
 
@@ -142,7 +141,7 @@ class MiqPassword
   end
 
   def self.load_v2_key
-    ez_load("v2_key") || begin
+    load_key_file("v2_key") || begin
       key_file = File.expand_path("v2_key", key_root)
       msg = <<-EOS
 #{key_file} doesn't exist!
@@ -158,7 +157,7 @@ EOS
   end
 
   def self.add_legacy_key(filename, type = "alt")
-    key = ez_load(filename, type != :v0)
+    key = load_key_file(filename, type != :v0)
     keys[type.to_s] = key if key
     key
   end
@@ -169,14 +168,16 @@ EOS
   end
 
   def self.generate_symmetric(filename = nil)
-    EzCrypto::Key.generate(:algorithm => "aes-256-cbc").tap do |key|
-      key.store(filename) if filename
-    end
+    Key.new.tap { |key| store_key_file(filename, key) if filename }
   end
 
   protected
 
-  def self.ez_load(filename, recent = true)
+  def self.store_key_file(filename, key)
+    File.write(filename, key.to_h.to_yaml)
+  end
+
+  def self.load_key_file(filename, recent = true)
     return filename if filename.respond_to?(:decrypt64)
 
     # if it is an absolute path, or relative to pwd, leave as is
@@ -185,15 +186,78 @@ EOS
     if !File.exist?(filename)
       nil
     elsif recent
-      EzCrypto::Key.load(filename)
+      params = YAML.load_file(filename)
+      Key.new(*params.values_at(:algorithm, :key, :iv))
     else
       params = YAML.load_file(filename)
-      CryptString.new(nil, params[:algorithm], params[:key], params[:iv])
+      algorithm, key, iv = params.values_at(:algorithm, :key, :iv)
+      Key.new(algorithm, key && Base64.encode64(key), iv && Base64.encode64(iv))
     end
   end
 
   def self.extract_erb_encrypted_value(value)
     return $1 if value =~ /\A<%= (?:MiqPassword|DB_PASSWORD)\.decrypt\(['"]([^'"]+)['"]\) %>\Z/
+  end
+
+  class Key
+    GENERATED_KEY_SIZE = 32
+
+    def self.generate_key(password = nil, salt = nil)
+      password ||= OpenSSL::Random.random_bytes(GENERATED_KEY_SIZE)
+      Base64.strict_encode64(Digest::SHA256.digest("#{password}#{salt}")[0, GENERATED_KEY_SIZE])
+    end
+
+    def initialize(algorithm = nil, key = nil, iv = nil)
+      @algorithm = algorithm || "aes-256-cbc"
+      @key       = key || generate_key
+      @raw_key   = Base64.decode64(@key)
+      @iv        = iv
+      @raw_iv    = iv && Base64.decode64(iv)
+    end
+
+    def encrypt(str)
+      apply(:encrypt, str)
+    end
+
+    def encrypt64(str)
+      Base64.strict_encode64(encrypt(str))
+    end
+
+    def decrypt(str)
+      apply(:decrypt, str)
+    end
+
+    def decrypt64(str)
+      decrypt(Base64.decode64(str))
+    end
+
+    def to_s
+      @key
+    end
+
+    def to_h
+      {
+        :algorithm => @algorithm,
+        :key       => @key
+      }.tap do |h|
+        h[:iv] = @iv if @iv
+      end
+    end
+
+    private
+
+    def generate_key
+      raise "key can only be generated for the aes-256-cbc algorithm" unless @algorithm == "aes-256-cbc"
+      self.class.generate_key
+    end
+
+    def apply(mode, str)
+      c = OpenSSL::Cipher.new(@algorithm)
+      c.public_send(mode)
+      c.key = @raw_key
+      c.iv  = @raw_iv if @raw_iv
+      c.update(str) << c.final
+    end
   end
 end
 

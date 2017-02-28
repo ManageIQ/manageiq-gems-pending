@@ -1,4 +1,4 @@
-require 'encryption/CryptString'
+require 'util/miq-password'
 
 module VMPlatformMountLinux
   VCBNAME     = '/usr/sbin/vcbVmName'
@@ -32,8 +32,8 @@ module VMPlatformMountLinux
     # TODO: passing the user name and password on the command line is BAD.
     #       Change this to use web-services.
     #
-    @cs = CryptString.new
-    cmd = "#{VCBNAME} -h #{@ems['host']} -u #{@ems['user']} -p #{@cs.decrypt(@ems['password'])} -s \"Name:#{@vmName}\" | grep \"moref:\""
+    @cs = MiqPassword::Key.new
+    cmd = "#{VCBNAME} -h #{@ems['host']} -u #{@ems['user']} -p #{@cs.decrypt64(@ems['password'])} -s \"Name:#{@vmName}\" | grep \"moref:\""
     #
     # XXX Don't forget to remove this. We're logging the username and password, not good.
     #
@@ -45,7 +45,7 @@ module VMPlatformMountLinux
   def preMount
     return unless @ost.force
     return unless @ems
-    cmd = "#{VCBSNAPSHOT} -h #{@ems['host']} -u #{@ems['user']} -p #{@cs.decrypt(@ems['password'])} -c \"#{@vmMoref}\" \"miq#{@vmName}snap\" | grep \"SsId:\""
+    cmd = "#{VCBSNAPSHOT} -h #{@ems['host']} -u #{@ems['user']} -p #{@cs.decrypt64(@ems['password'])} -c \"#{@vmMoref}\" \"miq#{@vmName}snap\" | grep \"SsId:\""
     #
     # XXX Don't forget to remove this. We're logging the username and password, not good.
     #
@@ -64,7 +64,7 @@ module VMPlatformMountLinux
     # TODO: Ensure the snapshot gets removed in the event something happens between the preMount and postMount.
     #
     return unless @snapSsId
-    cmd = "#{VCBSNAPSHOT} -h #{@ems['host']} -u #{@ems['user']} -p #{@cs.decrypt(@ems['password'])} -d \"#{@vmMoref}\" \"#{@snapSsId}\""
+    cmd = "#{VCBSNAPSHOT} -h #{@ems['host']} -u #{@ems['user']} -p #{@cs.decrypt64(@ems['password'])} -d \"#{@vmMoref}\" \"#{@snapSsId}\""
     #
     # XXX Don't forget to remove this. We're logging the username and password, not good.
     #

@@ -50,8 +50,10 @@ module ApplianceConsole
 
     def confirm
       super
-      say(<<-EOS)
+      say(<<-EOS) if disk
         Database Disk:              #{disk}
+      EOS
+      say(<<-EOS)
         Standby Host:               #{standby_host}
         Automatic Failover:         #{run_repmgrd_configuration ? "enabled" : "disabled"}
       EOS

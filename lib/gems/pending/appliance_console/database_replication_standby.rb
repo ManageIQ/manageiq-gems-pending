@@ -28,7 +28,7 @@ module ApplianceConsole
     def ask_questions
       clear_screen
       say("Establish Replication Standby Server\n")
-      choose_disk
+      ask_for_disk("database disk")
       ask_for_unique_cluster_node_number
       ask_for_database_credentials
       ask_for_standby_host
@@ -37,14 +37,10 @@ module ApplianceConsole
       confirm
     end
 
-    def choose_disk
-      @disk = ask_for_disk("database disk")
-    end
-
     def initialize_postgresql_disk
       log_and_feedback(__method__) do
         LogicalVolumeManagement.new(:disk                => disk,
-                                    :mount_point         => mount_point,
+                                    :mount_point         => PostgresAdmin.mount_point,
                                     :name                => "pg",
                                     :volume_group_name   => PostgresAdmin.volume_group_name,
                                     :filesystem_type     => PostgresAdmin.database_disk_filesystem,
@@ -52,13 +48,10 @@ module ApplianceConsole
       end
     end
 
-    def mount_point
-      Pathname.new(ENV.fetch("APPLIANCE_PG_MOUNT_POINT"))
-    end
-
     def confirm
       super
       say(<<-EOS)
+        Database Disk:              #{disk}
         Standby Host:               #{standby_host}
         Automatic Failover:         #{run_repmgrd_configuration ? "enabled" : "disabled"}
       EOS
@@ -75,17 +68,16 @@ module ApplianceConsole
 
     def activate
       say("Configuring Replication Standby Server...")
-      data_dir_empty? &&
-        initialize_postgresql_disk if disk
-        PostgresAdmin.prep_data_directory &&
-          relabel_postgresql_dir &&
-          generate_cluster_name &&
-          create_config_file(standby_host) &&
-          clone_standby_server &&
-          start_postgres &&
-          register_standby_server &&
-          write_pgpass_file &&
-          (run_repmgrd_configuration ? start_repmgrd : true)
+      initialize_postgresql_disk if disk
+      PostgresAdmin.prep_data_directory &&
+        data_dir_empty? &&
+        generate_cluster_name &&
+        create_config_file(standby_host) &&
+        clone_standby_server &&
+        start_postgres &&
+        register_standby_server &&
+        write_pgpass_file &&
+        (run_repmgrd_configuration ? start_repmgrd : true)
     end
 
     def data_dir_empty?

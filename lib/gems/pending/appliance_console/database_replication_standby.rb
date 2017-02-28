@@ -93,10 +93,6 @@ module ApplianceConsole
       false
     end
 
-    def relabel_postgresql_dir
-      AwesomeSpawn.run!("/sbin/restorecon -R -v #{mount_point}")
-    end
-
     def clone_standby_server
       params = { :h  => primary_host,
                  :U  => database_user,

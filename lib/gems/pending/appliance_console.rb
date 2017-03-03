@@ -150,37 +150,44 @@ To modify the configuration, use a web browser to access the management page.
       clear_screen
       selection = ask_with_menu("Advanced Setting", AS_OPTIONS, nil, true)
       case selection
-      when I18n.t("advanced_settings.dhcp")
-        say("DHCP Network Configuration\n\n")
-        if agree("Apply DHCP network configuration? (Y/N): ")
-          say("\nApplying DHCP network configuration...")
+      when I18n.t('advanced_settings.networking')
+        options = {
+          'Set DHCP Network Configuration'   => 'dhcp',
+          'Set Static Network Configuration' => 'static',
+          'Test Network Configuration'       => 'testnet',
+          'Set Hostname'                     => 'hostname'
+        }
+        case ask_with_menu('Network Configuration', options)
+        when 'dhcp'
+          say("DHCP Network Configuration\n\n")
+          if agree("Apply DHCP network configuration? (Y/N): ")
+            say("\nApplying DHCP network configuration...")
 
-          resolv = LinuxAdmin::Dns.new
-          resolv.search_order = []
-          resolv.nameservers = []
-          resolv.save
+            resolv = LinuxAdmin::Dns.new
+            resolv.search_order = []
+            resolv.nameservers = []
+            resolv.save
 
-          eth0.enable_dhcp
-          eth0.save
+            eth0.enable_dhcp
+            eth0.save
 
-          say("\nAfter completing the appliance configuration, please restart #{I18n.t("product.name")} server processes.")
-          press_any_key
-        end
+            say("\nAfter completing the appliance configuration, please restart #{I18n.t("product.name")} server processes.")
+            press_any_key
+          end
+        when 'static'
+          say("Static Network Configuration\n\n")
+          say("Enter the new static network configuration settings.\n\n")
 
-      when I18n.t("advanced_settings.static")
-        say("Static Network Configuration\n\n")
-        say("Enter the new static network configuration settings.\n\n")
+          new_ip   = ask_for_ipv4("IP Address", ip)
+          new_mask = ask_for_ipv4("Netmask", mask)
+          new_gw   = ask_for_ipv4("Gateway", gw)
+          new_dns1 = ask_for_ipv4("Primary DNS", dns1)
+          new_dns2 = ask_for_ipv4_or_none("Secondary DNS (Enter 'none' for no value)")
 
-        new_ip   = ask_for_ipv4("IP Address", ip)
-        new_mask = ask_for_ipv4("Netmask", mask)
-        new_gw   = ask_for_ipv4("Gateway", gw)
-        new_dns1 = ask_for_ipv4("Primary DNS", dns1)
-        new_dns2 = ask_for_ipv4_or_none("Secondary DNS (Enter 'none' for no value)")
+          new_search_order = ask_for_many("domain", "Domain search order", order)
 
-        new_search_order = ask_for_many("domain", "Domain search order", order)
-
-        clear_screen
-        say(<<-EOL)
+          clear_screen
+          say(<<-EOL)
 Static Network Configuration
 
         IP Address:      #{new_ip}
@@ -192,50 +199,51 @@ Static Network Configuration
 
           EOL
 
-        if agree("Apply static network configuration? (Y/N)")
-          say("\nApplying static network configuration...")
+          if agree("Apply static network configuration? (Y/N)")
+            say("\nApplying static network configuration...")
 
-          resolv = LinuxAdmin::Dns.new
-          resolv.search_order = []
-          resolv.nameservers = []
-          resolv.save
+            resolv = LinuxAdmin::Dns.new
+            resolv.search_order = []
+            resolv.nameservers = []
+            resolv.save
 
-          begin
-            network_configured = eth0.apply_static(new_ip, new_mask, new_gw, [new_dns1, new_dns2], new_search_order)
-          rescue ArgumentError => e
-            say("\nNetwork configuration failed: #{e.message}")
+            begin
+              network_configured = eth0.apply_static(new_ip, new_mask, new_gw, [new_dns1, new_dns2], new_search_order)
+            rescue ArgumentError => e
+              say("\nNetwork configuration failed: #{e.message}")
+              press_any_key
+              next
+            end
+
+            unless network_configured
+              say("\nNetwork interface failed to start using the values supplied.")
+              press_any_key
+              next
+            end
+
+            say("\nAfter completing the appliance configuration, please restart #{I18n.t("product.name")} server processes.")
             press_any_key
-            next
           end
 
-          unless network_configured
-            say("\nNetwork interface failed to start using the values supplied.")
+        when 'testnet'
+          ApplianceConsole::Utilities.test_network
+
+        when 'hostname'
+          say("Hostname Configuration\n\n")
+          new_host = just_ask("new hostname", host)
+
+          if new_host != host
+            say("Applying new hostname...")
+            system_hosts = LinuxAdmin::Hosts.new
+
+            system_hosts.parsed_file.each { |line| line[:hosts].to_a.delete(host) } unless host =~ /^localhost.*/
+
+            system_hosts.hostname = new_host
+            system_hosts.set_loopback_hostname(new_host)
+            system_hosts.save
+            LinuxAdmin::Service.new("network").restart
             press_any_key
-            next
           end
-
-          say("\nAfter completing the appliance configuration, please restart #{I18n.t("product.name")} server processes.")
-          press_any_key
-        end
-
-      when I18n.t("advanced_settings.testnet")
-        ApplianceConsole::Utilities.test_network
-
-      when I18n.t("advanced_settings.hostname")
-        say("Hostname Configuration\n\n")
-        new_host = just_ask("new hostname", host)
-
-        if new_host != host
-          say("Applying new hostname...")
-          system_hosts = LinuxAdmin::Hosts.new
-
-          system_hosts.parsed_file.each { |line| line[:hosts].to_a.delete(host) } unless host =~ /^localhost.*/
-
-          system_hosts.hostname = new_host
-          system_hosts.set_loopback_hostname(new_host)
-          system_hosts.save
-          LinuxAdmin::Service.new("network").restart
-          press_any_key
         end
 
       when I18n.t("advanced_settings.timezone")

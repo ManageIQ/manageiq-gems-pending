@@ -27,9 +27,11 @@ module ApplianceConsole
           # Convert all backslashes in the URI to forward slashes and strip whitespace
           a.tr!('\\', '/')
           a.strip!
-          scheme, _, host, _, _, path, = URI.split(URI.encode(a))
+          u = URI(a)
           # validate it has a hostname/ip and a share
-          scheme == expected_scheme && (host.to_s =~ HOSTNAME_REGEXP || host.to_s =~ IP_REGEXP) && path.to_s.length > 0
+          u.scheme == expected_scheme &&
+            (u.host =~ HOSTNAME_REGEXP || u.hostname =~ IP_REGEXP) &&
+            !u.path.empty?
         end
       end
     end

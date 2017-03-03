@@ -13,7 +13,7 @@ describe ApplianceConsole::InternalDatabaseConfiguration do
 
   context ".new" do
     it "set defaults automatically" do
-      expect(@config.host).to eq("127.0.0.1")
+      expect(@config.host).to eq('localhost')
       expect(@config.username).to eq("root")
       expect(@config.database).to eq("vmdb_production")
       expect(@config.run_as_evm_server).to be true

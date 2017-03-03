@@ -24,7 +24,7 @@ module ApplianceConsole
     end
 
     def set_defaults
-      self.host              = "127.0.0.1"
+      self.host              = 'localhost'
       self.username          = "root"
       self.database          = "vmdb_production"
       self.run_as_evm_server = true

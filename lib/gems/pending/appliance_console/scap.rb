@@ -2,6 +2,10 @@ require 'linux_admin'
 
 module ApplianceConsole
   class Scap
+    def initialize(rules_dir)
+      @rules_dir = rules_dir
+    end
+
     def lockdown
       if packages_installed? && config_exists?
         say("Locking down the appliance for SCAP...")
@@ -20,7 +24,7 @@ module ApplianceConsole
     private
 
     def yaml_filename
-      File.expand_path("config/scap_rules.yml", __dir__)
+      File.expand_path("scap_rules.yml", @rules_dir)
     end
 
     def packages_installed?

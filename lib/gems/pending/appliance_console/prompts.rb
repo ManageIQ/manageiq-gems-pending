@@ -9,6 +9,7 @@ module ApplianceConsole
     IP_REGEXP     = Regexp.union(Resolv::IPv4::Regex, Resolv::IPv6::Regex).freeze
     DOMAIN_REGEXP = /^[a-z0-9]+([\-\.]{1}[a-z0-9]+)*(\.[a-z]{2,13})?$/
     INT_REGEXP    = /^[0-9]+$/
+    NONE_REGEXP   = /^('?NONE'?)?$/i.freeze
     HOSTNAME_REGEXP = /^(([a-zA-Z]|[a-zA-Z][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])$/
 
     SAMPLE_URLS = {
@@ -76,8 +77,7 @@ module ApplianceConsole
     end
 
     def ask_for_ipv4_or_none(prompt, default = nil)
-      validation = ->(p) { p.empty? || p =~ /^'?NONE'?$/i || p =~ IPV4_REGEXP }
-      ask_for_ip(prompt, default, validation).gsub(/^'?NONE'?$/i, "")
+      ask_for_ip(prompt, default, Regexp.union(NONE_REGEXP, IPV4_REGEXP)).gsub(NONE_REGEXP, "")
     end
 
     def ask_for_hostname(prompt, default = nil, validate = HOSTNAME_REGEXP, error_text = "a valid Hostname.", &block)
@@ -90,8 +90,8 @@ module ApplianceConsole
     end
 
     def ask_for_ip_or_hostname_or_none(prompt, default = nil)
-      validation = ->(h) { h.empty? || h =~ /^'?NONE'?$/i || h =~ HOSTNAME_REGEXP || h =~ IP_REGEXP }
-      ask_for_ip(prompt, default, validation, "a valid Hostname or IP Address.").gsub(/^'?NONE'?$/i, "")
+      validation = Regexp.union(NONE_REGEXP, HOSTNAME_REGEXP, IP_REGEXP)
+      ask_for_ip(prompt, default, validation, "a valid Hostname or IP Address.").gsub(NONE_REGEXP, "")
     end
 
     def ask_for_schedule_frequency(prompt, default = nil)
@@ -128,7 +128,7 @@ module ApplianceConsole
 
     def ask_for_password_or_none(prompt, default = nil)
       prompt += " ('none' for no value)" if default && !prompt.include?('none')
-      ask_for_password(prompt, default).gsub(/^'?NONE'?$/i, "")
+      ask_for_password(prompt, default).gsub(NONE_REGEXP, "")
     end
 
     def ask_for_string(prompt, default = nil)

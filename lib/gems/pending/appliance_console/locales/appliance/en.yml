@@ -22,7 +22,7 @@ en:
     - shutdown
     - summary
     - quit
-    networking: Set-up Networking
+    networking: Configure Network
     timezone: Set Timezone
     datetime: Set Date and Time
     dbrestore: Restore Database From Backup

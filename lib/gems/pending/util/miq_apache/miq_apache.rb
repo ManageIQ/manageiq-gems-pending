@@ -215,6 +215,10 @@ module MiqApache
           content << "RewriteCond \%{REQUEST_URI} !^/ansibleapi\n"
           content << "RewriteCond \%{DOCUMENT_ROOT}/\%{REQUEST_FILENAME} !-f\n"
           content << "RewriteRule ^#{redirect} balancer://#{opts[:cluster]}\%{REQUEST_URI} [P,QSA,L]\n"
+          content << "ErrorDocument 404 /404.html\n"
+          content << "ErrorDocument 422 /422.html\n"
+          content << "ErrorDocument 500 /500.html\n"
+          content << "ProxyErrorOverride On\n"
         else
           content << "ProxyPass #{redirect} balancer://#{opts[:cluster]}#{redirect}\n"
         end

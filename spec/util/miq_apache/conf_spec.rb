@@ -63,11 +63,6 @@ describe MiqApache::Conf do
       expect(@conf.fname).not_to be_nil
     end
 
-    it "instance should return existing conf instance" do
-      expect(MiqApache::Conf).to receive(:new).never
-      MiqApache::Conf.instance(File.expand_path(File.join(File.dirname(__FILE__), "data", "apache_test1.conf")))
-    end
-
     it "should have valid conf object" do
       expect(@conf).not_to be_nil
     end

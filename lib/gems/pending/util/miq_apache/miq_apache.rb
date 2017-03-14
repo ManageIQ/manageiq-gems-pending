@@ -169,23 +169,19 @@ module MiqApache
 
     attr_reader :fname
     attr_accessor :raw_lines
-    cattr_accessor :instance_cache
 
     def initialize(filename = nil)
       raise ConfFileNotSpecified if filename.nil?
       raise ConfFileNotFound     unless File.file?(filename)
       @fname     = filename
-      self.class.instance_cache = self
       reload
     end
 
     def self.instance(filename)
-      if instance_cache && instance_cache.fname == filename
-        instance_cache.reload
-      else
-        self.instance_cache = new(filename)
-      end
-      instance_cache
+      # This method was previously caching the result, since that's gone
+      # we should remove any callers of `instance` and have them call
+      # new directly.
+      new(filename)
     end
 
     def self.install_default_config(opts = {})

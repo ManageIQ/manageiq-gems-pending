@@ -84,21 +84,14 @@ describe MiqApache::Control do
     expect(MiqApache::Control.status(false)).to be_nil
   end
 
-  it "should return true with when calling config_ok? and result was 'Syntax OK'" do
-    result = "Syntax OK"
-    allow(MiqUtil).to receive(:runcmd).and_return(result)
-    expect(MiqApache::Control).to be_config_ok
+  it "config_ok? is true if nothing raised" do
+    allow(MiqUtil).to receive(:runcmd)
+    expect(described_class.config_ok?).to be_truthy
   end
 
-  it "should return false with when calling config_ok? and an error was raised" do
-    allow(MiqUtil).to receive(:runcmd).and_raise("some error message")
-    expect(MiqApache::Control).not_to be_config_ok
-  end
-
-  it "should return false with when calling config_ok? and result was NOT 'Syntax OK'" do
-    result = "Blah!"
-    allow(MiqUtil).to receive(:runcmd).and_return(result)
-    expect(MiqApache::Control).not_to be_config_ok
+  it "config_ok? is false when error was raised" do
+    allow(MiqUtil).to receive(:runcmd).and_raise(StandardError)
+    expect(described_class.config_ok?).to be_falsey
   end
 
   it "should runcmd with rpm -qa... when calling version" do

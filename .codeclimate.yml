@@ -10,6 +10,11 @@ exclude_paths:
 - "spec/"
 - "test/"
 - "tmp/"
+- "lib/gems/pending/*/test/"
+- "lib/gems/pending/metadata/linux/test/Packages"
+- "lib/gems/pending/metadata/linux/test/tc_LinuxUtils.rb"
+- "lib/gems/pending/VcoWebService/vmwo.wsdl"
+- "lib/gems/pending/VMwareWebService/wsdl41/"
 engines:
   brakeman:
     # very slow :sad_panda:

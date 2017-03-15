@@ -22,15 +22,11 @@ engines:
   bundler-audit:
     # requires Gemfile.lock
     enabled: false
-  csslint:
-    enabled: false
   duplication:
     enabled: true
     config:
       languages:
       - ruby
-  eslint:
-    enabled: false
   fixme:
     # let's enable later
     enabled: false

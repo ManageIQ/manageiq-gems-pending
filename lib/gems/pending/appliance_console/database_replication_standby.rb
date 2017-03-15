@@ -40,7 +40,7 @@ module ApplianceConsole
     def confirm
       super
       say(<<-EOS) if disk
-        Database Disk:              #{disk}
+        Database Disk:              #{disk.path}
       EOS
       say(<<-EOS)
         Standby Host:               #{standby_host}

@@ -28,7 +28,7 @@ module ApplianceConsole
     def ask_questions
       clear_screen
       say("Establish Replication Standby Server\n")
-      self.disk = ask_for_disk("database disk")
+      self.disk = ask_for_disk("Standby database disk")
       ask_for_unique_cluster_node_number
       ask_for_database_credentials
       ask_for_standby_host

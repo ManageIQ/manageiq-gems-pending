@@ -37,17 +37,6 @@ module ApplianceConsole
       confirm
     end
 
-    def initialize_postgresql_disk
-      log_and_feedback(__method__) do
-        LogicalVolumeManagement.new(:disk                => disk,
-                                    :mount_point         => PostgresAdmin.mount_point,
-                                    :name                => "pg",
-                                    :volume_group_name   => PostgresAdmin.volume_group_name,
-                                    :filesystem_type     => PostgresAdmin.database_disk_filesystem,
-                                    :logical_volume_path => PostgresAdmin.logical_volume_path).setup
-      end
-    end
-
     def confirm
       super
       say(<<-EOS) if disk
@@ -120,6 +109,19 @@ module ApplianceConsole
       Logging.logger.error(message)
       say(message)
       false
+    end
+
+    private
+
+    def initialize_postgresql_disk
+      log_and_feedback(__method__) do
+        LogicalVolumeManagement.new(:disk                => disk,
+                                    :mount_point         => PostgresAdmin.mount_point,
+                                    :name                => "pg",
+                                    :volume_group_name   => PostgresAdmin.volume_group_name,
+                                    :filesystem_type     => PostgresAdmin.database_disk_filesystem,
+                                    :logical_volume_path => PostgresAdmin.logical_volume_path).setup
+      end
     end
   end # class DatabaseReplicationStandby < DatabaseReplication
 end # module ApplianceConsole

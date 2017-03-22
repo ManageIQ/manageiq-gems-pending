@@ -124,8 +124,7 @@ module ApplianceConsole
 
       summary_attributes = [
         summary_entry("Hostname", host),
-        summary_entry("IP Address", ip),
-        summary_entry("Netmask", mask),
+        summary_entry("IPv4 Address", "#{ip}/#{mask}"),
         summary_entry("Gateway", gw),
         summary_entry("Primary DNS", dns1),
         summary_entry("Secondary DNS", dns2),

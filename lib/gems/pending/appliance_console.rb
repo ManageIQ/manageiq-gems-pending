@@ -157,10 +157,11 @@ To modify the configuration, use a web browser to access the management page.
       case selection
       when I18n.t('advanced_settings.networking')
         options = {
-          'Set DHCP Network Configuration'   => 'dhcp',
-          'Set Static Network Configuration' => 'static',
-          'Test Network Configuration'       => 'testnet',
-          'Set Hostname'                     => 'hostname'
+          'Set DHCP Network Configuration'        => 'dhcp',
+          'Set IPv4 Static Network Configuration' => 'static',
+          'Set IPv6 Static Network Configuration' => 'static6',
+          'Test Network Configuration'            => 'testnet',
+          'Set Hostname'                          => 'hostname'
         }
         case ask_with_menu('Network Configuration', options)
         when 'dhcp'
@@ -214,6 +215,56 @@ Static Network Configuration
 
             begin
               network_configured = eth0.apply_static(new_ip, new_mask, new_gw, [new_dns1, new_dns2], new_search_order)
+            rescue ArgumentError => e
+              say("\nNetwork configuration failed: #{e.message}")
+              press_any_key
+              next
+            end
+
+            unless network_configured
+              say("\nNetwork interface failed to start using the values supplied.")
+              press_any_key
+              next
+            end
+
+            say("\nAfter completing the appliance configuration, please restart #{I18n.t("product.name")} server processes.")
+            press_any_key
+          end
+
+        when 'static6'
+          say("IPv6: Static Network Configuration\n\n")
+          say("Enter the new static network configuration settings.\n\n")
+
+          new_ip = ask_for_ipv6('IP Address', eth0.address6)
+          new_prefix = ask_for_integer('IPv6 prefix length', 1..127, eth0.prefix6 || 64)
+          new_gw = ask_for_ipv6('Default gateway', eth0.gateway6)
+          new_dns1 = ask_for_ipv6('Primary DNS', dns1)
+          new_dns2 = ask_for_ipv6_or_none("Secondary DNS (Enter 'none' for no value)")
+
+          new_search_order = ask_for_many('domain', 'Domain search order', order)
+
+          clear_screen
+          say(<<-EOL)
+Static Network Configuration
+
+        IP Address:      #{new_ip}/#{new_prefix}
+        Gateway:         #{new_gw}
+        Primary DNS:     #{new_dns1}
+        Secondary DNS:   #{new_dns2}
+        Search Order:    #{new_search_order.join(" ")}
+
+          EOL
+
+          if agree('Apply static network configuration? (Y/N)')
+            say("\nApplying static network configuration...")
+
+            resolv = LinuxAdmin::Dns.new
+            resolv.search_order = []
+            resolv.nameservers = []
+            resolv.save
+
+            begin
+              network_configured = eth0.apply_static6(new_ip, new_prefix, new_gw, [new_dns1, new_dns2], new_search_order)
             rescue ArgumentError => e
               say("\nNetwork configuration failed: #{e.message}")
               press_any_key

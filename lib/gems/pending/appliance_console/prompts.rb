@@ -6,6 +6,7 @@ module ApplianceConsole
   module Prompts
     CLEAR_CODE    = `clear`
     IPV4_REGEXP   = Resolv::IPv4::Regex
+    IPV6_REGEXP   = Resolv::IPv6::Regex
     IP_REGEXP     = Regexp.union(Resolv::IPv4::Regex, Resolv::IPv6::Regex).freeze
     DOMAIN_REGEXP = /^[a-z0-9]+([\-\.]{1}[a-z0-9]+)*(\.[a-z]{2,13})?$/
     INT_REGEXP    = /^[0-9]+$/
@@ -78,6 +79,14 @@ module ApplianceConsole
 
     def ask_for_ipv4_or_none(prompt, default = nil)
       ask_for_ip(prompt, default, Regexp.union(NONE_REGEXP, IPV4_REGEXP)).gsub(NONE_REGEXP, "")
+    end
+
+    def ask_for_ipv6(prompt, default)
+      ask_for_ip(prompt, default, IPV6_REGEXP)
+    end
+
+    def ask_for_ipv6_or_none(prompt, default = nil)
+      ask_for_ip(prompt, default, Regexp.union(IPV6_REGEXP, NONE_REGEXP)).gsub(NONE_REGEXP, '')
     end
 
     def ask_for_hostname(prompt, default = nil, validate = HOSTNAME_REGEXP, error_text = "a valid Hostname.", &block)

@@ -167,7 +167,11 @@ To modify the configuration, use a web browser to access the management page.
         case ask_with_menu('Network Configuration', options)
         when 'dhcp'
           say("DHCP Network Configuration\n\n")
-          if agree("Apply DHCP network configuration? (Y/N): ")
+
+          ipv4 = agree('Enable DHCP for IPv4 network configuration? (Y/N): ')
+          ipv6 = agree('Enable DHCP for IPv6 network configuration? (Y/N): ')
+
+          if ipv4 || ipv6
             say("\nApplying DHCP network configuration...")
 
             resolv = LinuxAdmin::Dns.new
@@ -175,7 +179,8 @@ To modify the configuration, use a web browser to access the management page.
             resolv.nameservers = []
             resolv.save
 
-            eth0.enable_dhcp
+            eth0.enable_dhcp if ipv4
+            eth0.enable_dhcp6 if ipv6
             eth0.save
 
             say("\nAfter completing the appliance configuration, please restart #{I18n.t("product.name")} server processes.")

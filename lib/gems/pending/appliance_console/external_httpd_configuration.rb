@@ -1,4 +1,5 @@
 require 'pathname'
+require 'miq_apache'
 
 module ApplianceConsole
   class ExternalHttpdAuthentication
@@ -15,8 +16,8 @@ module ApplianceConsole
       SSSD_CONFIG          = "/etc/sssd/sssd.conf".freeze
       PAM_CONFIG           = "/etc/pam.d/httpd-auth".freeze
       HTTP_KEYTAB          = "/etc/http.keytab".freeze
-      HTTP_REMOTE_USER     = "/etc/httpd/conf.d/manageiq-remote-user.conf".freeze
-      HTTP_EXTERNAL_AUTH   = "/etc/httpd/conf.d/manageiq-external-auth.conf".freeze
+      HTTP_REMOTE_USER     = "#{MiqApache.config_dir}/manageiq-remote-user.conf".freeze
+      HTTP_EXTERNAL_AUTH   = "#{MiqApache.config_dir}/manageiq-external-auth.conf".freeze
       HTTP_EXTERNAL_AUTH_TEMPLATE = "#{HTTP_EXTERNAL_AUTH}.erb".freeze
 
       GETSEBOOL_COMMAND    = "/usr/sbin/getsebool".freeze
@@ -66,11 +67,11 @@ module ApplianceConsole
       end
 
       def unconfigure_httpd
-        say("Unconfiguring httpd ...")
+        say("Unconfiguring #{MiqApache.package_name} ...")
         unconfigure_httpd_application
 
-        say("Restarting httpd ...")
-        LinuxAdmin::Service.new("httpd").restart
+        say("Restarting #{MiqApache.package_name} ...")
+        LinuxAdmin::Service.new(MiqApache.service_name).restart
       end
 
       def configure_httpd_application

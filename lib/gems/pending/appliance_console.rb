@@ -22,6 +22,7 @@ require 'bcrypt'
 require 'linux_admin'
 require 'util/vmdb-logger'
 require 'util/postgres_admin'
+require 'util/miq_apache'
 require 'awesome_spawn'
 include HighLine::SystemExtensions
 
@@ -648,7 +649,7 @@ Static Network Configuration
             LinuxAdmin::Service.new("evmserverd").stop
             LinuxAdmin::Service.new("miqtop").stop
             LinuxAdmin::Service.new("miqvmstat").stop
-            LinuxAdmin::Service.new("httpd").stop
+            LinuxAdmin::Service.new(MiqApache.service_name).stop
             FileUtils.rm_rf(Dir.glob("/var/www/miq/vmdb/log/*.log*"))
             FileUtils.rm_rf(Dir.glob("/var/www/miq/vmdb/log/apache/*.log*"))
             Logging.logger.info("Logs cleaned and appliance rebooted by appliance console.")

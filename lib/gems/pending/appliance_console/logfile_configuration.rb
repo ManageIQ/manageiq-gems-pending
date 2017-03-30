@@ -2,6 +2,7 @@ require 'linux_admin'
 require 'pathname'
 require 'fileutils'
 require 'util/miq-system.rb'
+require 'util/miq_apache'
 require 'appliance_console/logical_volume_management'
 require 'appliance_console/prompts'
 
@@ -105,13 +106,13 @@ module ApplianceConsole
     def start_evm
       say 'Starting EVM'
       LinuxAdmin::Service.new("evmserverd").enable.start
-      LinuxAdmin::Service.new("httpd").enable.start
+      LinuxAdmin::Service.new(MiqApache.service_name).enable.start
     end
 
     def stop_evm
       say 'Stopping EVM'
       LinuxAdmin::Service.new("evmserverd").stop
-      LinuxAdmin::Service.new("httpd").stop
+      LinuxAdmin::Service.new(MiqApache.service_name).stop
     end
   end
 end

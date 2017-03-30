@@ -3,6 +3,7 @@ require 'tempfile'
 require 'appliance_console/principal'
 require 'appliance_console/certificate'
 require 'util/postgres_admin'
+require 'util/miq_apache'
 
 module ApplianceConsole
   # configure ssl certificates for postgres communication
@@ -110,7 +111,7 @@ module ApplianceConsole
       ).request
       if cert.complete?
         say "configuring apache to use new certs"
-        LinuxAdmin::Service.new("httpd").restart
+        LinuxAdmin::Service.new(MiqApache.service_name).restart
       end
       self.http = cert.status
     end

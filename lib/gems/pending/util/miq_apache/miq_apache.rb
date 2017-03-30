@@ -83,7 +83,7 @@ module MiqApache
 
     def self.httpd_status
       begin
-        res = MiqUtil.runcmd('/usr/bin/systemctl status httpd')
+        res = MiqUtil.runcmd("/usr/bin/systemctl status #{MiqApache.service_name}")
       rescue RuntimeError => err
         res = err.to_s
         return false, res if res =~ /Active: inactive/
@@ -95,7 +95,7 @@ module MiqApache
     end
 
     def self.kill_all
-      MiqUtil.runcmd('killall -9 httpd')
+      MiqUtil.runcmd("killall -9 #{MiqApache.service_name}")
     rescue => err
       raise unless err.to_s =~ /httpd: no process found/
     else
@@ -116,7 +116,7 @@ module MiqApache
     end
 
     def self.version
-      MiqUtil.runcmd("rpm -qa --queryformat '%{VERSION}' httpd")
+      MiqUtil.runcmd("rpm -qa --queryformat '%{VERSION}' #{MiqApache.service_name}")
     end
 
     def self.config_ok?
@@ -127,7 +127,12 @@ module MiqApache
       # Command line: apachectl configtest
       ###################################################################
       begin
-        res = MiqUtil.runcmd('apachectl configtest')
+        # Note: bug with configtest in 2.4.18 httpd24-httpd in SCL, need to run via scl enable, fixed in 2.4.25
+        res = if MiqApache.scl?
+                MiqUtil.runcmd("echo apachectl configtest | scl enable #{MiqApache.package_name} -")
+              else
+                MiqUtil.runcmd("#{MiqApache.apachectl} configtest")
+              end
       rescue => err
         $log.warn("MIQ(MiqApache::Control.config_ok?) Configuration syntax failed with error: #{err} for result: #{res}") if $log
         false
@@ -141,7 +146,7 @@ module MiqApache
     def self.run_apache_cmd(command)
       Dir.mkdir(File.dirname(APACHE_CONTROL_LOG)) unless File.exist?(File.dirname(APACHE_CONTROL_LOG))
       begin
-        cmd = "apachectl #{command}"
+        cmd = "#{MiqApache.apachectl} #{command}"
         res = MiqUtil.runcmd(cmd)
       rescue => err
         $log.warn("MIQ(MiqApache::Control.run_apache_cmd) Apache command #{command} with result: #{res} failed with error: #{err}") if $log

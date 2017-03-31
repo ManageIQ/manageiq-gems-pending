@@ -25,7 +25,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "activesupport",           ">= 5.0", "< 5.1"
   s.add_runtime_dependency "addressable",             "~> 2.4"
   s.add_runtime_dependency "awesome_spawn",           "~> 1.4"
-  s.add_runtime_dependency "azure-armrest",           "~> 0.7.0"
+  s.add_runtime_dependency "azure-armrest",           "~> 0.5.2"
   s.add_runtime_dependency "bcrypt",                  "~> 3.1.10"
   s.add_runtime_dependency "binary_struct",           "~> 2.1"
   s.add_runtime_dependency "bundler",                 ">= 1.8.4" # rails-assets requires bundler >= 1.8.4, see: https://rails-assets.org/
@@ -43,7 +43,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "linux_admin",             "~>0.20.0"
   s.add_runtime_dependency "linux_block_device",      "~>0.2.1"
   s.add_runtime_dependency "log4r",                   "=1.1.8"
-  s.add_runtime_dependency "memoist",                 "~>0.15.0"
+  s.add_runtime_dependency "memoist",                 "~>0.14.0"
   s.add_runtime_dependency "memory_buffer",           ">=0.1.0"
   s.add_runtime_dependency "more_core_extensions",    "~>3.2"
   s.add_runtime_dependency "net-scp",                 "~>1.2.1"

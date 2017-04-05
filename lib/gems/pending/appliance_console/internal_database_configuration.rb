@@ -10,6 +10,9 @@ module ApplianceConsole
   class InternalDatabaseConfiguration < DatabaseConfiguration
     attr_accessor :disk, :ssl, :run_as_evm_server
 
+    DEDICATED_DB_SHARED_BUFFERS = "'1GB'".freeze
+    SHARED_DB_SHARED_BUFFERS = "'128MB'".freeze
+
     def self.postgres_dir
       PostgresAdmin.data_directory.relative_path_from(Pathname.new("/"))
     end
@@ -86,6 +89,7 @@ module ApplianceConsole
         start_postgres
         create_postgres_root_user
         create_postgres_database
+        apply_initial_configuration
       end
     end
 
@@ -133,18 +137,35 @@ module ApplianceConsole
     end
 
     def create_postgres_root_user
-      conn = PG.connect(:user => "postgres", :dbname => "postgres")
-      esc_pass = conn.escape_string(password)
-      conn.exec("CREATE ROLE #{username} WITH LOGIN CREATEDB SUPERUSER PASSWORD '#{esc_pass}'")
+      with_pg_connection do |conn|
+        esc_pass = conn.escape_string(password)
+        conn.exec("CREATE ROLE #{username} WITH LOGIN CREATEDB SUPERUSER PASSWORD '#{esc_pass}'")
+      end
     end
 
     def create_postgres_database
-      conn = PG.connect(:user => "postgres", :dbname => "postgres")
-      conn.exec("CREATE DATABASE #{database} OWNER #{username} ENCODING 'utf8'")
+      with_pg_connection do |conn|
+        conn.exec("CREATE DATABASE #{database} OWNER #{username} ENCODING 'utf8'")
+      end
     end
 
     def relabel_postgresql_dir
       AwesomeSpawn.run!("/sbin/restorecon -R -v #{mount_point}")
+    end
+
+    def with_pg_connection
+      conn = PG.connect(:user => "postgres", :dbname => "postgres")
+      yield conn
+    ensure
+      conn.close
+    end
+
+    def apply_initial_configuration
+      shared_buffers = run_as_evm_server ? SHARED_DB_SHARED_BUFFERS : DEDICATED_DB_SHARED_BUFFERS
+      with_pg_connection do |conn|
+        conn.exec("ALTER SYSTEM SET ssl TO on") if ssl
+        conn.exec("ALTER SYSTEM SET shared_buffers TO #{shared_buffers}")
+      end
     end
   end
 end

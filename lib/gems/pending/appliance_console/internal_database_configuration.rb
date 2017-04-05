@@ -130,6 +130,11 @@ module ApplianceConsole
       block_until_postgres_accepts_connections
     end
 
+    def restart_postgres
+      LinuxAdmin::Service.new(PostgresAdmin.service_name).restart
+      block_until_postgres_accepts_connections
+    end
+
     def block_until_postgres_accepts_connections
       loop do
         break if AwesomeSpawn.run("psql -U postgres -c 'select 1'").success?
@@ -166,6 +171,8 @@ module ApplianceConsole
         conn.exec("ALTER SYSTEM SET ssl TO on") if ssl
         conn.exec("ALTER SYSTEM SET shared_buffers TO #{shared_buffers}")
       end
+
+      restart_postgres
     end
   end
 end

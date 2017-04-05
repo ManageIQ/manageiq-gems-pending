@@ -92,7 +92,7 @@ module ApplianceConsole
     def configure_postgres
       self.ssl = File.exist?(PostgresAdmin.certificate_location.join("postgres.key"))
 
-      copy_template "postgresql.conf.erb"
+      copy_template "postgresql.conf"
       copy_template "pg_hba.conf.erb"
       copy_template "pg_ident.conf"
     end

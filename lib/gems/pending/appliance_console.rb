@@ -126,7 +126,7 @@ module ApplianceConsole
         summary_entry("Hostname", host),
         summary_entry("IPv4 Address", "#{ip}/#{mask}"),
         summary_entry("IPv4 Gateway", gw),
-        summary_entry("IPv6 Address", "#{eth0.address6}/#{eth0.prefix}"),
+        summary_entry("IPv6 Address", eth0.address6 ? "#{eth0.address6}/#{eth0.prefix}" : ''),
         summary_entry("IPV6 Gateway", eth0.gateway6),
         summary_entry("Primary DNS", dns1),
         summary_entry("Secondary DNS", dns2),

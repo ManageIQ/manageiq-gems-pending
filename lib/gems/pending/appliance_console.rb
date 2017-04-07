@@ -185,7 +185,7 @@ To modify the configuration, use a web browser to access the management page.
             eth0.enable_dhcp6 if ipv6
             eth0.save
 
-            open(CLOUD_INIT_NETWORK_CONFIG_FILE, "w") { |f| f << CLOUD_INIT_DISABLE_NETWORK_CONFIG }
+            File.write(CLOUD_INIT_NETWORK_CONFIG_FILE, CLOUD_INIT_DISABLE_NETWORK_CONFIG)
             say("\nAfter completing the appliance configuration, please restart #{I18n.t("product.name")} server processes.")
             press_any_key
           end
@@ -236,7 +236,7 @@ Static Network Configuration
               next
             end
 
-            open(CLOUD_INIT_NETWORK_CONFIG_FILE, "w") { |f| f << CLOUD_INIT_DISABLE_NETWORK_CONFIG }
+            File.write(CLOUD_INIT_NETWORK_CONFIG_FILE, CLOUD_INIT_DISABLE_NETWORK_CONFIG)
             say("\nAfter completing the appliance configuration, please restart #{I18n.t("product.name")} server processes.")
             press_any_key
           end
@@ -287,7 +287,7 @@ Static Network Configuration
               next
             end
 
-            open(CLOUD_INIT_NETWORK_CONFIG_FILE, "w") { |f| f << CLOUD_INIT_DISABLE_NETWORK_CONFIG }
+            File.write(CLOUD_INIT_NETWORK_CONFIG_FILE, CLOUD_INIT_DISABLE_NETWORK_CONFIG)
             say("\nAfter completing the appliance configuration, please restart #{I18n.t("product.name")} server processes.")
             press_any_key
           end

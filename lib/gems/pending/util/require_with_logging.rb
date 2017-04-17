@@ -3,6 +3,7 @@ puts "** Loading Require With Logging"
 $req_log_path ||= File.expand_path('.')
 $req_log_file ||= ENV["REQUIRE_LOG"] unless ENV["REQUIRE_LOG"].nil? || ENV["REQUIRE_LOG"] == "true"
 $req_log_file ||= "requires_#{Time.now.utc.strftime("%Y%m%d%H%M%S")}.log"
+$req_log_meth ||= :log_require_time
 
 $req_log ||= File.open(File.join($req_log_path, $req_log_file), "w")
 # $req_log = $stdout
@@ -30,16 +31,28 @@ module Kernel
     $req_depth += 1 if mode == :enter || mode == :reenter
   end
 
+  def log_require_time
+    Time.now
+  end
+
+  def log_require_allocations
+    GC.stat[:total_allocated_objects]
+  end
+
+  def log_require_mb
+    Sys::ProcTable.ps(Process.pid).smaps.pss / 1_000_000.0
+  end
+
   def with_require_logging(path, mode = :enter)
     log_require(path, mode)
-    t = Time.now
+    before = send($req_log_meth)
     begin
       ret = yield
     rescue Exception
-      log_require(path, :fail, Time.now - t) rescue nil
+      log_require(path, :fail, send($req_log_meth) - before) rescue nil
       raise
     end
-    log_require(path, ret, Time.now - t)
+    log_require(path, ret, send($req_log_meth) - before)
     ret
   end
 

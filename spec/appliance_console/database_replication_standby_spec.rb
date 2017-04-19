@@ -21,51 +21,89 @@ describe ApplianceConsole::DatabaseReplicationStandby do
   end
 
   context "#ask_questions" do
-    before do
-      expect(subject).to receive(:ask_for_unique_cluster_node_number)
-      expect(subject).to receive(:ask_for_database_credentials)
-      expect(subject).to receive(:ask_for_standby_host)
-      expect(subject).to receive(:ask_for_repmgrd_configuration)
-      expect(subject).to receive(:ask_for_disk).and_return("/dev/sdd")
+    it "returns false immediatly when the data directory is not empty and data resync is not confirmed" do
+      with_non_empty_data_directory do
+        allow(subject).to receive(:say)
+        expect(subject).to receive(:ask_yn?).and_return(false)
+        expect(subject.ask_questions).to be false
+      end
     end
 
-    it "sets the disk and returns true when input is confirmed" do
-      expect(subject).to receive(:repmgr_configured?).and_return(false)
-      expect(subject).to_not receive(:confirm_reconfiguration)
-      expect(subject).to receive(:confirm).and_return(true)
-      expect(subject.ask_questions).to be true
+    context "asks the default questions and" do
+      before do
+        expect(subject).to receive(:ask_for_unique_cluster_node_number)
+        expect(subject).to receive(:ask_for_database_credentials)
+        expect(subject).to receive(:ask_for_standby_host)
+        expect(subject).to receive(:ask_for_repmgrd_configuration)
+        expect(subject).to receive(:ask_for_disk).and_return("/dev/sdd")
+      end
 
-      expect(subject.disk).to eq("/dev/sdd")
-    end
+      context "with empty data directory" do
+        it "returns true when repmgr is not already configured" do
+          with_empty_data_directory do
+            expect(subject).to receive(:repmgr_configured?).and_return(false)
+            expect(subject).to_not receive(:confirm_reconfiguration)
+            expect(subject).to receive(:confirm).and_return(true)
+            expect(subject.ask_questions).to be true
+          end
+        end
 
-    it "returns true when confirm_reconfigure and input is confirmed" do
-      expect(subject).to receive(:repmgr_configured?).and_return(true)
-      expect(subject).to receive(:confirm_reconfiguration).and_return(true)
-      expect(subject).to receive(:confirm).and_return(true)
-      expect(subject.ask_questions).to be true
-    end
+        it "sets the disk and returns true when input is confirmed" do
+          with_empty_data_directory do
+            expect(subject).to receive(:repmgr_configured?).and_return(false)
+            expect(subject).to_not receive(:confirm_reconfiguration)
+            expect(subject).to receive(:confirm).and_return(true)
+            expect(subject.ask_questions).to be true
 
-    it "returns false when confirm_reconfigure is canceled" do
-      expect(subject).to receive(:repmgr_configured?).and_return(true)
-      expect(subject).to receive(:confirm_reconfiguration).and_return(false)
-      expect(subject).to_not receive(:confirm)
-      expect(subject.ask_questions).to be false
-    end
+            expect(subject.disk).to eq("/dev/sdd")
+          end
+        end
 
-    it "returns false when input is not confirmed" do
-      expect(subject).to receive(:repmgr_configured?).and_return(false)
-      expect(subject).to_not receive(:confirm_reconfiguration)
-      expect(subject).to receive(:confirm).and_return(false)
-      expect(subject.ask_questions).to be false
+        it "returns true when confirm_reconfigure and input is confirmed" do
+          with_empty_data_directory do
+            expect(subject).to receive(:repmgr_configured?).and_return(true)
+            expect(subject).to receive(:confirm_reconfiguration).and_return(true)
+            expect(subject).to receive(:confirm).and_return(true)
+            expect(subject.ask_questions).to be true
+          end
+        end
+
+        it "returns false when confirm_reconfigure is canceled" do
+          with_empty_data_directory do
+            expect(subject).to receive(:repmgr_configured?).and_return(true)
+            expect(subject).to receive(:confirm_reconfiguration).and_return(false)
+            expect(subject).to_not receive(:confirm)
+            expect(subject.ask_questions).to be false
+          end
+        end
+
+        it "returns false when input is not confirmed" do
+          with_empty_data_directory do
+            expect(subject).to receive(:repmgr_configured?).and_return(false)
+            expect(subject).to_not receive(:confirm_reconfiguration)
+            expect(subject).to receive(:confirm).and_return(false)
+            expect(subject.ask_questions).to be false
+          end
+        end
+      end
+
+      context "with non-empty data directory" do
+        it "returns true when resync is confirmed" do
+          with_non_empty_data_directory do
+            allow(subject).to receive(:say)
+            expect(subject).to receive(:ask_yn?).and_return(true)
+            expect(subject).to receive(:repmgr_configured?).and_return(false)
+            expect(subject).to_not receive(:confirm_reconfiguration)
+            expect(subject).to receive(:confirm).and_return(true)
+            expect(subject.ask_questions).to be true
+          end
+        end
+      end
     end
   end
 
   context "#activate" do
     before do
-      subject.run_repmgrd_configuration = false
-      expect(PostgresAdmin).to receive(:prep_data_directory)
-
-      expect(subject).to receive(:data_dir_empty?).and_return(true)
       expect(subject).to receive(:generate_cluster_name).and_return(true)
       expect(subject).to receive(:create_config_file).and_return(true)
       expect(subject).to receive(:clone_standby_server).and_return(true)
@@ -74,7 +112,15 @@ describe ApplianceConsole::DatabaseReplicationStandby do
       expect(subject).to receive(:write_pgpass_file).and_return(true)
     end
 
+    it "cleans the data directory if resync_data is set" do
+      subject.run_repmgrd_configuration = false
+      subject.resync_data = true
+      expect(PostgresAdmin).to receive(:prep_data_directory)
+      expect(subject.activate).to be true
+    end
+
     it "returns true when configure succeeds" do
+      subject.run_repmgrd_configuration = false
       expect(subject.activate).to be true
     end
 
@@ -91,6 +137,7 @@ describe ApplianceConsole::DatabaseReplicationStandby do
       expect(ApplianceConsole::LogicalVolumeManagement).to receive(:new)
         .with(hash_including(:disk => "/dev/sdd")).and_return(lvm)
       expect(lvm).to receive(:setup)
+      expect(PostgresAdmin).to receive(:prep_data_directory)
       expect(subject.activate).to be true
     end
 
@@ -153,19 +200,14 @@ describe ApplianceConsole::DatabaseReplicationStandby do
   end
 
   context "#data_dir_empty?" do
-    it "should log a message and return false when not empty" do
-      Dir.mktmpdir do |dir|
-        open("#{dir}/this_directory_is_not_empty", "w")
-        expect(subject).to receive(:say).with(/^Appliance/i)
-        expect(PostgresAdmin).to receive(:data_directory).exactly(3).times.and_return(Pathname.new(dir))
+    it "should return false when not empty" do
+      with_non_empty_data_directory do
         expect(subject.data_dir_empty?).to be_falsey
       end
     end
 
-    it "should quietly return true when empty" do
-      Dir.mktmpdir do |dir|
-        expect(subject).to_not receive(:say)
-        expect(PostgresAdmin).to receive(:data_directory).once.and_return(Pathname.new(dir))
+    it "should return true when empty" do
+      with_empty_data_directory do
         expect(subject.data_dir_empty?).to be_truthy
       end
     end
@@ -197,6 +239,21 @@ describe ApplianceConsole::DatabaseReplicationStandby do
       expect(service).to receive(:enable).and_return(service)
       expect(service).to receive(:start).and_raise(AwesomeSpawn::CommandResultError.new("", result))
       expect(subject.start_repmgrd).to be false
+    end
+  end
+
+  def with_empty_data_directory
+    Dir.mktmpdir do |dir|
+      allow(PostgresAdmin).to receive(:data_directory).and_return(Pathname.new(dir))
+      yield
+    end
+  end
+
+  def with_non_empty_data_directory
+    Dir.mktmpdir do |dir|
+      open("#{dir}/this_directory_is_not_empty", "w")
+      allow(PostgresAdmin).to receive(:data_directory).and_return(Pathname.new(dir))
+      yield
     end
   end
 end

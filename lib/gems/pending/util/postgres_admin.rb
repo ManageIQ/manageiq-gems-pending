@@ -160,7 +160,7 @@ class PostgresAdmin
 
     opts = opts.dup
     dbname = opts.delete(:dbname)
-    runcmd("pg_dump", opts, :format => "c", :file => opts[:local_file], nil => dbname)
+    runcmd("pg_dump", opts, :format => "c", :jobs => 3, :file => opts[:local_file], nil => dbname)
     opts[:local_file]
   end
 
@@ -207,7 +207,7 @@ class PostgresAdmin
     # An alternative is to use the -a option to only restore the data if there is not a migration/schema change
     recreate_db(opts)
 
-    runcmd("pg_restore", opts, :verbose => nil, :exit_on_error => nil, nil => opts[:local_file])
+    runcmd("pg_restore", opts, :verbose => nil, :exit_on_error => nil, :jobs => 3, nil => opts[:local_file])
     opts[:local_file]
   end
 

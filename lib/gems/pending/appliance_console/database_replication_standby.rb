@@ -13,7 +13,7 @@ module ApplianceConsole
     REGISTER_CMD    = 'repmgr standby register'.freeze
     REPMGRD_SERVICE = 'rh-postgresql95-repmgr'.freeze
 
-    attr_accessor :disk, :standby_host, :run_repmgrd_configuration, :resync_data
+    attr_accessor :disk, :standby_host, :run_repmgrd_configuration, :resync_data, :force_register
 
     def initialize
       self.cluster_name      = nil
@@ -35,6 +35,7 @@ module ApplianceConsole
       ask_for_database_credentials
       ask_for_standby_host
       ask_for_repmgrd_configuration
+      return false unless node_number_valid?
       return false if repmgr_configured? && !confirm_reconfiguration
       confirm
     end
@@ -102,7 +103,7 @@ module ApplianceConsole
     end
 
     def register_standby_server
-      run_repmgr_command(REGISTER_CMD)
+      run_repmgr_command(REGISTER_CMD, :force => nil)
     end
 
     def start_repmgrd
@@ -115,7 +116,25 @@ module ApplianceConsole
       false
     end
 
+    def node_number_valid?
+      rec = record_for_node_number
+
+      return true if rec.nil?
+      node_state = rec["active"] ? "active" : "inactive"
+
+      say("An #{node_state} #{rec["type"]} node (#{rec["name"]}) with the node number #{node_number} already exists")
+      ask_yn?("Would you like to continue configuration by overwriting the existing node", "N")
+    end
+
     private
+
+    def record_for_node_number
+      c = PG::Connection.new(primary_connection_hash)
+      c.exec_params(<<-SQL, [node_number]).map_types!(PG::BasicTypeMapForResults.new(c)).first
+        SELECT type, name, active
+        FROM repl_nodes where id = $1
+      SQL
+    end
 
     def initialize_postgresql_disk
       log_and_feedback(__method__) do

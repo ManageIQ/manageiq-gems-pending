@@ -13,7 +13,7 @@ module ApplianceConsole
     REGISTER_CMD    = 'repmgr standby register'.freeze
     REPMGRD_SERVICE = 'rh-postgresql95-repmgr'.freeze
 
-    attr_accessor :disk, :standby_host, :run_repmgrd_configuration
+    attr_accessor :disk, :standby_host, :run_repmgrd_configuration, :resync_data
 
     def initialize
       self.cluster_name      = nil
@@ -23,11 +23,13 @@ module ApplianceConsole
       self.database_password = nil
       self.primary_host      = nil
       self.standby_host      = LinuxAdmin::NetworkInterface.new(NETWORK_INTERFACE).address
+      self.resync_data       = false
     end
 
     def ask_questions
       clear_screen
       say("Establish Replication Standby Server\n")
+      return false if !data_dir_empty? && !confirm_data_resync
       self.disk = ask_for_disk("Standby database disk")
       ask_for_unique_cluster_node_number
       ask_for_database_credentials
@@ -60,9 +62,8 @@ module ApplianceConsole
     def activate
       say("Configuring Replication Standby Server...")
       initialize_postgresql_disk if disk
-      PostgresAdmin.prep_data_directory
-      data_dir_empty? &&
-        generate_cluster_name &&
+      PostgresAdmin.prep_data_directory if disk || resync_data
+      generate_cluster_name &&
         create_config_file(standby_host) &&
         clone_standby_server &&
         start_postgres &&
@@ -72,14 +73,17 @@ module ApplianceConsole
     end
 
     def data_dir_empty?
-      return true if Dir[PostgresAdmin.data_directory.join("*")].empty?
+      Dir[PostgresAdmin.data_directory.join("*")].empty?
+    end
+
+    def confirm_data_resync
       Logging.logger.info("Appliance database found under: #{PostgresAdmin.data_directory}")
       say("")
       say("Appliance database found under: #{PostgresAdmin.data_directory}")
       say("Replication standby server can not be configured if the database already exists")
-      say("Remove the existing database before configuring as a standby server")
-      say("")
-      false
+      say("Would you like to remove the existing database before configuring as a standby server?")
+      say("  WARNING: This is destructive. This will remove all previous data from this server")
+      self.resync_data = ask_yn?("Continue")
     end
 
     def clone_standby_server

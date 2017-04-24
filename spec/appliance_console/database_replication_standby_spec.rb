@@ -39,8 +39,16 @@ describe ApplianceConsole::DatabaseReplicationStandby do
       end
 
       context "with empty data directory" do
+        it "returns false when the node number is not valid" do
+          with_empty_data_directory do
+            expect(subject).to receive(:node_number_valid?).and_return(false)
+            expect(subject.ask_questions).to be false
+          end
+        end
+
         it "returns true when repmgr is not already configured" do
           with_empty_data_directory do
+            expect(subject).to receive(:node_number_valid?).and_return(true)
             expect(subject).to receive(:repmgr_configured?).and_return(false)
             expect(subject).to_not receive(:confirm_reconfiguration)
             expect(subject).to receive(:confirm).and_return(true)
@@ -50,6 +58,7 @@ describe ApplianceConsole::DatabaseReplicationStandby do
 
         it "sets the disk and returns true when input is confirmed" do
           with_empty_data_directory do
+            expect(subject).to receive(:node_number_valid?).and_return(true)
             expect(subject).to receive(:repmgr_configured?).and_return(false)
             expect(subject).to_not receive(:confirm_reconfiguration)
             expect(subject).to receive(:confirm).and_return(true)
@@ -61,6 +70,7 @@ describe ApplianceConsole::DatabaseReplicationStandby do
 
         it "returns true when confirm_reconfigure and input is confirmed" do
           with_empty_data_directory do
+            expect(subject).to receive(:node_number_valid?).and_return(true)
             expect(subject).to receive(:repmgr_configured?).and_return(true)
             expect(subject).to receive(:confirm_reconfiguration).and_return(true)
             expect(subject).to receive(:confirm).and_return(true)
@@ -70,6 +80,7 @@ describe ApplianceConsole::DatabaseReplicationStandby do
 
         it "returns false when confirm_reconfigure is canceled" do
           with_empty_data_directory do
+            expect(subject).to receive(:node_number_valid?).and_return(true)
             expect(subject).to receive(:repmgr_configured?).and_return(true)
             expect(subject).to receive(:confirm_reconfiguration).and_return(false)
             expect(subject).to_not receive(:confirm)
@@ -79,6 +90,7 @@ describe ApplianceConsole::DatabaseReplicationStandby do
 
         it "returns false when input is not confirmed" do
           with_empty_data_directory do
+            expect(subject).to receive(:node_number_valid?).and_return(true)
             expect(subject).to receive(:repmgr_configured?).and_return(false)
             expect(subject).to_not receive(:confirm_reconfiguration)
             expect(subject).to receive(:confirm).and_return(false)
@@ -92,6 +104,7 @@ describe ApplianceConsole::DatabaseReplicationStandby do
           with_non_empty_data_directory do
             allow(subject).to receive(:say)
             expect(subject).to receive(:ask_yn?).and_return(true)
+            expect(subject).to receive(:node_number_valid?).and_return(true)
             expect(subject).to receive(:repmgr_configured?).and_return(false)
             expect(subject).to_not receive(:confirm_reconfiguration)
             expect(subject).to receive(:confirm).and_return(true)
@@ -175,8 +188,17 @@ describe ApplianceConsole::DatabaseReplicationStandby do
       end
 
       it "Succeed when REGISTER_CMD succeeds" do
+        subject.database_password = "secret"
+        run_args = [
+          "repmgr standby register",
+          {
+            :params => {:force => nil},
+            :env    => {"PGPASSWORD" => "secret"}
+          }
+        ]
+
         expect(Process).to receive(:wait).with(1234)
-        stub_const("ApplianceConsole::DatabaseReplicationStandby::REGISTER_CMD", "pwd")
+        expect(AwesomeSpawn).to receive(:run!).with(*run_args).and_return(double(:output => "success"))
         expect(subject.register_standby_server).to be true
       end
     end
@@ -239,6 +261,50 @@ describe ApplianceConsole::DatabaseReplicationStandby do
       expect(service).to receive(:enable).and_return(service)
       expect(service).to receive(:start).and_raise(AwesomeSpawn::CommandResultError.new("", result))
       expect(subject.start_repmgrd).to be false
+    end
+  end
+
+  context "#node_number_valid?" do
+    let(:node_number) { 1 }
+    let(:connection)  { double("PG::Connection") }
+    let(:type_map)    { double("PG::TypeMap") }
+
+    let(:one_result) do
+      data = {
+        "type"   => "master",
+        "name"   => "my.master.node",
+        "active" => true
+      }
+      mapped_result = double("PG::Result Mapped", :first => data)
+      double("PG::Result", :map_types! => mapped_result)
+    end
+
+    let(:nil_result) do
+      mapped_result = double("nil PG::Result Mapped", :first => nil)
+      double("nil PG::Result", :map_types! => mapped_result)
+    end
+
+    before do
+      expect(PG::Connection).to receive(:new).and_return(connection)
+      expect(PG::BasicTypeMapForResults).to receive(:new).and_return(type_map)
+      subject.node_number = node_number
+    end
+
+    it "returns true if no node is found" do
+      expect(connection).to receive(:exec_params).with(instance_of(String), [1]).and_return(nil_result)
+      expect(subject.node_number_valid?).to be_truthy
+    end
+
+    it "returns true if a node is found and overwrite is confirmed" do
+      expect(connection).to receive(:exec_params).with(instance_of(String), [1]).and_return(one_result)
+      expect(subject).to receive(:ask_yn?).and_return(true)
+      expect(subject.node_number_valid?).to be_truthy
+    end
+
+    it "returns false if a node is found and overwrite is not confirmed" do
+      expect(connection).to receive(:exec_params).with(instance_of(String), [1]).and_return(one_result)
+      expect(subject).to receive(:ask_yn?).and_return(false)
+      expect(subject.node_number_valid?).to be_falsey
     end
   end
 

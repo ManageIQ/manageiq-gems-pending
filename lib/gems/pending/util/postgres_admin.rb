@@ -118,8 +118,11 @@ class PostgresAdmin
         pglogical.subscription subs,
         LATERAL pglogical.drop_subscription(subs.sub_name)
     SQL
+    runcmd("psql", opts, :command => <<-SQL)
+      DROP EXTENSTION pglogical CASCADE
+    SQL
   rescue AwesomeSpawn::CommandResultError
-    $log.info("MIQ(#{name}.#{__method__}) Ignoring failure to remove pglogical subscriptions ...")
+    $log.info("MIQ(#{name}.#{__method__}) Ignoring failure to remove pglogical before restore ...")
   end
 
   def self.backup_compress_with_gzip

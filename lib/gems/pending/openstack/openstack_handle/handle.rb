@@ -197,6 +197,17 @@ module OpenstackHandle
 
         raw_service = self.class.raw_connect_try_ssl(username, password, address, port, service, opts, api_version,
                                                      security_protocol)
+
+        # need to check if this is versionless keystone endpoint
+        if service == "Identity"
+          identity_prefix = (api_version == "v2" ? "v2.0" : "v3")
+          unless raw_service.credentials[:openstack_management_url].include?(identity_prefix)
+            opts[:openstack_identity_prefix] = identity_prefix
+            raw_service = self.class.raw_connect_try_ssl(username, password, address, port, service, opts, api_version,
+                                                         security_protocol)
+          end
+        end
+
         service_wrapper_name = "#{service}Delegate"
         # Allow openstack to define new services without explicitly requiring a
         # service wrapper.

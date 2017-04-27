@@ -158,10 +158,10 @@ class MIQExtract
   end
 
   def getVMConfig(_c)
-    # Get VM config in XML format
-    config_xml = @target.vmConfig.toXML(true, @target)
-
     begin
+      # Get VM config in XML format
+      config_xml = @target.vmConfig.toXML(true, @target)
+
       # Log snapshot data for diagnostic purposes
       config_xml.find_each("//vm/snapshots") do |s|
         formattedXml = ""

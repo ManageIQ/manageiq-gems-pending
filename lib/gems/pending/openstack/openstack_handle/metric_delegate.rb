@@ -17,6 +17,7 @@ module OpenstackHandle
     def list_meters(filters)
       data = []
       filters.each do |filter|
+        filter['field'] = 'resource_id' if filter['field'] == 'metadata.resource_id'
         next if filter['field'] == 'metadata.instance_id'
         raise "Unexpected Metric filter \"#{filter['field']}\"" unless filter['field'] == 'resource_id'
         res = resources.find_by_id(filter['value'])

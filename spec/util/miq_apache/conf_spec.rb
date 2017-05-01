@@ -10,20 +10,6 @@ describe MiqApache::Conf do
   end
 
   context "building balancer config" do
-    context "lbmethod" do
-      it "should return a config with lbmethod of 'byrequests' by default" do
-        expect(MiqApache::Conf.create_balancer_config).to include("lbmethod=byrequests")
-      end
-
-      it "should return a config with lbmethod of 'bytraffic' if passed :traffic" do
-        expect(MiqApache::Conf.create_balancer_config(:lbmethod => :traffic)).to include("lbmethod=bytraffic")
-      end
-
-      it "should return a config with lbmethod of 'bybusyness' if passed :busy" do
-        expect(MiqApache::Conf.create_balancer_config(:lbmethod => :busy)).to include("lbmethod=bybusyness")
-      end
-    end
-
     it "should set cluster name" do
       expect(MiqApache::Conf.create_balancer_config(:cluster => 'evmcluster_ui')).to include("Proxy balancer://evmcluster_ui/")
     end

@@ -188,13 +188,7 @@ module MiqApache
     end
 
     def self.create_balancer_config(opts = {})
-      lbmethod = case opts[:lbmethod]
-                 when :busy then     :bybusyness
-                 when :traffic then  :bytraffic
-                 else            :byrequests
-                 end
-
-      "<Proxy balancer://#{opts[:cluster]}/ lbmethod=#{lbmethod}>\n</Proxy>\n"
+      "<Proxy balancer://#{opts[:cluster]}/ lbmethod=bybusyness>\n</Proxy>\n"
     end
 
     def self.create_redirects_config(opts = {})

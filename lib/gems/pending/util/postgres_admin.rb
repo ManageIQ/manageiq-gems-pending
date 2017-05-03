@@ -119,7 +119,7 @@ class PostgresAdmin
         LATERAL pglogical.drop_subscription(subs.sub_name)
     SQL
     runcmd("psql", opts, :command => <<-SQL)
-      DROP EXTENSTION pglogical CASCADE
+      DROP EXTENSION pglogical CASCADE
     SQL
   rescue AwesomeSpawn::CommandResultError
     $log.info("MIQ(#{name}.#{__method__}) Ignoring failure to remove pglogical before restore ...")

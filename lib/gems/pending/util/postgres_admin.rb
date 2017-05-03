@@ -129,6 +129,21 @@ class PostgresAdmin
     runcmd("psql", opts, :command => <<-SQL)
       DROP EXTENSION pglogical CASCADE
     SQL
+
+    # Wait for pglogical manager connection to quiesce. Bail after 5 minutes
+    60.times do
+      output = runcmd("psql", opts, :command => <<-SQL)
+        SELECT application_name
+        FROM pg_stat_activity
+        WHERE application_name LIKE 'pglogical manager%'
+      SQL
+      match = /^\((?<count>\d+) row/.match(output)
+      count = match ? match[:count].to_i : 0
+      break if count.zero?
+
+      $log.info("MIQ(#{name}.#{__method__}) Waiting on #{count} pglogical connections to close...")
+      sleep 5
+    end
   end
 
   def self.backup_compress_with_gzip

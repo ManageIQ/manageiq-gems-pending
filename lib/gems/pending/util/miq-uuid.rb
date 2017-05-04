@@ -15,8 +15,4 @@ module MiqUUID
   def self.new_guid
     UUIDTools::UUID.timestamp_create.to_s
   end
-
-  def self.method_missing(m, *args)
-    UUIDTools::UUID.send(m, *args)
-  end
 end

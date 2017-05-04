@@ -19,10 +19,4 @@ describe MiqUUID do
   MIQ_UUID_CASES.each_slice(3) do |title, value, expected|
     it(".clean_guid with #{title}") { expect(MiqUUID.clean_guid(value)).to eq(expected) }
   end
-
-  it ".new_guid" do
-    guid = MiqUUID.new_guid
-    expect(guid).to be_kind_of String
-    expect(guid).to match MiqUUID::REGEX_FORMAT
-  end
 end

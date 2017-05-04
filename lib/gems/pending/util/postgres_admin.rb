@@ -111,6 +111,13 @@ class PostgresAdmin
   end
 
   def self.before_restore(opts)
+    # Drop subscriptions, unload extension and ensure pglogical connections are closed before proceeding
+    unload_pglogical_extension(opts)
+  rescue AwesomeSpawn::CommandResultError
+    $log.info("MIQ(#{name}.#{__method__}) Ignoring failure to remove pglogical before restore ...")
+  end
+
+  def self.unload_pglogical_extension(opts)
     runcmd("psql", opts, :command => <<-SQL)
       SELECT
         drop_subscription
@@ -118,11 +125,25 @@ class PostgresAdmin
         pglogical.subscription subs,
         LATERAL pglogical.drop_subscription(subs.sub_name)
     SQL
+
     runcmd("psql", opts, :command => <<-SQL)
-      DROP EXTENSTION pglogical CASCADE
+      DROP EXTENSION pglogical CASCADE
     SQL
-  rescue AwesomeSpawn::CommandResultError
-    $log.info("MIQ(#{name}.#{__method__}) Ignoring failure to remove pglogical before restore ...")
+
+    # Wait for pglogical manager connection to quiesce. Bail after 5 minutes
+    60.times do
+      output = runcmd("psql", opts, :command => <<-SQL)
+        SELECT application_name
+        FROM pg_stat_activity
+        WHERE application_name LIKE 'pglogical manager%'
+      SQL
+      match = /^\((?<count>\d+) row/.match(output)
+      count = match ? match[:count].to_i : 0
+      break if count.zero?
+
+      $log.info("MIQ(#{name}.#{__method__}) Waiting on #{count} pglogical connections to close...")
+      sleep 5
+    end
   end
 
   def self.backup_compress_with_gzip

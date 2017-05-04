@@ -25,10 +25,4 @@ describe MiqUUID do
     expect(guid).to be_kind_of String
     expect(guid).to match MiqUUID::REGEX_FORMAT
   end
-
-  it ".parse_raw" do
-    guid = MiqUUID.parse_raw("\001#Eg\211\253\315\357\253\315\357\001#Eg\211")
-    expect(guid).to be_kind_of UUIDTools::UUID
-    expect(guid.to_s).to eq('01234567-89ab-cdef-abcd-ef0123456789')
-  end
 end

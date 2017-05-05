@@ -11,12 +11,4 @@ module MiqUUID
     g.delete!('^0-9a-f')
     g.sub!(/^([0-9a-f]{8})([0-9a-f]{4})([0-9a-f]{4})([0-9a-f]{4})([0-9a-f]{12})$/, '\1-\2-\3-\4-\5')
   end
-
-  def self.new_guid
-    UUIDTools::UUID.timestamp_create.to_s
-  end
-
-  def self.method_missing(m, *args)
-    UUIDTools::UUID.send(m, *args)
-  end
 end

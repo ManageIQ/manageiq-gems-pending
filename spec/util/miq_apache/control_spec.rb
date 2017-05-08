@@ -72,18 +72,6 @@ describe MiqApache::Control do
     expect { MiqApache::Control.kill_all }.not_to raise_error
   end
 
-  # FIXME: need to implement the code and change the test
-  it "should not do anything when calling status with full true" do
-    expect(MiqApache::Control).to receive(:run_apache_cmd).never
-    expect(MiqApache::Control.status(true)).to be_nil
-  end
-
-  # FIXME: need to implement the code and change the test
-  it "should not do anything when calling status with full false" do
-    expect(MiqApache::Control).to receive(:run_apache_cmd).never
-    expect(MiqApache::Control.status(false)).to be_nil
-  end
-
   it "config_ok? is true if nothing raised" do
     allow(MiqUtil).to receive(:runcmd)
     expect(described_class.config_ok?).to be_truthy

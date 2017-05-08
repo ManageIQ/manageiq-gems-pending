@@ -102,19 +102,6 @@ module MiqApache
       MiqUtil.runcmd("for i in `ipcs -s | awk '/apache/ {print $2}'`; do (ipcrm -s $i); done")
     end
 
-    def self.status(full = true)
-      if full
-        ###################################################################
-        # Displays a full status report from mod_status. For this to work, you need to have
-        # mod_status enabled on your server and a text-based browser such as lynx available
-        # on your system. The URL used to access the status report can be set by editing the
-        # STATUSURL variable in the script.
-        #
-        # Command line: apachectl fullstatus
-        ###################################################################
-      end
-    end
-
     def self.version
       MiqUtil.runcmd("rpm -qa --queryformat '%{VERSION}' httpd")
     end

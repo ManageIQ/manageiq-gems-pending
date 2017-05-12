@@ -79,8 +79,8 @@ module ApplianceConsole
     end
 
     def post_activation
-      say("\nRestarting httpd, if running ...")
-      httpd_service = LinuxAdmin::Service.new("httpd")
+      say("\nRestarting #{MiqApache.package_name}, if running ...")
+      httpd_service = LinuxAdmin::Service.new(MiqApache.service_name)
       httpd_service.restart if httpd_service.running?
 
       say("Restarting sssd and configure it to start on reboots ...")
@@ -137,7 +137,7 @@ module ApplianceConsole
     end
 
     def configure_httpd
-      say("Configuring httpd ...")
+      say("Configuring #{MiqApache.package_name} ...")
       configure_httpd_application
     end
 

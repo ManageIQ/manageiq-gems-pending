@@ -66,11 +66,6 @@ module OpenstackHandle
       }
       opts.merge!(extra_opts) if extra_opts
 
-      # Workaround for a bug in Fog
-      # https://github.com/fog/fog/issues/3112
-      # Ensure the that if the Storage service is not available, it will not
-      # throw an error trying to build an connection error message.
-      opts[:openstack_service_type] = ["object-store"] if service == "Storage"
       opts[:openstack_service_type] = ["nfv-orchestration"] if service == "NFV"
       opts[:openstack_service_type] = ["workflowv2"] if service == "Workflow"
 

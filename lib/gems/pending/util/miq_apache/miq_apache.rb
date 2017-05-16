@@ -61,24 +61,8 @@ module MiqApache
       end
     end
 
-    def self.stop(graceful = true)
-      if graceful
-        ###################################################################
-        # Gracefully stops the Apache httpd daemon. This differs from a normal stop in that
-        # currently open connections are not aborted. A side effect is that old log files
-        # will not be closed immediately.
-        #
-        # Command line: apachectl graceful-stop
-        ###################################################################
-        run_apache_cmd 'graceful-stop'
-      else
-        ###################################################################
-        # Stops the Apache httpd daemon
-        #
-        # Command line: apachectl stop
-        ###################################################################
-        run_apache_cmd 'stop'
-      end
+    def self.stop(_graceful = true)
+      run_apache_cmd 'stop'
     end
 
     def self.httpd_status

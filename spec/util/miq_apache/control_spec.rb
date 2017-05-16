@@ -5,7 +5,7 @@ describe MiqApache::Control do
   end
 
   it "should run_apache_cmd with graceful-stop and start when calling restart with graceful true" do
-    expect(MiqApache::Control).to receive(:run_apache_cmd).with('graceful-stop')
+    expect(MiqApache::Control).to receive(:run_apache_cmd).with('stop')
     expect(MiqApache::Control).to receive(:run_apache_cmd).with('start')
     MiqApache::Control.restart(true)
   end
@@ -16,7 +16,7 @@ describe MiqApache::Control do
   end
 
   it "should run_apache_cmd with graceful-stop when calling stop with graceful true" do
-    expect(MiqApache::Control).to receive(:run_apache_cmd).with('graceful-stop')
+    expect(MiqApache::Control).to receive(:run_apache_cmd).with('stop')
     MiqApache::Control.stop(true)
   end
 

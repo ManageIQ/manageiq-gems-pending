@@ -61,49 +61,8 @@ module MiqApache
       end
     end
 
-    def self.stop(graceful = true)
-      if graceful
-        ###################################################################
-        # Gracefully stops the Apache httpd daemon. This differs from a normal stop in that
-        # currently open connections are not aborted. A side effect is that old log files
-        # will not be closed immediately.
-        #
-        # Command line: apachectl graceful-stop
-        ###################################################################
-        run_apache_cmd 'graceful-stop'
-      else
-        ###################################################################
-        # Stops the Apache httpd daemon
-        #
-        # Command line: apachectl stop
-        ###################################################################
-        run_apache_cmd 'stop'
-      end
-    end
-
-    def self.httpd_status
-      begin
-        res = MiqUtil.runcmd('/usr/bin/systemctl status httpd')
-      rescue RuntimeError => err
-        res = err.to_s
-        return false, res if res =~ /Active: inactive/
-
-      else
-        return true, res if res =~ /Active: active/
-      end
-      raise "Unknown apache status: #{res}"
-    end
-
-    def self.kill_all
-      MiqUtil.runcmd('killall -9 httpd')
-    rescue => err
-      raise unless err.to_s =~ /httpd: no process found/
-    else
-      MiqUtil.runcmd("for i in `ipcs -s | awk '/apache/ {print $2}'`; do (ipcrm -s $i); done")
-    end
-
-    def self.version
-      MiqUtil.runcmd("rpm -qa --queryformat '%{VERSION}' httpd")
+    def self.stop(_graceful = true)
+      run_apache_cmd 'stop'
     end
 
     def self.config_ok?
@@ -160,13 +119,6 @@ module MiqApache
       raise ConfFileNotFound     unless File.file?(filename)
       @fname     = filename
       reload
-    end
-
-    def self.instance(filename)
-      # This method was previously caching the result, since that's gone
-      # we should remove any callers of `instance` and have them call
-      # new directly.
-      new(filename)
     end
 
     def self.install_default_config(opts = {})

@@ -5,7 +5,7 @@ describe MiqApache::Control do
   end
 
   it "should run_apache_cmd with graceful-stop and start when calling restart with graceful true" do
-    expect(MiqApache::Control).to receive(:run_apache_cmd).with('graceful-stop')
+    expect(MiqApache::Control).to receive(:run_apache_cmd).with('stop')
     expect(MiqApache::Control).to receive(:run_apache_cmd).with('start')
     MiqApache::Control.restart(true)
   end
@@ -16,60 +16,13 @@ describe MiqApache::Control do
   end
 
   it "should run_apache_cmd with graceful-stop when calling stop with graceful true" do
-    expect(MiqApache::Control).to receive(:run_apache_cmd).with('graceful-stop')
+    expect(MiqApache::Control).to receive(:run_apache_cmd).with('stop')
     MiqApache::Control.stop(true)
   end
 
   it "should run_apache_cmd with stop when calling stop with graceful false" do
     expect(MiqApache::Control).to receive(:run_apache_cmd).with('stop')
     MiqApache::Control.stop(false)
-  end
-
-  it "should run_apache_cmd with /usr/bin/systemctl status httpd status when calling httpd_status" do
-    expect(MiqUtil).to receive(:runcmd).with('/usr/bin/systemctl status httpd').and_return("Active: active")
-    MiqApache::Control.httpd_status
-  end
-
-  it "should return false with result when calling httpd_status raising 'httpd is stopped' RuntimeError" do
-    result = "Active: inactive"
-    allow(MiqUtil).to receive(:runcmd).and_raise(RuntimeError.new(result))
-    expect(MiqApache::Control.httpd_status).to eq([false, result])
-  end
-
-  it "should return false with result when calling httpd_status raising 'Active: inactive' RuntimeError" do
-    result = "Active: inactive"
-    allow(MiqUtil).to receive(:runcmd).and_raise(RuntimeError.new(result))
-    expect(MiqApache::Control.httpd_status).to eq([false, result])
-  end
-
-  it "should return true with result when calling httpd_status raising 'Active: inactive' RuntimeError" do
-    result = "Active: active"
-    allow(MiqUtil).to receive(:runcmd).and_return(result)
-    expect(MiqApache::Control.httpd_status).to eq([true, result])
-  end
-
-  it "should raise an error when calling httpd_status raising unknown result RuntimeError" do
-    result = "unknown result"
-    allow(MiqUtil).to receive(:runcmd).and_raise(RuntimeError.new(result))
-    expect { MiqApache::Control.httpd_status }.to raise_error(RuntimeError)
-  end
-
-  it "should runcmd with killall -9 httpd when running kill_all and cleanup file descriptors" do
-    expect(MiqUtil).to receive(:runcmd).with("killall -9 httpd")
-    expect(MiqUtil).to receive(:runcmd).with(start_with "for i in")
-    MiqApache::Control.kill_all
-  end
-
-  it "should raise an error if killall failed with unknown result" do
-    result = "unknown result"
-    allow(MiqUtil).to receive(:runcmd).and_raise(RuntimeError.new(result))
-    expect { MiqApache::Control.kill_all }.to raise_error(RuntimeError)
-  end
-
-  it "should not raise an error if the kill returned no process found" do
-    result = "httpd: no process found"
-    allow(MiqUtil).to receive(:runcmd).and_raise(RuntimeError.new(result))
-    expect { MiqApache::Control.kill_all }.not_to raise_error
   end
 
   it "config_ok? is true if nothing raised" do
@@ -80,11 +33,6 @@ describe MiqApache::Control do
   it "config_ok? is false when error was raised" do
     allow(MiqUtil).to receive(:runcmd).and_raise(StandardError)
     expect(described_class.config_ok?).to be_falsey
-  end
-
-  it "should runcmd with rpm -qa... when calling version" do
-    expect(MiqUtil).to receive(:runcmd).with("rpm -qa --queryformat '%{VERSION}' httpd")
-    MiqApache::Control.version
   end
 
   it "should make the apache control log's directory if missing when calling run_apache_cmd" do

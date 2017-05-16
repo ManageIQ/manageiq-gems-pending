@@ -65,27 +65,6 @@ module MiqApache
       run_apache_cmd 'stop'
     end
 
-    def self.httpd_status
-      begin
-        res = MiqUtil.runcmd('/usr/bin/systemctl status httpd')
-      rescue RuntimeError => err
-        res = err.to_s
-        return false, res if res =~ /Active: inactive/
-
-      else
-        return true, res if res =~ /Active: active/
-      end
-      raise "Unknown apache status: #{res}"
-    end
-
-    def self.kill_all
-      MiqUtil.runcmd('killall -9 httpd')
-    rescue => err
-      raise unless err.to_s =~ /httpd: no process found/
-    else
-      MiqUtil.runcmd("for i in `ipcs -s | awk '/apache/ {print $2}'`; do (ipcrm -s $i); done")
-    end
-
     def self.version
       MiqUtil.runcmd("rpm -qa --queryformat '%{VERSION}' httpd")
     end

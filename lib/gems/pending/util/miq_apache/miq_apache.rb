@@ -121,13 +121,6 @@ module MiqApache
       reload
     end
 
-    def self.instance(filename)
-      # This method was previously caching the result, since that's gone
-      # we should remove any callers of `instance` and have them call
-      # new directly.
-      new(filename)
-    end
-
     def self.install_default_config(opts = {})
       File.write(opts[:member_file],    create_balancer_config(opts))
       File.write(opts[:redirects_file], create_redirects_config(opts))

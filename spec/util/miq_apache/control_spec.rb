@@ -35,11 +35,6 @@ describe MiqApache::Control do
     expect(described_class.config_ok?).to be_falsey
   end
 
-  it "should runcmd with rpm -qa... when calling version" do
-    expect(MiqUtil).to receive(:runcmd).with("rpm -qa --queryformat '%{VERSION}' httpd")
-    MiqApache::Control.version
-  end
-
   it "should make the apache control log's directory if missing when calling run_apache_cmd" do
     allow(File).to receive(:exist?).and_return(false)
     expect(Dir).to receive(:mkdir).with(File.dirname(MiqApache::Control::APACHE_CONTROL_LOG))

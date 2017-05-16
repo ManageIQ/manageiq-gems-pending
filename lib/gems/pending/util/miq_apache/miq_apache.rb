@@ -65,10 +65,6 @@ module MiqApache
       run_apache_cmd 'stop'
     end
 
-    def self.version
-      MiqUtil.runcmd("rpm -qa --queryformat '%{VERSION}' httpd")
-    end
-
     def self.config_ok?
       ###################################################################
       # Run a configuration file syntax test. It parses the configuration files and either

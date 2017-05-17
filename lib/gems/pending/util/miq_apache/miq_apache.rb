@@ -25,40 +25,29 @@ module MiqApache
       run_apache_cmd 'start'
     end
 
-    def self.restart(graceful = true)
-      if graceful
-        ###################################################################
-        # Gracefully restarts the Apache httpd daemon. If the daemon is not running, it is started.
-        # This differs from a normal restart in that currently open connections are not aborted.
-        # A side effect is that old log files will not be closed immediately. This means that if
-        # used in a log rotation script, a substantial delay may be necessary to ensure that the
-        # old log files are closed before processing them. This command automatically checks the
-        # configuration files as in configtest before initiating the restart to make sure Apache
-        # doesn't die.
-        #
-        # Command line: apachectl graceful
-        ###################################################################
-        #
-        # FIXME: apache doesn't re-read the proxy balancer members on a graceful restart, so do a graceful stop and start
-        #        system('apachectl graceful')
-        # http://www.gossamer-threads.com/lists/apache/users/383770
-        # https://issues.apache.org/bugzilla/show_bug.cgi?id=45950
-        # https://issues.apache.org/bugzilla/show_bug.cgi?id=39811
-        # https://issues.apache.org/bugzilla/show_bug.cgi?id=44736
-        # https://issues.apache.org/bugzilla/show_bug.cgi?id=42621
+    def self.restart
+      ###################################################################
+      # Gracefully restarts the Apache httpd daemon. If the daemon is not running, it is started.
+      # This differs from a normal restart in that currently open connections are not aborted.
+      # A side effect is that old log files will not be closed immediately. This means that if
+      # used in a log rotation script, a substantial delay may be necessary to ensure that the
+      # old log files are closed before processing them. This command automatically checks the
+      # configuration files as in configtest before initiating the restart to make sure Apache
+      # doesn't die.
+      #
+      # Command line: apachectl graceful
+      ###################################################################
+      #
+      # FIXME: apache doesn't re-read the proxy balancer members on a graceful restart, so do a graceful stop and start
+      #        system('apachectl graceful')
+      # http://www.gossamer-threads.com/lists/apache/users/383770
+      # https://issues.apache.org/bugzilla/show_bug.cgi?id=45950
+      # https://issues.apache.org/bugzilla/show_bug.cgi?id=39811
+      # https://issues.apache.org/bugzilla/show_bug.cgi?id=44736
+      # https://issues.apache.org/bugzilla/show_bug.cgi?id=42621
 
-        stop(graceful)
-        start
-      else
-        ###################################################################
-        # Restarts the Apache httpd daemon. If the daemon is not running, it is started. This
-        # command automatically checks the configuration files as in configtest before initiating
-        # the restart to make sure the daemon doesn't die.
-        #
-        # Command line: apachectl restart
-        ###################################################################
-        run_apache_cmd 'restart'
-      end
+      stop
+      start
     end
 
     def self.stop(_graceful = true)

@@ -7,12 +7,7 @@ describe MiqApache::Control do
   it "should run_apache_cmd with graceful-stop and start when calling restart with graceful true" do
     expect(MiqApache::Control).to receive(:run_apache_cmd).with('stop')
     expect(MiqApache::Control).to receive(:run_apache_cmd).with('start')
-    MiqApache::Control.restart(true)
-  end
-
-  it "should run_apache_cmd with restart when calling restart with graceful false" do
-    expect(MiqApache::Control).to receive(:run_apache_cmd).with('restart')
-    MiqApache::Control.restart(false)
+    MiqApache::Control.restart
   end
 
   it "should run_apache_cmd with graceful-stop when calling stop with graceful true" do

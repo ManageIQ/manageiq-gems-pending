@@ -353,6 +353,37 @@ describe MiqPassword do
     end
   end
 
+  describe '.encrypt_hash' do
+    let(:reg_password_field) { /[Pp]assword/ }
+
+    it 'should not encrypt blank' do
+      options = { 'my_password' => '' }
+      results = MiqPassword.encrypt_hash(options) { |key| key =~ reg_password_field }
+      expect(results['my_password']).to be_empty
+    end
+
+    it "should encrypt all keys containing 'password'" do
+      options = { 'phone_password' => 'secret', 'office' => { 'location' => 'US', 'site_password' => 'secret'}}
+      results = MiqPassword.encrypt_hash(options) { |key| key =~ reg_password_field }
+      expect(results['phone_password']).to be_encrypted('secret')
+      expect(results['office']['site_password']).to be_encrypted('secret')
+    end
+  end
+
+  describe '.decrypt_hash' do
+    it "should decrypt all keys containing 'password'" do
+      REG_PASSWORD_FIELD = /password/i
+      options = {
+        'phone_password' => 'secret',
+        'office'         => { 'location' => 'US', 'site_password' => 'secret'}
+      }
+      encrypted = MiqPassword.encrypt_hash(options) { |key| key =~ REG_PASSWORD_FIELD }
+      results = MiqPassword.decrypt_hash(encrypted) { |key| key =~ REG_PASSWORD_FIELD }
+      expect(results['phone_password']).to eq('secret')
+      expect(results['office']['site_password']).to eq('secret')
+    end
+  end
+
   private
 
   def with_key

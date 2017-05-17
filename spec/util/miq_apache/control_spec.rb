@@ -12,12 +12,7 @@ describe MiqApache::Control do
 
   it "should run_apache_cmd with graceful-stop when calling stop with graceful true" do
     expect(MiqApache::Control).to receive(:run_apache_cmd).with('stop')
-    MiqApache::Control.stop(true)
-  end
-
-  it "should run_apache_cmd with stop when calling stop with graceful false" do
-    expect(MiqApache::Control).to receive(:run_apache_cmd).with('stop')
-    MiqApache::Control.stop(false)
+    MiqApache::Control.stop
   end
 
   it "config_ok? is true if nothing raised" do

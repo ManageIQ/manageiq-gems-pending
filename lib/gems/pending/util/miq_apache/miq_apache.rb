@@ -50,7 +50,7 @@ module MiqApache
       start
     end
 
-    def self.stop(_graceful = true)
+    def self.stop
       run_apache_cmd 'stop'
     end
 

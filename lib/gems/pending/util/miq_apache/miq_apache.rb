@@ -16,15 +16,6 @@ module MiqApache
   class Control
     APACHE_CONTROL_LOG = '/var/www/miq/vmdb/log/apache/miq_apache.log'
 
-    def self.start
-      ###################################################################
-      # Start the Apache httpd daemon. Gives an error if it is already running.
-      #
-      # Command line: apachectl start
-      ###################################################################
-      run_apache_cmd 'start'
-    end
-
     def self.restart
       ###################################################################
       # Gracefully restarts the Apache httpd daemon. If the daemon is not running, it is started.
@@ -50,8 +41,20 @@ module MiqApache
       start
     end
 
+    def self.start
+      if ENV["CONTAINER"]
+        system("/usr/sbin/httpd -DFOREGROUND &")
+      else
+        run_apache_cmd 'start'
+      end
+    end
+
     def self.stop
-      run_apache_cmd 'stop'
+      if ENV["CONTAINER"]
+        system("kill -WINCH $(pgrep -P 1 httpd)")
+      else
+        run_apache_cmd 'stop'
+      end
     end
 
     def self.config_ok?

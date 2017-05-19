@@ -127,10 +127,6 @@ begin
           end
         end
 
-        def miqEncode
-          MIQEncode.encode(to_s)
-        end
-
         def self.loadFile(filename)
           Nokogiri::XML::Document.new(filename)
         rescue

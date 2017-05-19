@@ -142,7 +142,7 @@ class NokogiriXmlMethods < Minitest::Test
 
   def test_xml_encoding
     xml_new = @xml
-    encoded_xml = xml_new.miqEncode
+    encoded_xml = MIQEncode.encode(xml_new.to_s)
     assert_instance_of(String, encoded_xml)
     xml_unencoded = MiqXml.decode(encoded_xml, @xml_klass)
     assert_equal(xml_new.to_s, xml_unencoded.to_s)

@@ -381,10 +381,6 @@ module XmlHash
 
     def extendXmlDiff; end
 
-    def miqEncode
-      MIQEncode.encode(to_xml.to_s)
-    end
-
     def deep_clone
       to_xml.write(buf = '', 0)
       self.class.load(buf)

@@ -34,18 +34,3 @@ RSpec.configure do |config|
   config.backtrace_exclusion_patterns << %r{/lib\d*/ruby/[0-9]}
   config.backtrace_exclusion_patterns << %r{/gems/[0-9][^/]+/gems/}
 end
-
-VCR.configure do |c|
-  c.cassette_library_dir = TestEnvHelper.recordings_dir
-  c.hook_into :webmock
-
-  c.allow_http_connections_when_no_cassette = false
-  c.default_cassette_options = {
-    :record                         => :once,
-    :allow_unused_http_interactions => true
-  }
-
-  TestEnvHelper.vcr_filter(c)
-
-  # c.debug_logger = File.open(Rails.root.join("log", "vcr_debug.log"), "w")
-end

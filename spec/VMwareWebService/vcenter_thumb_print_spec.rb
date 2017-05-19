@@ -1,5 +1,5 @@
-require 'vmware/vcenter_thumb_print'
-require 'vmware/esx_thumb_print'
+require 'VMwareWebService/vcenter_thumb_print'
+require 'VMwareWebService/esx_thumb_print'
 
 describe VcenterThumbPrint do
   VCHOST = "localhost"

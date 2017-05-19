@@ -5,7 +5,6 @@ gemspec
 
 # Modified gems (forked on github)
 gem "handsoap", "~>0.2.5", :require => false, :git => "https://github.com/ManageIQ/handsoap.git", :tag => "v0.2.5-5"
-gem "rubywbem",            :require => false, :git => "https://github.com/ManageIQ/rubywbem.git", :branch => "rubywbem_0_1_0"
 
 # This is needed because some of the smart analysis tests scripts, insde the 'lib/gems/pending/MiqVm/test' directory,
 # use the oVirt provider inventory classes.

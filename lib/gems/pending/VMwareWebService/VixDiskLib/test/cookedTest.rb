@@ -1,4 +1,4 @@
-require 'VixDiskLib/VixDiskLib'
+require 'VMwareWebService/VixDiskLib/VixDiskLib'
 require 'enumerator'
 require 'log4r'
 

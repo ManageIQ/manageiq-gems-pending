@@ -8,7 +8,7 @@ require 'drb/drb'
 require 'log4r'
 require 'time'
 require 'util/vmdb-logger'
-require 'VixDiskLib/vdl_wrapper'
+require 'VMwareWebService/VixDiskLib/vdl_wrapper'
 
 class VixDiskLibError < RuntimeError
 end

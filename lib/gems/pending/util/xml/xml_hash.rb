@@ -379,6 +379,10 @@ module XmlHash
       root.to_xml(*args)
     end
 
+    def to_s
+      to_xml.to_s
+    end
+
     def extendXmlDiff; end
 
     def deep_clone

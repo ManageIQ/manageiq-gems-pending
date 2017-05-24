@@ -11,8 +11,6 @@ GlobalVars:
 #
 AllCops:
   TargetRubyVersion: 2.2
-  Exclude:
-    - lib/gems/pending/VMwareWebService/wsdl41/vimws25MappingRegistry.rb
 Metrics/LineLength:
   Exclude:
     - Gemfile

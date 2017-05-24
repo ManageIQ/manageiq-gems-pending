@@ -31,8 +31,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "bundler",                 ">= 1.8.4" # rails-assets requires bundler >= 1.8.4, see: https://rails-assets.org/
   s.add_runtime_dependency "bunny",                   "~>2.1.0"
   s.add_runtime_dependency "excon",                   "~>0.40"
-  s.add_runtime_dependency "ffi",                     "~>1.9.3"
-  s.add_runtime_dependency "ffi-vix_disk_lib",        "~>1.0.3"  # used by lib/VixDiskLib
   s.add_runtime_dependency "fog-openstack",           "=0.1.20"
   s.add_runtime_dependency "highline",                "~> 1.6.21" # Needed for the appliance_console
   s.add_runtime_dependency "httpclient",              "~>2.7.1"
@@ -54,7 +52,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "pg-dsn_parser",           "~>0.1.0"
   s.add_runtime_dependency "psych",                   "~>2.0.12"
   s.add_runtime_dependency "rake",                    ">=11.0"
-  s.add_runtime_dependency "rbvmomi",                 "~>1.9.4"
   s.add_runtime_dependency "rubyzip",                 "~>1.2.0"
   s.add_runtime_dependency "rufus-lru",               "~>1.0.3"
   s.add_runtime_dependency "sys-proctable",           "~>1.1.3"
@@ -63,6 +60,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "uuidtools",               "~>2.1.3"
   s.add_runtime_dependency "winrm",                   "~>2.1"
   s.add_runtime_dependency "winrm-elevated",          "~>1.0.1"
+  s.add_runtime_dependency "vmware_web_service",      "~>0.1.1"
 
   s.add_development_dependency "camcorder"
   s.add_development_dependency "rspec",        "~>3.5.0"

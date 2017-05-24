@@ -1,5 +1,3 @@
-require 'util/extensions/miq-string.rb'
-
 class MiqSshUtil
   attr_reader :status, :host
 

@@ -1,5 +1,4 @@
 require 'util/miq-syntax-checker'
-require 'util/extensions/miq-string'
 
 describe MiqSyntaxChecker do
   context "#check" do

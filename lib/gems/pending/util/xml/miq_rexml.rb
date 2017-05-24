@@ -280,10 +280,6 @@ module REXML
 
     def extendXmlDiff; end
 
-    def miqEncode
-      MIQEncode.encode(to_s)
-    end
-
     def self.load(data)
       REXML::Document.new(data)
     rescue => err

@@ -379,11 +379,11 @@ module XmlHash
       root.to_xml(*args)
     end
 
-    def extendXmlDiff; end
-
-    def miqEncode
-      MIQEncode.encode(to_xml.to_s)
+    def to_s
+      to_xml.to_s
     end
+
+    def extendXmlDiff; end
 
     def deep_clone
       to_xml.write(buf = '', 0)

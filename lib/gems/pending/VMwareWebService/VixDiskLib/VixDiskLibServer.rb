@@ -2,20 +2,19 @@
 # This script doesn't run in the context of the Rails environment,
 # so the following load path manipulation is required.
 #
-$LOAD_PATH << File.expand_path(File.join(__dir__, ".."))
+$LOAD_PATH << File.expand_path(File.join(__dir__, "../.."))
 
 require 'drb/drb'
 require 'log4r'
 require 'time'
-require 'util/vmdb-logger'
-require 'VixDiskLib/vdl_wrapper'
+require 'VMwareWebService/VixDiskLib/vdl_wrapper'
 
 class VixDiskLibError < RuntimeError
 end
 
 LOG_FILE    = ENV["LOG_FILE"]
 
-$vim_log = VMDBLogger.new LOG_FILE
+$vim_log = Logger.new LOG_FILE
 
 class VDDKFactory
   include DRb::DRbUndumped

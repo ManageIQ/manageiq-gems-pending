@@ -46,22 +46,6 @@ module MiqException
   # Exceptions during Provisioning
   class MiqProvisionError < Error; end
 
-  class MiqVimError < Error; end
-  class MiqVimBrokerStaleHandle < MiqVimError; end
-  class MiqVimBrokerUnavailable < MiqVimError; end
-  class MiqVimSessionKilledError < MiqVimError; end
-  class MiqVimConnRefusedError < MiqVimError; end
-  class MiqVimSocketError < MiqVimError; end
-  class MiqVimInvalidParameter < MiqVimError; end
-  class MiqVimSoapFault < MiqVimError; end
-  class MiqVimCacheLockNotHeld < MiqVimError; end
-  class MiqVimInvalidState < MiqVimError; end
-  class MiqVimNotSupported < MiqVimError; end
-  class MiqVimShutdown < MiqVimError; end
-  # MiqVimResourceNotFound is derived from RuntimeError to ensure it gets marshalled over DRB properly.
-  # TODO: Rename MiqException::Error class to avoid issues returning derived error classes over DRB.
-  #       Then change MiqVimResourceNotFound to derive from MiqVimError
-  class MiqVimResourceNotFound < RuntimeError; end
 
   class MaintenanceBundleInvalid < Error; end
   class MiqDeploymentError < Error; end
@@ -170,4 +154,14 @@ module MiqException
   class MiqOpenstackWorkflowServiceMissing < MiqOpenstackRequiredServiceMissing; end
 
   class MiqOpenstackApiRequestError < Error; end
+
+  # These exceptions are owned by VMwareWebService/exception
+  # but needed here as well
+  class MiqVimError < Error; end
+  class MiqVimBrokerStaleHandle < MiqVimError; end
+  class MiqVimBrokerUnavailable < MiqVimError; end
+  # MiqVimResourceNotFound is derived from RuntimeError to ensure it gets marshalled over DRB properly.
+  # TODO: Rename MiqException::Error class to avoid issues returning derived error classes over DRB.
+  #       Then change MiqVimResourceNotFound to derive from MiqVimError
+  class MiqVimResourceNotFound < RuntimeError; end
 end

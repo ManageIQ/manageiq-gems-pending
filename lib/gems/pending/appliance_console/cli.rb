@@ -75,6 +75,10 @@ module ApplianceConsole
       options[:logdisk]
     end
 
+    def db_restore?
+      options[:dbrestore]
+    end
+
     def extauth_opts?
       options[:extauth_opts]
     end
@@ -124,6 +128,11 @@ module ApplianceConsole
         opt :ipapassword,   "IPA Server password",  :type => :string
         opt :ipadomain,     "IPA Server domain (optional)", :type => :string
         opt :iparealm,      "IPA Server realm (optional)", :type => :string
+        opt :dbrestore,            "Restore db : local, nfs, smb",      :type => :string
+        opt :dbfile,               "File to restore Local DB",          :type => :string
+        opt :dburi,                "Uri nfs or smb to restore db",      :type => :string
+        opt :smbuser,              "User smb to restore db",            :type => :string
+        opt :smbpassword,          "Password smb to restore db",        :type => :string
         opt :ca,                   "CA name used for certmonger",       :type => :string,  :default => "ipa"
         opt :postgres_client_cert, "install certs for postgres client", :type => :boolean
         opt :postgres_server_cert, "install certs for postgres server", :type => :boolean
@@ -148,6 +157,7 @@ module ApplianceConsole
       set_db if database?
       config_tmp_disk if tmp_disk?
       config_log_disk if log_disk?
+      restore_db if db_restore?
       uninstall_ipa if uninstall_ipa?
       install_ipa if install_ipa?
       install_certs if certs?
@@ -212,6 +222,69 @@ module ApplianceConsole
 
       # enable/start related services
       config.post_activation
+    end
+
+    def restore_db
+      if options[:dbrestore] == "local" then dbrestore_from_file
+      elsif options[:dbrestore] == "nfs" || options[:dbrestore] == "smb" then dbrestore_options
+      else
+        say "Wrong dbrestore option, set local, nfs or smb"
+      end
+    end
+
+    def dbrestore_from_file
+      if options[:dbfile]
+        if File.exist?(options[:dbfile])
+          dbrestore_task("evm:db:restore:local", :local_file => options[:dbfile])
+        else
+          say "The path #{options[:dbfile]} not exist"
+        end
+      else
+        say "You must set the backup file with --dbfile"
+      end
+    end
+
+    def dbrestore_task(task, params)
+      task_params = ["--", params]
+      if ApplianceConsole::Utilities.rake(task, task_params)
+        say "Database restored..."
+      else
+        say "\nDatabase restore failed"
+        connections = ApplianceConsole::Utilities.db_connections - 1
+        say "\nThere are #{connections} connection preventing a database restore" if connections > 0
+      end
+    end
+
+    def dbrestore_options
+      if options[:dburi]
+        if validate_uri(options[:dburi], options[:dbrestore])
+          task = "evm:db:restore:remote"
+          if options[:dbrestore] == 'smb'
+            if options[:smbuser] && options[:smbpassword]
+              data_params = {:uri => uri, :uri_username => options[:smbuser], :uri_password => options[:smbpassword]}
+              db_restore_task(task, :uri => uri)
+            end
+          else
+            db_restore_task(task, data_params)
+          end
+        else
+          say "Uri should be like : #{ApplianceConsole::Prompts::SAMPLE_URLS[options[:dbrestore]]}"
+        end
+      else
+        say "You must set #{options[:dbrestore]} uri with --dburi"
+      end
+    end
+
+    def db_validate_uri(uri, expected_scheme)
+      require 'uri'
+      uri.validate = lambda do |a|
+        # Convert all backslashes in the URI to forward slashes and strip whitespace
+        a.tr!('\\', '/')
+        a.strip!
+        scheme, _, host, _, _, path, = URI.split(URI.encode(a))
+        # validate it has a hostname/ip and a share
+        scheme == expected_scheme && (host.to_s =~ HOSTNAME_REGEXP || host.to_s =~ IP_REGEXP) && path.to_s.empty?
+      end
     end
 
     def key_configuration

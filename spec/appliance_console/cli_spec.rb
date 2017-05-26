@@ -1,4 +1,6 @@
 require "appliance_console/cli"
+require "appliance_console/database_maintenance_periodic"
+require "appliance_console/database_maintenance_hourly"
 
 describe ApplianceConsole::Cli do
   subject { described_class.new }
@@ -132,6 +134,17 @@ describe ApplianceConsole::Cli do
       .and_return(double(:activate => true, :post_activation => true))
 
     subject.run
+  end
+
+  context "#db maintance" do
+    let(:db_maintance) { double("DB maintance") }
+    it "should fail with no cron format" do
+      expect(subject).to receive(:say)
+      expect(ApplianceConsole::DatabaseMaintenancePeriodic).to receive(:new).and_return(db_maintance)
+      expect do
+        subject.parse(%w(--dbmaintance --periodic --cron-schedule * * * 0 *)).run
+      end.to raise_error(RuntimeError, /Cron schedule is not in the format * * * * */)
+    end
   end
 
   context "#ipa" do

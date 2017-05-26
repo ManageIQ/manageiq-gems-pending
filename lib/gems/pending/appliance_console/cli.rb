@@ -3,6 +3,8 @@ require 'pathname'
 require 'appliance_console/utilities'
 require 'appliance_console/logging'
 require 'appliance_console/database_configuration'
+require 'appliance_console/database_maintenance_hourly'
+require 'appliance_console/database_maintenance_periodic'
 require 'appliance_console/internal_database_configuration'
 require 'appliance_console/external_database_configuration'
 require 'appliance_console/external_httpd_authentication'
@@ -49,6 +51,14 @@ module ApplianceConsole
 
     def database?
       hostname
+    end
+
+    def dbmaintance?
+      options[:dbmaintance] && dbmaintance_type?
+    end
+
+    def dbmaintance_type?
+      ( options[:periodic] && options[:cron_schedule] ) || options[:hourly]
     end
 
     def local_database?
@@ -109,6 +119,10 @@ module ApplianceConsole
         opt :username, "Database Username",  :type => :string,  :short => 'U', :default => "root"
         opt :password, "Database Password",  :type => :string,  :short => "p"
         opt :dbname,   "Database Name",      :type => :string,  :short => "d", :default => "vmdb_production"
+        opt :dbmaintance, "Database maintance"
+        opt :hourly,   "Hourly maintance",   :type => :boolean
+        opt :periodic, "Periodic maintance",   :type => :boolean
+        opt :cron_schedule, "Cron schedule maintance db", :type => :string
         opt :key,      "Create encryption key",  :type => :boolean, :short => "k"
         opt :fetch_key, "SSH host with encryption key", :type => :string, :short => "K"
         opt :force_key, "Forcefully create encryption key", :type => :boolean, :short => "f"
@@ -136,7 +150,7 @@ module ApplianceConsole
 
     def run
       Trollop.educate unless set_host? || key? || database? || tmp_disk? || log_disk? ||
-                             uninstall_ipa? || install_ipa? || certs? || extauth_opts?
+                             uninstall_ipa? || install_ipa? || certs? || extauth_opts? || dbmaintance?
       if set_host?
         system_hosts = LinuxAdmin::Hosts.new
         system_hosts.hostname = options[:host]
@@ -146,6 +160,7 @@ module ApplianceConsole
       end
       create_key if key?
       set_db if database?
+      set_dbmaintance if dbmaintance?
       config_tmp_disk if tmp_disk?
       config_log_disk if log_disk?
       uninstall_ipa if uninstall_ipa?
@@ -212,6 +227,27 @@ module ApplianceConsole
 
       # enable/start related services
       config.post_activation
+    end
+
+    def set_dbmaintance
+      set_maintance_hourly   if options[:hourly]
+      set_maintance_periodic if options[:periodic]
+    end
+
+    def set_maintance_hourly
+      db_hourly_maintance = ApplianceConsole::DatabaseMaintenanceHourly.new
+      db_hourly_maintance.already_configured? ? db_hourly_maintance.deactivate : db_hourly_maintance.configure
+    end
+
+    def set_maintance_periodic
+      db_periodic_maintance = ApplianceConsole::DatabaseMaintenancePeriodic.new
+      if db_periodic_maintance.already_configured?
+        db_periodic_maintance.deactivate
+      else
+        raise "Cron schedule is not in the format * * * * *" unless options[:cron_schedule] =~ /0 ([0-23]|\*) ([1-31]|\*) \* ([0-6]|\*)/
+        db_periodic_maintance.crontab_schedule_expression = options[:cron_schedule]
+        db_periodic_maintance.configure
+      end
     end
 
     def key_configuration

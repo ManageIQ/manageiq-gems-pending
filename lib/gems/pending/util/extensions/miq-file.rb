@@ -1,6 +1,5 @@
 require 'sys-uname'
 require 'Win32API' if Sys::Platform::OS == :windows
-require 'disk/modules/MiqLargeFile'
 require 'util/runcmd'
 require 'uri'
 require 'util/MiqSockUtil'
@@ -45,6 +44,7 @@ class File
     when :linux
       MiqUtil.runcmd("ls -lQ \"#{path}\"").split(" ")[4].to_i
     when :mswin, :mingw
+      require 'disk/modules/MiqLargeFile'
       MiqLargeFile.size(path)
     else
       File.size(path)

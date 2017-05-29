@@ -1,20 +1,16 @@
 class OvirtEventMonitor
   def initialize(options = {})
-    @options = options
+    @ems = options[:ems]
   end
 
-  def inventory
-    require 'ovirt'
-    require 'ovirt_provider/inventory/ovirt_inventory'
-    Ovirt.logger = $rhevm_log if $rhevm_log
-
-    @inventory ||= OvirtInventory.new(@options)
+  def event_fetcher
+    @event_fetcher ||= @ems.ovirt_services.event_fetcher
   end
 
   def start
     trap(:TERM) { $rhevm_log.info "EventMonitor#start: ignoring SIGTERM" }
     @since          = nil
-    @inventory      = nil
+    @event_fetcher  = nil
     @monitor_events = true
   end
 
@@ -26,8 +22,8 @@ class OvirtEventMonitor
     while @monitor_events
       # grab only the most recent event if this is the first time through
       query_options = @since ? {:since => @since} : {:max => 1}
-      events = inventory.events(query_options).sort_by { |e| e[:id].to_i }
-      @since = events.last[:id].to_i unless events.empty?
+      events = event_fetcher.events(query_options).sort_by { |e| e.id.to_i }
+      @since = events.last.id.to_i unless events.empty?
 
       yield events
     end

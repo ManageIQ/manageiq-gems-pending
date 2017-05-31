@@ -55,7 +55,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "uuidtools",               "~>2.1.3"
   s.add_runtime_dependency "winrm",                   "~>2.1"
   s.add_runtime_dependency "winrm-elevated",          "~>1.0.1"
-  s.add_runtime_dependency "vmware_web_service",      "~>0.1.1"
 
   s.add_development_dependency "rspec",        "~>3.5.0"
   s.add_development_dependency "test-unit"

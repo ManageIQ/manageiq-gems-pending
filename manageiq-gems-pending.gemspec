@@ -37,7 +37,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "linux_block_device",      "~>0.2.1"
   s.add_runtime_dependency "log4r",                   "=1.1.8"
   s.add_runtime_dependency "memoist",                 "~>0.15.0"
-  s.add_runtime_dependency "memory_buffer",           ">=0.1.0"
   s.add_runtime_dependency "more_core_extensions",    "~>3.2"
   s.add_runtime_dependency "net-scp",                 "~>1.2.1"
   s.add_runtime_dependency "net-sftp",                "~>2.1.2"

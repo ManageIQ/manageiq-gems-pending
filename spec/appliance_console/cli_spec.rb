@@ -144,13 +144,13 @@ describe ApplianceConsole::Cli do
 
     it "should set date and time with auto sync" do
       expect(subject).to receive(:say)
-      expect(datetime_configuration).to receive(:activate).and_return(true)
+      expect(datetime_configuration).to receive(:enable_auto_sync).and_return(true)
       subject.parse(%w(--date 2017-02-07 --time 12:00:00 --timesync true")).run
     end
 
     it "should set date and time without auto sync" do
       expect(subject).to receive(:say)
-      expect(datetime_configuration).to receive(:activate).and_return(true)
+      expect(datetime_configuration).to receive(:disable_auto_sync).and_return(true)
       subject.parse(%w(--date 2017-02-07 --time 12:00:00)).run
     end
 

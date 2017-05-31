@@ -83,10 +83,6 @@ module ApplianceConsole
       options[:date] && options[:time]
     end
 
-    def time_sync?
-      options[:timesync]
-    end
-
     def extauth_opts?
       options[:extauth_opts]
     end
@@ -169,7 +165,7 @@ module ApplianceConsole
       uninstall_ipa if uninstall_ipa?
       install_ipa if install_ipa?
       install_certs if certs?
-      set_date_time if date_time? || time_sync?
+      set_date_time if date_time?
       extauth_opts if extauth_opts?
     rescue AwesomeSpawn::CommandResultError => e
       say e.result.output
@@ -243,14 +239,22 @@ module ApplianceConsole
     end
 
     def set_date_time
-      @new_date = options[:date]
-      @new_time = options[:time]
-      if @new_date =~ ApplianceConsole::DateTimeConfiguration::DATE_REGEXP &&
-         @new_time =~ ApplianceConsole::DateTimeConfiguration::TIME_REGEXP
+      if options[:date] =~ ApplianceConsole::DateTimeConfiguration::DATE_REGEXP &&
+          options[:time] =~ ApplianceConsole::DateTimeConfiguration::TIME_REGEXP
         say "Configuring date and time"
-        @manual_time_sync = options[:timesync]
         config_datetime = ApplianceConsole::DateTimeConfiguration.new
-        raise "Failed setting date time." unless config_datetime.activate
+        begin
+          options[:timesync] ? config_datetime.enable_auto_sync : config_datetime.disable_auto_sync
+        rescue
+          raise "Failed to configure auto sync"
+        end
+        if options[:timesync]
+          begin
+            LinuxAdmin::TimeDate.system_time = Time.parse("#{options[:date]} #{options[:time]}").getlocal
+          rescue
+            raise "Failed to configure date time"
+          end
+        end
       else
         raise "Failed to configure date time. Wrong format."
       end

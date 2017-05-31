@@ -321,6 +321,17 @@ describe MiqPassword do
     end
   end
 
+  it "#encrypt / #decrypt with a random key" do
+    string = "test"
+    string_encrypted = "v2:{X/vcdbizCnNs+djHfPrPwg==}"
+    with_alternate_key do |key|
+      expect(MiqPassword.new.encrypt(string, "v2", key)).to eq(string_encrypted)
+      expect(MiqPassword.new.decrypt(string_encrypted, false, key)).to eq(string)
+      expect(MiqPassword.encrypt(string)).not_to eq(string_encrypted)
+      expect { MiqPassword.decrypt(string_encrypted) }.to raise_error("can not decrypt v2_key encrypted string")
+    end
+  end
+
   describe "#recrypt" do
     context "#with ambigious keys" do
       let(:old_key) { MiqPassword::Key.new("aes-256-cbc", "JZjTdiuOzWlTHUkBZSGj9BmWEoswxvImWuwD/xN87s0=") }
@@ -364,5 +375,23 @@ describe MiqPassword do
 
   def erberize(password, passmethod = "MiqPassword")
     "<%= #{passmethod}.decrypt(\"#{password}\") %>"
+  end
+
+  def with_alternate_key
+    random_key = <<EOK
+---
+:EZCRYPTO KEY FILE: KEEP THIS SECURE !
+:created: 2014-02-28 09:59:47 -0500
+:algorithm: aes-256-cbc
+:key: YWJjYWJjYWJjYWJjYWJjYWJjYWJjYmFiY2JhY2JhYgz=
+EOK
+    file = Tempfile.new("random_key")
+    begin
+      file.write(random_key)
+      file.close
+      yield(EzCrypto::Key.load(file.path))
+    ensure
+      file.unlink
+    end
   end
 end

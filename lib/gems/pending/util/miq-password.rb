@@ -22,21 +22,23 @@ class MiqPassword
     "#{ver}:{#{value}}"
   end
 
-  def decrypt(str, legacy = false)
-    if str.nil? || str.empty?
-      str
-    else
-      ver, enc = self.class.split(str)
-      return "" if enc.empty?
+  def decrypt(str, legacy = false, key = nil)
+    return str if str.nil? || str.empty?
 
-      ver ||= "0" # if we don't know what it is, just assume legacy
+    ver, enc = self.class.split(str)
+    return "" if enc.empty?
+
+    ver ||= "0" # if we don't know what it is, just assume legacy
+
+    key ||= begin
       key_name = (ver == "2" && legacy) ? "alt" : "v#{ver}"
+      self.class.keys[key_name]
+    end
 
-      begin
-        self.class.keys[key_name].decrypt64(enc).force_encoding('UTF-8')
-      rescue
-        raise MiqPasswordError, "can not decrypt v#{ver}_key encrypted string"
-      end
+    begin
+      key.decrypt64(enc).force_encoding('UTF-8')
+    rescue
+      raise MiqPasswordError, "can not decrypt v#{ver}_key encrypted string"
     end
   end
 

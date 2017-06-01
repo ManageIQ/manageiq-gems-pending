@@ -177,15 +177,14 @@ module ApplianceConsole
 
     def set_internal_db
       say "configuring internal database"
-      dedicated = if options[:dedicated] then true else false end
       config = ApplianceConsole::InternalDatabaseConfiguration.new({
-        :database    => options[:dbname],
-        :region      => options[:region],
-        :username    => options[:username],
-        :password    => options[:password],
-        :interactive => false,
-        :disk        => disk_from_string(options[:dbdisk]),
-        :run_as_evm_server => dedicated
+        :database          => options[:dbname],
+        :region            => options[:region],
+        :username          => options[:username],
+        :password          => options[:password],
+        :interactive       => false,
+        :disk              => disk_from_string(options[:dbdisk]),
+        :run_as_evm_server => !options[:dedicated]
       }.delete_if { |_n, v| v.nil? })
 
       # create partition, pv, vg, lv, ext4, update fstab, mount disk

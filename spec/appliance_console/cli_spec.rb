@@ -37,11 +37,12 @@ describe ApplianceConsole::Cli do
     expect(subject).to receive(:disk_from_string).with('x').and_return('/dev/x')
     expect(subject).to receive(:say)
     expect(ApplianceConsole::InternalDatabaseConfiguration).to receive(:new)
-      .with(:region      => 1,
-            :database    => 'vmdb_production',
-            :username    => 'root',
-            :interactive => false,
-            :disk        => '/dev/x')
+      .with(:region            => 1,
+            :database          => 'vmdb_production',
+            :username          => 'root',
+            :interactive       => false,
+            :disk              => '/dev/x',
+            :run_as_evm_server => true)
       .and_return(double(:activate => true, :post_activation => true))
     expect(subject.key_configuration).not_to receive(:activate)
     subject.run
@@ -53,14 +54,32 @@ describe ApplianceConsole::Cli do
     expect(subject).to receive(:disk_from_string).and_return('x')
     expect(subject).to receive(:say)
     expect(ApplianceConsole::InternalDatabaseConfiguration).to receive(:new)
-      .with(:region      => 1,
-            :database    => 'vmdb_production',
-            :username    => 'user',
-            :password    => 'pass',
-            :interactive => false,
-            :disk        => 'x')
+      .with(:region            => 1,
+            :database          => 'vmdb_production',
+            :username          => 'user',
+            :password          => 'pass',
+            :interactive       => false,
+            :disk              => 'x',
+            :run_as_evm_server => true)
       .and_return(double(:activate => true, :post_activation => true))
 
+    subject.run
+  end
+
+  it "should pass standalone flag when configuring database in standalone mode" do
+    subject.parse(%w(--internal --username user --password pass -r 1 --dbdisk x --standalone))
+    expect_v2_key
+    expect(subject).to receive(:disk_from_string).and_return('x')
+    expect(subject).to receive(:say)
+    expect(ApplianceConsole::InternalDatabaseConfiguration).to receive(:new)
+      .with(:region            => 1,
+            :database          => 'vmdb_production',
+            :username          => 'user',
+            :password          => 'pass',
+            :interactive       => false,
+            :disk              => 'x',
+            :run_as_evm_server => false)
+      .and_return(double(:activate => true, :post_activation => true))
     subject.run
   end
 
@@ -71,12 +90,13 @@ describe ApplianceConsole::Cli do
     expect(subject).to receive(:say).twice
     config_double = double(:activate => false)
     expect(ApplianceConsole::InternalDatabaseConfiguration).to receive(:new)
-      .with(:region      => 1,
-            :database    => 'vmdb_production',
-            :username    => 'user',
-            :password    => 'pass',
-            :interactive => false,
-            :disk        => 'x')
+      .with(:region            => 1,
+            :database          => 'vmdb_production',
+            :username          => 'user',
+            :password          => 'pass',
+            :interactive       => false,
+            :disk              => 'x',
+            :run_as_evm_server => true)
       .and_return(config_double)
     expect(config_double).not_to receive(:post_activation)
 

@@ -113,6 +113,7 @@ module ApplianceConsole
         opt :username, "Database Username",  :type => :string,  :short => 'U', :default => "root"
         opt :password, "Database Password",  :type => :string,  :short => "p"
         opt :dbname,   "Database Name",      :type => :string,  :short => "d", :default => "vmdb_production"
+        opt :standalone, "Run this server as a standalone database server", :type => :bool, :short => 'S'
         opt :key,      "Create encryption key",  :type => :boolean, :short => "k"
         opt :fetch_key, "SSH host with encryption key", :type => :string, :short => "K"
         opt :force_key, "Forcefully create encryption key", :type => :boolean, :short => "f"
@@ -177,12 +178,13 @@ module ApplianceConsole
     def set_internal_db
       say "configuring internal database"
       config = ApplianceConsole::InternalDatabaseConfiguration.new({
-        :database    => options[:dbname],
-        :region      => options[:region],
-        :username    => options[:username],
-        :password    => options[:password],
-        :interactive => false,
-        :disk        => disk_from_string(options[:dbdisk])
+        :database          => options[:dbname],
+        :region            => options[:region],
+        :username          => options[:username],
+        :password          => options[:password],
+        :interactive       => false,
+        :disk              => disk_from_string(options[:dbdisk]),
+        :run_as_evm_server => !options[:standalone]
       }.delete_if { |_n, v| v.nil? })
 
       # create partition, pv, vg, lv, ext4, update fstab, mount disk

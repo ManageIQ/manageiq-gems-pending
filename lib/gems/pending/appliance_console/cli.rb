@@ -83,6 +83,10 @@ module ApplianceConsole
       options[:extauth_opts]
     end
 
+    def set_server_state?
+      options[:server]
+    end
+
     def initialize(options = {})
       self.options = options
     end
@@ -135,6 +139,7 @@ module ApplianceConsole
         opt :postgres_server_cert, "install certs for postgres server", :type => :boolean
         opt :http_cert,            "install certs for http server",     :type => :boolean
         opt :extauth_opts,         "External Authentication Options",   :type => :string
+        opt :server,               "Server status",                     :type => :string
       end
       Trollop.die :region, "needed when setting up a local database" if options[:region].nil? && local_database?
       self
@@ -142,7 +147,8 @@ module ApplianceConsole
 
     def run
       Trollop.educate unless set_host? || key? || database? || tmp_disk? || log_disk? ||
-                             uninstall_ipa? || install_ipa? || certs? || extauth_opts? || time_zone?
+                             uninstall_ipa? || install_ipa? || certs? || extauth_opts? ||
+                             time_zone? || set_server_state?
       if set_host?
         system_hosts = LinuxAdmin::Hosts.new
         system_hosts.hostname = options[:host]
@@ -159,6 +165,7 @@ module ApplianceConsole
       install_ipa if install_ipa?
       install_certs if certs?
       extauth_opts if extauth_opts?
+      set_server_state if set_server_state?
     rescue AwesomeSpawn::CommandResultError => e
       say e.result.output
       say e.result.error
@@ -322,6 +329,21 @@ module ApplianceConsole
       extauthopts_hash = extauthopts.parse(options[:extauth_opts])
       raise "Must specify at least one external authentication option to set" unless extauthopts_hash.present?
       extauthopts.update_configuration(extauthopts_hash)
+    end
+
+    def set_server_state
+      service = LinuxAdmin::Service.new("evmserverd")
+      service_running = service.running?
+      case options[:server]
+      when "start"
+        service.start unless service_running
+      when "stop"
+        service.stop if service_running
+      when "restart"
+        service.restart
+      else
+        raise "Invalid server action"
+      end
     end
 
     def self.parse(args)

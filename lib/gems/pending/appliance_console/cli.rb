@@ -79,6 +79,10 @@ module ApplianceConsole
       options[:timezone]
     end
 
+    def date_time?
+      options[:date] && options[:time]
+    end
+
     def extauth_opts?
       options[:extauth_opts]
     end
@@ -129,6 +133,9 @@ module ApplianceConsole
         opt :ipapassword,   "IPA Server password",  :type => :string
         opt :ipadomain,     "IPA Server domain (optional)", :type => :string
         opt :iparealm,      "IPA Server realm (optional)", :type => :string
+        opt :date,                 "Date in YYYY-MM-DD",                     :type => :string
+        opt :time,                 "Time in HH:MM:SS",                       :type => :string
+        opt :timesync,             "Automatic time synchronization",         :type => :boolean, :default => false
         opt :ca,                   "CA name used for certmonger",       :type => :string,  :default => "ipa"
         opt :timezone,             "Time zone",                         :type => :string
         opt :postgres_client_cert, "install certs for postgres client", :type => :boolean
@@ -142,7 +149,8 @@ module ApplianceConsole
 
     def run
       Trollop.educate unless set_host? || key? || database? || tmp_disk? || log_disk? ||
-                             uninstall_ipa? || install_ipa? || certs? || extauth_opts? || time_zone?
+                             uninstall_ipa? || install_ipa? || certs? || extauth_opts? ||
+                             time_zone? || date_time?
       if set_host?
         system_hosts = LinuxAdmin::Hosts.new
         system_hosts.hostname = options[:host]
@@ -158,6 +166,7 @@ module ApplianceConsole
       uninstall_ipa if uninstall_ipa?
       install_ipa if install_ipa?
       install_certs if certs?
+      set_date_time if date_time?
       extauth_opts if extauth_opts?
     rescue AwesomeSpawn::CommandResultError => e
       say e.result.output
@@ -228,6 +237,28 @@ module ApplianceConsole
         say("Timezone configured")
       else
         say("Timezone not configured")
+      end
+    end
+
+    def set_date_time
+      if options[:date] =~ ApplianceConsole::DateTimeConfiguration::DATE_REGEXP &&
+          options[:time] =~ ApplianceConsole::DateTimeConfiguration::TIME_REGEXP
+        say "Configuring date and time"
+        config_datetime = ApplianceConsole::DateTimeConfiguration.new
+        begin
+          options[:timesync] ? config_datetime.enable_auto_sync : config_datetime.disable_auto_sync
+        rescue
+          raise "Failed to configure auto sync"
+        end
+        if options[:timesync]
+          begin
+            LinuxAdmin::TimeDate.system_time = Time.parse("#{options[:date]} #{options[:time]}").getlocal
+          rescue
+            raise "Failed to configure date time"
+          end
+        end
+      else
+        raise "Failed to configure date time. Wrong format."
       end
     end
 

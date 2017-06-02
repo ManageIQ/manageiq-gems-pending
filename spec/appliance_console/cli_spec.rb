@@ -1,5 +1,6 @@
 require "appliance_console/cli"
 require "appliance_console/timezone_configuration"
+require "appliance_console/date_time_configuration"
 
 describe ApplianceConsole::Cli do
   subject { described_class.new }
@@ -153,6 +154,37 @@ describe ApplianceConsole::Cli do
       .and_return(double(:activate => true, :post_activation => true))
 
     subject.run
+  end
+
+  context "#set date and time" do
+    let(:datetime_configuration) { double("datetime configuration") }
+    before do
+      allow(ApplianceConsole::DateTimeConfiguration).to receive(:new).and_return(datetime_configuration)
+    end
+
+    it "should set date and time with auto sync" do
+      expect(subject).to receive(:say)
+      expect(datetime_configuration).to receive(:enable_auto_sync).and_return(true)
+      subject.parse(%w(--date 2017-02-07 --time 12:00:00 --timesync true")).run
+    end
+
+    it "should set date and time without auto sync" do
+      expect(subject).to receive(:say)
+      expect(datetime_configuration).to receive(:disable_auto_sync).and_return(true)
+      subject.parse(%w(--date 2017-02-07 --time 12:00:00)).run
+    end
+
+    it "should fail setting date" do
+      expect do
+        subject.parse(%w(--date 20317-02-00 --time 12:00)).run
+      end.to raise_error(RuntimeError, /Failed to configure date time. Wrong format./)
+    end
+
+    it "should fail setting time" do
+      expect do
+        subject.parse(%w(--date 2017-02-00 --time _12:00:00)).run
+      end.to raise_error(RuntimeError, /Failed to configure date time. Wrong format./)
+    end
   end
 
   context "#ipa" do

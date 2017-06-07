@@ -35,7 +35,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "more_core_extensions",    "~>3.2"
   s.add_runtime_dependency "net-scp",                 "~>1.2.1"
   s.add_runtime_dependency "net-sftp",                "~>2.1.2"
-  s.add_runtime_dependency "nokogiri",                "~>1.7.1"
+  s.add_runtime_dependency "nokogiri",                "~>1.7.2"
   s.add_runtime_dependency "pg",                      "~>0.18.2"
   s.add_runtime_dependency "pg-dsn_parser",           "~>0.1.0"
   s.add_runtime_dependency "psych",                   "~>2.0.12"

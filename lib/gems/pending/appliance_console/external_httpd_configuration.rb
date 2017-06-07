@@ -106,6 +106,9 @@ module ApplianceConsole
           pattern = "[domain/#{Regexp.escape(domain)}].*(\n)"
           config[/#{pattern}/, 1] = "\nldap_user_extra_attrs = #{ldap_user_extra_attrs}\n"
         end
+
+        pattern = "[domain/#{Regexp.escape(domain)}].*(\n)"
+        config[/#{pattern}/, 1] = "\nentry_cache_timeout = 600\n"
       end
 
       def configure_sssd_service(config)

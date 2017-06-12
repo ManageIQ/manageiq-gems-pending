@@ -20,7 +20,6 @@ require 'highline/system_extensions'
 require 'rubygems'
 require 'bcrypt'
 require 'linux_admin'
-require 'util/vmdb-logger'
 require 'util/postgres_admin'
 require 'awesome_spawn'
 include HighLine::SystemExtensions

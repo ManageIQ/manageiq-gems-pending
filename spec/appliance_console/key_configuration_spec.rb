@@ -109,8 +109,4 @@ describe ApplianceConsole::KeyConfiguration do
   def v2_exists(value = true)
     expect(File).to receive(:exist?).with(/v2/).and_return(value)
   end
-
-  def v2_backup_exists(value = true)
-    expect(File).to receive(:exist?).with(/bak/).and_return(value)
-  end
 end

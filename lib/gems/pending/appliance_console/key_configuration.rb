@@ -46,7 +46,7 @@ module ApplianceConsole
     end
 
     def activate
-      if key_exist? and force
+      if key_exist? && force
         backup_key
       end
 
@@ -74,11 +74,11 @@ module ApplianceConsole
     end
 
     def restore_key_if_any
-      FileUtils.mv(KEY_FILE_BACKUP, KEY_FILE) if File.exists?(KEY_FILE_BACKUP)
+      FileUtils.mv(KEY_FILE_BACKUP, KEY_FILE) if File.exist?(KEY_FILE_BACKUP)
     end
 
     def remove_backup_key_if_any
-      FileUtils.rm(KEY_FILE_BACKUP) if File.exists?(KEY_FILE_BACKUP)
+      FileUtils.rm(KEY_FILE_BACKUP) if File.exist?(KEY_FILE_BACKUP)
     end
 
     def key_exist?

@@ -7,6 +7,7 @@ require 'util/miq-password'
 module ApplianceConsole
   CERT_DIR = ENV['KEY_ROOT'] || RAILS_ROOT.join("certs")
   KEY_FILE = "#{CERT_DIR}/v2_key"
+  KEY_FILE_BACKUP = "#{CERT_DIR}/vk.bak"
 
   class KeyConfiguration
     attr_accessor :host, :login, :password, :key_path, :action, :force
@@ -45,11 +46,15 @@ module ApplianceConsole
     end
 
     def activate
+      if key_exist? and force
+        backup_key
+      end
+
       if remove_key(force)
-        if fetch_key?
-          fetch_key
-        else
-          create_key
+        success_get_new = fetch_key? ? fetch_key : create_key
+        if success_get_new
+          remove_backup_key_if_any
+          return true
         end
       else
         # probably only got here via the cli
@@ -59,8 +64,21 @@ module ApplianceConsole
         $stderr.puts "If you do this all encrypted secrets in the database will not be readable."
         $stderr.puts "Please backup your key and run this command again with --force-key."
         $stderr.puts
-        false
       end
+      restore_key_if_any
+      false
+    end
+
+    def backup_key
+      FileUtils.cp(KEY_FILE, KEY_FILE_BACKUP)
+    end
+
+    def restore_key_if_any
+      FileUtils.mv(KEY_FILE_BACKUP, KEY_FILE) if File.exists?(KEY_FILE_BACKUP)
+    end
+
+    def remove_backup_key_if_any
+      FileUtils.rm(KEY_FILE_BACKUP) if File.exists?(KEY_FILE_BACKUP)
     end
 
     def key_exist?

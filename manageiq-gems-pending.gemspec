@@ -54,7 +54,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "parallel",                "~>1.9" # For OvirtInventory
   s.add_runtime_dependency "pg",                      "~>0.18.2"
   s.add_runtime_dependency "pg-dsn_parser",           "~>0.1.0"
-  s.add_runtime_dependency "psych",                   "~>2.0.12"
   s.add_runtime_dependency "rake",                    ">=11.0"
   s.add_runtime_dependency "rbvmomi",                 "~>1.9.4"
   s.add_runtime_dependency "rest-client",             "~>2.0.0"

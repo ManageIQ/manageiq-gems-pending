@@ -38,7 +38,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "nokogiri",                "~>1.7.2"
   s.add_runtime_dependency "pg",                      "~>0.18.2"
   s.add_runtime_dependency "pg-dsn_parser",           "~>0.1.0"
-  s.add_runtime_dependency "psych",                   "~>2.0.12"
   s.add_runtime_dependency "rake",                    ">=11.0"
   s.add_runtime_dependency "sys-proctable",           "~>1.1.3"
   s.add_runtime_dependency "sys-uname",               "~>1.0.1"

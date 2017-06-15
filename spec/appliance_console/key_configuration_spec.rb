@@ -63,6 +63,7 @@ describe ApplianceConsole::KeyConfiguration do
         it "fetches key" do
           v2_exists(false) # before download, check if backup
           v2_exists(false) # before download, in call remove_key
+          v2_backup_exists(false)
           v2_exists(true)  # after downloaded
           expect(Net::SCP).to receive(:start).with(host, "root", :password => password)
           expect(subject.activate).to be_truthy
@@ -72,6 +73,7 @@ describe ApplianceConsole::KeyConfiguration do
           subject.action = :create
           v2_exists(false) # checked if backup
           v2_exists(false) # in call remove_key
+          v2_backup_exists(false)
           expect(MiqPassword).to receive(:generate_symmetric).and_return(154)
           expect(subject.activate).to be_truthy
         end
@@ -82,6 +84,7 @@ describe ApplianceConsole::KeyConfiguration do
           subject.force = true
           v2_exists(true) # before downloaded, check if backup
           v2_exists(true) # before downloaded, in call remove_key
+          v2_backup_exists(true)
           expect(FileUtils).to receive(:rm).with(/v2_key/).and_return(["v2_key"])
           v2_exists(true) # after downloaded
           expect(FileUtils).to receive(:rm).with(/bak/).and_return(["vk.bak"])
@@ -96,6 +99,7 @@ describe ApplianceConsole::KeyConfiguration do
           subject.force = false
           v2_exists(true) # check if backup
           v2_exists(true) # in call remove_key
+          v2_backup_exists(false)
           expect(FileUtils).not_to receive(:rm)
           expect(Net::SCP).not_to receive(:start)
           expect(subject.activate).to be_falsey
@@ -108,5 +112,9 @@ describe ApplianceConsole::KeyConfiguration do
 
   def v2_exists(value = true)
     expect(File).to receive(:exist?).with(/v2/).and_return(value)
+  end
+
+  def v2_backup_exists(value = true)
+    expect(File).to receive(:exist?).with(/bak/).and_return(value)
   end
 end

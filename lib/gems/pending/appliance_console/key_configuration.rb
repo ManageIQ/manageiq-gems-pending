@@ -6,7 +6,8 @@ require 'util/miq-password'
 
 module ApplianceConsole
   CERT_DIR = ENV['KEY_ROOT'] || RAILS_ROOT.join("certs")
-  KEY_FILE = "#{CERT_DIR}/v2_key"
+  KEY_FILE = "#{CERT_DIR}/v2_key".freeze
+  KEY_FILE_TEMP = "#{KEY_FILE}.tmp".freeze
 
   class KeyConfiguration
     attr_accessor :host, :login, :password, :key_path, :action, :force
@@ -45,11 +46,13 @@ module ApplianceConsole
     end
 
     def activate
-      if remove_key(force)
-        if fetch_key?
-          fetch_key
+      if !key_exist? || force
+        success_get_new = fetch_key? ? fetch_key : create_key
+        if success_get_new
+          save_temp_key
         else
-          create_key
+          remove_temp_key_if_any
+          false
         end
       else
         # probably only got here via the cli
@@ -63,6 +66,17 @@ module ApplianceConsole
       end
     end
 
+    def save_temp_key
+      FileUtils.mv(KEY_FILE_TEMP, KEY_FILE)
+    rescue StandardError => e
+      say("Failed to overwrite original key, original key kept. #{e.message}")
+      return false
+    end
+
+    def remove_temp_key_if_any
+      FileUtils.rm(KEY_FILE_TEMP) if File.exist?(KEY_FILE_TEMP)
+    end
+
     def key_exist?
       File.exist?(KEY_FILE)
     end
@@ -72,15 +86,15 @@ module ApplianceConsole
     end
 
     def create_key
-      MiqPassword.generate_symmetric(KEY_FILE) && true
+      MiqPassword.generate_symmetric(KEY_FILE_TEMP) && true
     end
 
     def fetch_key
       # use :verbose => 1 (or :debug for later versions) to see actual errors
       Net::SCP.start(host, login, :password => password) do |scp|
-        scp.download!(key_path, KEY_FILE)
+        scp.download!(key_path, KEY_FILE_TEMP)
       end
-      File.exist?(KEY_FILE)
+      File.exist?(KEY_FILE_TEMP)
     rescue => e
       say("Failed to fetch key: #{e.message}")
       false
@@ -91,12 +105,6 @@ module ApplianceConsole
     def ask_for_action(default_action)
       options = {'Create key' => :create, 'Fetch key from remote machine' => :fetch}
       ask_with_menu("Encryption Key", options, default_action, false)
-    end
-
-    # return true if key is gone, otherwise false (and we should probably abort)
-    # throws an exception if rm fails e.g.: Errno::EACCES
-    def remove_key(force)
-      !key_exist? || (force && FileUtils.rm(KEY_FILE))
     end
   end
 end

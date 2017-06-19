@@ -64,6 +64,7 @@ describe ApplianceConsole::KeyConfiguration do
           v2_exists(false) # before download
           v2_exists(true)  # after downloaded
           expect(Net::SCP).to receive(:start).with(host, "root", :password => password)
+          expect(FileUtils).to receive(:mv).with(/v2_key\.tmp/, /v2_key$/).and_return(true)
           expect(subject.activate).to be_truthy
         end
 
@@ -71,6 +72,7 @@ describe ApplianceConsole::KeyConfiguration do
           subject.action = :create
           v2_exists(false)
           expect(MiqPassword).to receive(:generate_symmetric).and_return(154)
+          expect(FileUtils).to receive(:mv).with(/v2_key\.tmp/, /v2_key$/).and_return(true)
           expect(subject.activate).to be_truthy
         end
       end
@@ -80,10 +82,10 @@ describe ApplianceConsole::KeyConfiguration do
           subject.force = true
           v2_exists(true) # before downloaded
           v2_exists(true) # after downloaded
-          expect(FileUtils).to receive(:rm).with(/v2_key/).and_return(["v2_key"])
           scp = double('scp')
           expect(scp).to receive(:download!).with(subject.key_path, /v2_key/).and_return(:result)
           expect(Net::SCP).to receive(:start).with(host, "root", :password => password).and_yield(scp).and_return(true)
+          expect(FileUtils).to receive(:mv).with(/v2_key\.tmp/, /v2_key$/).and_return(true)
           expect(subject.activate).to be_truthy
         end
 
@@ -91,9 +93,24 @@ describe ApplianceConsole::KeyConfiguration do
           expect($stderr).to receive(:puts).at_least(2).times
           subject.force = false
           v2_exists(true)
-          expect(FileUtils).not_to receive(:rm)
+          expect(FileUtils).not_to receive(:mv)
           expect(Net::SCP).not_to receive(:start)
           expect(subject.activate).to be_falsey
+        end
+
+        it "keeps original v2_key if fetch new fails" do
+          subject.force = true
+          key_content = "The v2_key is abc"
+          mock_key = Tempfile.new('v2_key')
+          mock_key.print(key_content)
+          mock_key.close
+          stub_const("ApplianceConsole::KEY_FILE", mock_key.path)
+          stub_const("ApplianceConsole::KEY_FILE_TEMP", mock_key.path + ".tmp")
+          expect(subject).to receive(:fetch_key).and_return(false)
+          expect(subject.activate).to be_falsey
+          expect(FileUtils).not_to receive(:mv)
+          expect(File.open(ApplianceConsole::KEY_FILE).read).to eq(key_content)
+          mock_key.unlink
         end
       end
     end

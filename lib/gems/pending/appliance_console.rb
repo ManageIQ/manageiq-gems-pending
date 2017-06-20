@@ -247,7 +247,7 @@ Static Network Configuration
           new_ip = ask_for_ipv6('IP Address', eth0.address6)
           new_prefix = ask_for_integer('IPv6 prefix length', 1..127, eth0.prefix6 || 64)
           new_gw = ask_for_ipv6('Default gateway', eth0.gateway6)
-          new_dns1 = ask_for_ipv6('Primary DNS', dns1)
+          new_dns1 = ask_for_ip('Primary DNS', dns1)
           new_dns2 = ask_for_ipv6_or_none("Secondary DNS (Enter 'none' for no value)")
 
           new_search_order = ask_for_many('domain', 'Domain search order', order)

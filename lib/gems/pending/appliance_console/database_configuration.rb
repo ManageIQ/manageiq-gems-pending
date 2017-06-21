@@ -7,6 +7,7 @@ require 'fileutils'
 require 'appliance_console/errors'
 require 'appliance_console/utilities'
 require 'appliance_console/logging'
+require 'appliance_console/key_configuration'
 
 RAILS_ROOT ||= Pathname.new(__dir__).join("../../..")
 
@@ -196,7 +197,7 @@ FRIENDLY
     end
 
     def self.database_yml_configured?
-      File.exist?(DB_YML)
+      File.exist?(DB_YML) && File.exist?(KEY_FILE)
     end
 
     def self.database_host

@@ -7,7 +7,7 @@ require 'util/miq-password'
 module ApplianceConsole
   CERT_DIR = ENV['KEY_ROOT'] || RAILS_ROOT.join("certs")
   KEY_FILE = "#{CERT_DIR}/v2_key".freeze
-  KEY_FILE_TEMP = "#{KEY_FILE}.tmp".freeze
+  NEW_KEY_FILE = "#{KEY_FILE}.tmp".freeze
 
   class KeyConfiguration
     attr_accessor :host, :login, :password, :key_path, :action, :force
@@ -47,11 +47,11 @@ module ApplianceConsole
 
     def activate
       if !key_exist? || force
-        success_get_new = fetch_key? ? fetch_key : create_key
+        success_get_new = get_new_key
         if success_get_new
-          save_temp_key
+          save_new_key
         else
-          remove_temp_key_if_any
+          remove_new_key_if_any
           false
         end
       else
@@ -66,15 +66,15 @@ module ApplianceConsole
       end
     end
 
-    def save_temp_key
-      FileUtils.mv(KEY_FILE_TEMP, KEY_FILE)
+    def save_new_key
+      FileUtils.mv(NEW_KEY_FILE, KEY_FILE, :force => true)
     rescue StandardError => e
       say("Failed to overwrite original key, original key kept. #{e.message}")
       return false
     end
 
-    def remove_temp_key_if_any
-      FileUtils.rm(KEY_FILE_TEMP) if File.exist?(KEY_FILE_TEMP)
+    def remove_new_key_if_any
+      FileUtils.rm(NEW_KEY_FILE) if File.exist?(NEW_KEY_FILE)
     end
 
     def key_exist?
@@ -86,15 +86,15 @@ module ApplianceConsole
     end
 
     def create_key
-      MiqPassword.generate_symmetric(KEY_FILE_TEMP) && true
+      MiqPassword.generate_symmetric(NEW_KEY_FILE) && true
     end
 
     def fetch_key
       # use :verbose => 1 (or :debug for later versions) to see actual errors
       Net::SCP.start(host, login, :password => password) do |scp|
-        scp.download!(key_path, KEY_FILE_TEMP)
+        scp.download!(key_path, NEW_KEY_FILE)
       end
-      File.exist?(KEY_FILE_TEMP)
+      File.exist?(NEW_KEY_FILE)
     rescue => e
       say("Failed to fetch key: #{e.message}")
       false
@@ -105,6 +105,10 @@ module ApplianceConsole
     def ask_for_action(default_action)
       options = {'Create key' => :create, 'Fetch key from remote machine' => :fetch}
       ask_with_menu("Encryption Key", options, default_action, false)
+    end
+
+    def get_new_key
+      fetch_key? ? fetch_key : create_key
     end
   end
 end

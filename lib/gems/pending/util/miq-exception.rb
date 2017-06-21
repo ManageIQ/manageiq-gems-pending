@@ -129,6 +129,9 @@ module MiqException
   class MiqVolumeSnapshotUpdateError < Error; end
   class MiqVolumeSnapshotDeleteError < Error; end
 
+  class MiqVolumeBackupCreateError < Error; end
+  class MiqVolumeBackupRestoreError < Error; end
+
   class MiqSecurityGroupCreateError < Error; end
   class MiqSecurityGroupUpdateError < Error; end
   class MiqSecurityGroupDeleteError < Error; end

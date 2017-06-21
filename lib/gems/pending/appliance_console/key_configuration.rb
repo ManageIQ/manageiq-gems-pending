@@ -47,8 +47,7 @@ module ApplianceConsole
 
     def activate
       if !key_exist? || force
-        success_get_new = get_new_key
-        if success_get_new
+        if get_new_key
           save_new_key
         else
           remove_new_key_if_any
@@ -68,7 +67,7 @@ module ApplianceConsole
 
     def save_new_key
       FileUtils.mv(NEW_KEY_FILE, KEY_FILE, :force => true)
-    rescue StandardError => e
+    rescue => e
       say("Failed to overwrite original key, original key kept. #{e.message}")
       return false
     end

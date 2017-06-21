@@ -64,7 +64,7 @@ describe ApplianceConsole::KeyConfiguration do
           v2_exists(false) # before download
           v2_exists(true)  # after downloaded
           expect(Net::SCP).to receive(:start).with(host, "root", :password => password)
-          expect(FileUtils).to receive(:mv).with(/v2_key\.tmp/, /v2_key$/).and_return(true)
+          expect(FileUtils).to receive(:mv).with(/v2_key\.tmp/, /v2_key$/, :force=>true).and_return(true)
           expect(subject.activate).to be_truthy
         end
 
@@ -72,7 +72,7 @@ describe ApplianceConsole::KeyConfiguration do
           subject.action = :create
           v2_exists(false)
           expect(MiqPassword).to receive(:generate_symmetric).and_return(154)
-          expect(FileUtils).to receive(:mv).with(/v2_key\.tmp/, /v2_key$/).and_return(true)
+          expect(FileUtils).to receive(:mv).with(/v2_key\.tmp/, /v2_key$/, :force=>true).and_return(true)
           expect(subject.activate).to be_truthy
         end
       end
@@ -85,7 +85,7 @@ describe ApplianceConsole::KeyConfiguration do
           scp = double('scp')
           expect(scp).to receive(:download!).with(subject.key_path, /v2_key/).and_return(:result)
           expect(Net::SCP).to receive(:start).with(host, "root", :password => password).and_yield(scp).and_return(true)
-          expect(FileUtils).to receive(:mv).with(/v2_key\.tmp/, /v2_key$/).and_return(true)
+          expect(FileUtils).to receive(:mv).with(/v2_key\.tmp/, /v2_key$/, :force=>true).and_return(true)
           expect(subject.activate).to be_truthy
         end
 
@@ -105,7 +105,7 @@ describe ApplianceConsole::KeyConfiguration do
           mock_key.print(key_content)
           mock_key.close
           stub_const("ApplianceConsole::KEY_FILE", mock_key.path)
-          stub_const("ApplianceConsole::KEY_FILE_TEMP", mock_key.path + ".tmp")
+          stub_const("ApplianceConsole::NEW_KEY_FILE", mock_key.path + ".tmp")
           expect(subject).to receive(:fetch_key).and_return(false)
           expect(subject.activate).to be_falsey
           expect(FileUtils).not_to receive(:mv)

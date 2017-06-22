@@ -152,7 +152,7 @@ class VMDBLogger < Logger
     def call(severity, time, progname, msg)
       msg = prefix_task_id(msg2str(msg))
 
-      FORMAT % [severity[0..0], format_datetime(time), $$, Thread.current.object_id, severity, progname, msg]
+      FORMAT % [severity[0..0], format_datetime(time), $PROCESS_ID, Thread.current.object_id, severity, progname, msg]
     end
 
     private

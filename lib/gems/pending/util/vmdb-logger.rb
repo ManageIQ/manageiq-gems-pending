@@ -150,15 +150,21 @@ class VMDBLogger < Logger
     FORMAT = "[----] %s, [%s#%d:%x] %5s -- %s: %s\n"
 
     def call(severity, time, progname, msg)
-      msg = msg2str(msg)
+      msg = prefix_task_id(msg2str(msg))
 
+      FORMAT % [severity[0..0], format_datetime(time), $$, Thread.current.object_id, severity, progname, msg]
+    end
+
+    private
+
+    def prefix_task_id(msg)
       # Add task id to the message if a task is currently being worked on.
       if $_miq_worker_current_msg && !$_miq_worker_current_msg.task_id.nil?
         prefix = "Q-task_id([#{$_miq_worker_current_msg.task_id}])"
         msg = "#{prefix} #{msg}" unless msg.include?(prefix)
       end
 
-      FORMAT % [severity[0..0], format_datetime(time), $$, Thread.current.object_id, severity, progname, msg]
+      msg
     end
   end
 end

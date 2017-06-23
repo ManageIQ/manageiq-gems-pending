@@ -159,8 +159,8 @@ class VMDBLogger < Logger
 
     def prefix_task_id(msg)
       # Add task id to the message if a task is currently being worked on.
-      if $_miq_worker_current_msg && !$_miq_worker_current_msg.task_id.nil?
-        prefix = "Q-task_id([#{$_miq_worker_current_msg.task_id}])"
+      if (task_id = (Thread.current["tracking_label"] || $_miq_worker_current_msg.try(:task_id)))
+        prefix = "Q-task_id([#{task_id}])"
         msg = "#{prefix} #{msg}" unless msg.include?(prefix)
       end
 

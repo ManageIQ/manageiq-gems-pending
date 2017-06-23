@@ -396,7 +396,8 @@ describe ApplianceConsole::DatabaseConfiguration do
   end
 
   context "with test database yml file" do
-    let(:db_yml) { Tempfile.new("appliance_console_database.yml") }
+    let(:db_yml)   { Tempfile.new("appliance_console_database.yml") }
+    let(:key_file) { Tempfile.new("encryption_key") }
 
     around(:each) do |example|
       db_yml.write(<<-DBYML)
@@ -413,15 +414,19 @@ env2:
   username: user2
 DBYML
       db_yml.close
+      key_file.write("encryption_key")
+      key_file.close
       begin
         example.run
       ensure
         db_yml.unlink
+        key_file.unlink
       end
     end
 
     before do
       stub_const("#{described_class}::DB_YML", db_yml.path)
+      stub_const("ApplianceConsole::KEY_FILE", key_file.path)
     end
 
     describe ".database_host" do

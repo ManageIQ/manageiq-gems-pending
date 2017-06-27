@@ -114,7 +114,7 @@ module ApplianceConsole
       raise MiqSignalError if warn && !agree(CREATE_REGION_AGREE)
     end
 
-    def ask_for_database_credentials
+    def ask_for_database_credentials(password_twice = true)
       self.host     = ask_for_ip_or_hostname("database hostname or IP address", host) if host.blank? || !local?
       self.port     = ask_for_integer("port number", nil, port) unless local?
       self.database = just_ask("name of the database on #{host}", database) unless local?
@@ -124,20 +124,25 @@ module ApplianceConsole
         password1 = ask_for_password("database password on #{host}", password)
         # if they took the default, just bail
         break if (password1 == password)
-        
+
         if password1.strip.length == 0
           say("\nPassword can not be empty, please try again")
           next
         end
-        password2 = ask_for_password("database password again")
-        if password1 == password2
+        if password_twice
+          password2 = ask_for_password("database password again")
+          if password1 == password2
+            self.password = password1
+            break
+          elsif count > 0 # only reprompt password once
+            raise "passwords did not match"
+          else
+            count += 1
+            say("\nThe passwords did not match, please try again")
+          end
+        else
           self.password = password1
           break
-        elsif count > 0 # only reprompt password once
-          raise RuntimeError, "passwords did not match"
-        else
-          count += 1
-          say("\nThe passwords did not match, please try again")
         end
       end
     end

@@ -220,6 +220,12 @@ describe ApplianceConsole::DatabaseConfiguration do
       expect(subject).to receive(:loop).and_yield
       subject.ask_for_database_credentials
     end
+
+    it "ask for password only once when password_twice is false" do
+      expect(subject).to receive(:just_ask).with(/password/i, anything).and_return("pass1")
+      subject.ask_for_database_credentials(false)
+      expect(subject.password).to eq("pass1")
+    end
   end
 
   context "#create_or_join_region" do
@@ -408,7 +414,6 @@ env1:
   database: database1
   username: user1
   host: host1.example.com
-
 env2:
   database: database2
   username: user2

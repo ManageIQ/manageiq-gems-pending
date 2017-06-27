@@ -1,4 +1,6 @@
-require "stringio"
+require 'stringio'
+require 'tempfile'
+require 'readline'
 require "appliance_console/errors"
 require "appliance_console/prompts"
 require "active_support/all"
@@ -6,12 +8,16 @@ require 'highline/import'
 require "linux_admin"
 
 describe ApplianceConsole::Prompts do
-  let(:input)  { StringIO.new }
+  let(:temp_stdin) { Tempfile.new "temp_stdin" }
+  let(:temp_stdout) { Tempfile.new "temp_stdout" }
+  let(:input) { File.open(temp_stdin.path, 'w+') }
+  let(:output_with_input) { File.open(temp_stdout.path, 'w+') }
   let(:output) { StringIO.new }
-
   let(:prompt)  { "\n?  " }
 
   subject do
+    Readline.input = input
+    Readline.output = output_with_input
     Class.new(HighLine) { include ApplianceConsole::Prompts }.new(input, output)
   end
 
@@ -602,7 +608,17 @@ describe ApplianceConsole::Prompts do
   end
 
   def expect_heard(strs, check_eof = true)
-    strs = Array(strs).collect { |s| s == "" ? "\n" : s }.join
+    output_with_input.rewind
+    readline_output = output_with_input.read
+    if readline_output.empty?
+      strs = Array(strs).collect { |s| s == "" ? "\n" : s }.join
+    else
+      strs = Array(strs)
+      str1 = strs[0]
+      strs = strs[1..-1].collect { |s| s == "" ? "\n" : s }.join
+      first_output_correct = readline_output.include?(str1)
+      expect(first_output_correct).to be_truthy
+    end
 
     expect(output.string).to eq(strs)
     expect { subject.ask("is there more") }.to raise_error(EOFError) if check_eof

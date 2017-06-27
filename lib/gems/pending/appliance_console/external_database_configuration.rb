@@ -22,7 +22,7 @@ module ApplianceConsole
       create_new_region_questions if action == :create
       clear_screen
       say("Database Configuration\n")
-      ask_for_database_credentials
+      ask_for_database_credentials(false)
     end
 
     def post_activation

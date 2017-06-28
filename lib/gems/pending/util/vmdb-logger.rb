@@ -114,13 +114,14 @@ class VMDBLogger < Logger
     filter.uniq!
 
     values = YAML.dump(h).gsub(MiqPassword::REGEXP, "[FILTERED]")
-    values.split("\n").each do |l|
-      next if l[0...3] == '---'
+    values = values.split("\n").map do |l|
       if (key = filter.detect { |f| l.include?(f) })
         l.gsub!(/#{key}.*: (.+)/) { |m| m.gsub!($1, "[FILTERED]") }
       end
-      logger.send(level, "  #{l}")
-    end
+      l
+    end.join("\n")
+
+    logger.send(level, "\n#{values}")
   end
 
   def log_hashes(h, options = {})

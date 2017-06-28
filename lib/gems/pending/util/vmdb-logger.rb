@@ -1,4 +1,6 @@
 require 'logger'
+require 'active_support/core_ext/object/try'
+require 'English'
 
 class VMDBLogger < Logger
   def initialize(*args)
@@ -104,18 +106,22 @@ class VMDBLogger < Logger
   end
 
   def self.log_hashes(logger, h, options = {})
+    require 'yaml'
+    require 'miq-password'
+
     level  = options[:log_level] || :info
     filter = Array(options[:filter]).flatten.compact.map(&:to_s) << "password"
     filter.uniq!
 
     values = YAML.dump(h).gsub(MiqPassword::REGEXP, "[FILTERED]")
-    values.split("\n").each do |l|
-      next if l[0...3] == '---'
+    values = values.split("\n").map do |l|
       if (key = filter.detect { |f| l.include?(f) })
         l.gsub!(/#{key}.*: (.+)/) { |m| m.gsub!($1, "[FILTERED]") }
       end
-      logger.send(level, "  #{l}")
-    end
+      l
+    end.join("\n")
+
+    logger.send(level, "\n#{values}")
   end
 
   def log_hashes(h, options = {})

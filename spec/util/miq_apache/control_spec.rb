@@ -1,3 +1,5 @@
+require 'util/miq_apache'
+
 describe MiqApache::Control do
   it "should run_apache_cmd with start when calling start" do
     expect(MiqApache::Control).to receive(:run_apache_cmd).with('start')
@@ -13,16 +15,6 @@ describe MiqApache::Control do
   it "should run_apache_cmd with graceful-stop when calling stop with graceful true" do
     expect(MiqApache::Control).to receive(:run_apache_cmd).with('stop')
     MiqApache::Control.stop
-  end
-
-  it "config_ok? is true if nothing raised" do
-    allow(MiqUtil).to receive(:runcmd)
-    expect(described_class.config_ok?).to be_truthy
-  end
-
-  it "config_ok? is false when error was raised" do
-    allow(MiqUtil).to receive(:runcmd).and_raise(StandardError)
-    expect(described_class.config_ok?).to be_falsey
   end
 
   it "should make the apache control log's directory if missing when calling run_apache_cmd" do

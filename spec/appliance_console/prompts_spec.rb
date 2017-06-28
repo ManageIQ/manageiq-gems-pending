@@ -8,14 +8,14 @@ require 'highline/import'
 require "linux_admin"
 
 describe ApplianceConsole::Prompts do
-  let(:input) {
+  let(:input) do
     temp_stdin = Tempfile.new("temp_stdin")
     File.open(temp_stdin.path, 'w+')
-  }
-  let(:readline_output){
+  end
+  let(:readline_output) do
     temp_stdout = Tempfile.new("temp_stdout")
     File.open(temp_stdout.path, 'w+')
-  }
+  end
   let(:output) { StringIO.new }
   let(:prompt) { "\n?  " }
 

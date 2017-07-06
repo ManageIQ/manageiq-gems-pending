@@ -136,6 +136,12 @@ module ApplianceConsole
 
       say("An #{node_state} #{rec["type"]} node (#{rec["name"]}) with the node number #{node_number} already exists")
       ask_yn?("Would you like to continue configuration by overwriting the existing node", "N")
+
+    rescue PG::Error => e
+      error_msg = "Failed to validate node number #{node_number}. #{e.message}"
+      say(error_msg)
+      Logging.logger.error(error_msg)
+      return false
     end
 
     private

@@ -306,27 +306,42 @@ describe ApplianceConsole::DatabaseReplicationStandby do
       double("nil PG::Result", :map_types! => mapped_result)
     end
 
-    before do
-      expect(PG::Connection).to receive(:new).and_return(connection)
-      expect(PG::BasicTypeMapForResults).to receive(:new).and_return(type_map)
-      subject.node_number = node_number
+    context "connection successful and node_number got" do
+      before do
+        expect(PG::Connection).to receive(:new).and_return(connection)
+        expect(PG::BasicTypeMapForResults).to receive(:new).and_return(type_map)
+        subject.node_number = node_number
+      end
+
+      it "returns true if no node is found" do
+        expect(connection).to receive(:exec_params).with(instance_of(String), [1]).and_return(nil_result)
+        expect(subject.node_number_valid?).to be_truthy
+      end
+
+      it "returns true if a node is found and overwrite is confirmed" do
+        expect(connection).to receive(:exec_params).with(instance_of(String), [1]).and_return(one_result)
+        expect(subject).to receive(:ask_yn?).and_return(true)
+        expect(subject.node_number_valid?).to be_truthy
+      end
+
+      it "returns false if a node is found and overwrite is not confirmed" do
+        expect(connection).to receive(:exec_params).with(instance_of(String), [1]).and_return(one_result)
+        expect(subject).to receive(:ask_yn?).and_return(false)
+        expect(subject.node_number_valid?).to be_falsey
+      end
     end
 
-    it "returns true if no node is found" do
-      expect(connection).to receive(:exec_params).with(instance_of(String), [1]).and_return(nil_result)
-      expect(subject.node_number_valid?).to be_truthy
-    end
+    context "unable to get node_number" do
+      it "returns false when the connection fails" do
+        expect(PG::Connection).to receive(:new).and_raise(PG::ConnectionBad)
+        expect(subject.node_number_valid?).to be_falsey
+      end
 
-    it "returns true if a node is found and overwrite is confirmed" do
-      expect(connection).to receive(:exec_params).with(instance_of(String), [1]).and_return(one_result)
-      expect(subject).to receive(:ask_yn?).and_return(true)
-      expect(subject.node_number_valid?).to be_truthy
-    end
-
-    it "returns false if a node is found and overwrite is not confirmed" do
-      expect(connection).to receive(:exec_params).with(instance_of(String), [1]).and_return(one_result)
-      expect(subject).to receive(:ask_yn?).and_return(false)
-      expect(subject.node_number_valid?).to be_falsey
+      it "returns false when the query fails" do
+        expect(PG::Connection).to receive(:new).and_return(connection)
+        expect(connection).to receive(:exec_params).and_raise(PG::Error)
+        expect(subject.node_number_valid?).to be_falsey
+      end
     end
   end
 

@@ -51,7 +51,8 @@ module MiqApache
 
     def self.stop
       if ENV["CONTAINER"]
-        system("kill -WINCH $(pgrep -P 1 httpd)")
+        pid = `pgrep -P 1 httpd`.chomp.to_i
+        system("kill -WINCH #{pid}") if pid > 0
       else
         run_apache_cmd 'stop'
       end

@@ -1,9 +1,6 @@
 require 'zlib'
-require 'uri'
 
 class MIQEncode
-  @@base64Pattern = Regexp.new("[^#{URI::PATTERN::UNRESERVED}]")
-
   def self.encode(data, compress = true)
     return [Zlib::Deflate.deflate(data)].pack("m") if compress
     [data].pack("m")
@@ -12,14 +9,6 @@ class MIQEncode
   def self.decode(data, compressed = true)
     return Zlib::Inflate.inflate(data.unpack("m")[0]) if compressed
     data.unpack("m")[0]
-  end
-
-  def self.base64Encode(data)
-    URI.encode(data, @@base64Pattern)
-  end
-
-  def self.base64Decode(data)
-    URI.decode(data)
   end
 
   def self.base24Decode(byteArray)

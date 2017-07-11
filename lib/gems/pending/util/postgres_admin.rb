@@ -21,14 +21,6 @@ class PostgresAdmin
     ENV.fetch("APPLIANCE_PG_SERVICE")
   end
 
-  def self.scl_name
-    ENV.fetch('APPLIANCE_PG_SCL_NAME')
-  end
-
-  def self.scl_enable_prefix
-    "scl enable #{scl_name}"
-  end
-
   def self.package_name
     ENV.fetch('APPLIANCE_PG_PACKAGE_NAME')
   end

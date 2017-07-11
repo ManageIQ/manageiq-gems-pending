@@ -97,12 +97,7 @@ class PostgresAdmin
   end
 
   def self.backup(opts)
-    before_backup(opts)
     backup_pg_compress(opts)
-  end
-
-  def self.before_backup(_opts)
-    # TODO: check disk space
   end
 
   def self.restore(opts)
@@ -144,33 +139,6 @@ class PostgresAdmin
       $log.info("MIQ(#{name}.#{__method__}) Waiting on #{count} pglogical connections to close...")
       sleep 5
     end
-  end
-
-  def self.backup_compress_with_gzip
-    # 1) Use compressed dumps.  You can use your favorite compression program, for example gzip:
-    #
-    # pg_dump dbname | gzip > filename.gz
-  end
-
-  def self.restore_compress_with_zip
-    # Reload with:
-    #
-    # gunzip -c filename.gz | psql dbname
-    # or:
-    #
-    # cat filename.gz | gunzip | psql dbname
-  end
-
-  def self.backup_split_by_size
-    # 2) Use split. The split command allows you to split the output into pieces that are acceptable in size to the underlying file system. For example, to make chunks of 1 megabyte:
-    #
-    # pg_dump dbname | split -b 1m - filename
-  end
-
-  def self.restore_split_by_size
-    # Reload with:
-    #
-    # cat filename* | psql dbname
   end
 
   def self.backup_pg_compress(opts)

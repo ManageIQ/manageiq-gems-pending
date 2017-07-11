@@ -5,10 +5,6 @@ require 'linux_admin'
 RAILS_ROOT ||= Pathname.new(__dir__).join("../../../")
 
 class PostgresAdmin
-  def self.pg_ctl
-    Pathname.new(ENV.fetch("APPLIANCE_PG_CTL"))
-  end
-
   def self.data_directory
     Pathname.new(ENV.fetch("APPLIANCE_PG_DATA"))
   end

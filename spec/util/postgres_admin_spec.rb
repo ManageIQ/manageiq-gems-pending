@@ -7,8 +7,7 @@ describe PostgresAdmin do
       ENV.delete_if { |k, _| k.start_with?("APPLIANCE") }
     end
 
-    [%w(pg_ctl             APPLIANCE_PG_CTL             /some/path      true),
-     %w(data_directory     APPLIANCE_PG_DATA            /some/path      true),
+    [%w(data_directory     APPLIANCE_PG_DATA            /some/path      true),
      %w(service_name       APPLIANCE_PG_SERVICE         postgresql          ),
      %w(scl_name           APPLIANCE_PG_SCL_NAME        postgresql_scl      ),
      %w(package_name       APPLIANCE_PG_PACKAGE_NAME    postgresql-server   ),

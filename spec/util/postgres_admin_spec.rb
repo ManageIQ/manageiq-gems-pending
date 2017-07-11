@@ -9,7 +9,6 @@ describe PostgresAdmin do
 
     [%w(data_directory     APPLIANCE_PG_DATA            /some/path      true),
      %w(service_name       APPLIANCE_PG_SERVICE         postgresql          ),
-     %w(scl_name           APPLIANCE_PG_SCL_NAME        postgresql_scl      ),
      %w(package_name       APPLIANCE_PG_PACKAGE_NAME    postgresql-server   ),
      %w(template_directory APPLIANCE_TEMPLATE_DIRECTORY /some/path      true),
      %w(mount_point        APPLIANCE_PG_MOUNT_POINT     /mount/point    true)
@@ -23,11 +22,6 @@ describe PostgresAdmin do
           expect(result).to eql value
         end
       end
-    end
-
-    it ".scl_enable_prefix" do
-      ENV["APPLIANCE_PG_SCL_NAME"] = "postgresql92"
-      expect(described_class.scl_enable_prefix).to eql "scl enable postgresql92"
     end
 
     it ".logical_volume_path" do

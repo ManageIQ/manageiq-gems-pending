@@ -5,10 +5,6 @@ require 'linux_admin'
 RAILS_ROOT ||= Pathname.new(__dir__).join("../../../")
 
 class PostgresAdmin
-  def self.pg_ctl
-    Pathname.new(ENV.fetch("APPLIANCE_PG_CTL"))
-  end
-
   def self.data_directory
     Pathname.new(ENV.fetch("APPLIANCE_PG_DATA"))
   end
@@ -250,31 +246,6 @@ class PostgresAdmin
     args = {}
     args[:table] = opts[:table] if opts[:table]
     runcmd("reindexdb", opts, args)
-  end
-
-  # TODO: overlaps with appliance_console/service_group.rb
-  def self.start(opts)
-    runcmd_with_logging(start_command, opts)
-  end
-
-  def self.start_command
-    "service #{service_name} start".freeze
-  end
-
-  def self.stop(opts)
-    runcmd_with_logging(stop_command(opts[:graceful]), opts)
-  end
-
-  def self.stop_command(graceful)
-    mode = graceful == true ? 'smart' : 'fast'
-    # su - postgres -c '/usr/local/pgsql/bin/pg_ctl stop -W -D /var/lib/pgsql/data -s -m smart'
-    # stop postgres as postgres user
-    # -W do not wait until operation completes, ie, don't block the process
-    #    while waiting for connections to close if using 'smart'
-    # -s do it silently
-    # -m smart - quit after all connections have disconnected
-    # -m fast  - quit directly with proper shutdown
-    "su - #{user} -c '#{pg_ctl} stop -W -D #{data_directory} -s -m #{mode}'"
   end
 
   def self.runcmd(cmd_str, opts, args)

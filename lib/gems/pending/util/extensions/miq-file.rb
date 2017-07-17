@@ -5,21 +5,8 @@ require 'util/MiqSockUtil'
 require 'addressable'
 
 class File
-  def self.paths_equal?(f1, f2)
-    File.expand_path(f1).tr("\\", "/") == File.expand_path(f2).tr("\\", "/")
-  end
-
-  def self.getShortFileName(longName)
-    longName
-  end
-
   def self.normalize(path)
     File.expand_path(path.gsub(/\\/, "/"))
-  end
-
-  def self.splitpath(path)
-    ext = File.extname(path)
-    return File.dirname(path), File.basename(path, ext), ext
   end
 
   # Extended File.size method to handle files over 2GB

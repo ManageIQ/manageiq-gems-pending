@@ -41,6 +41,33 @@ describe Module do
       expect(test_module.default).to eq(value)
     end
 
+    it 'clears the cache even if the block raises an exception' do
+      test_class.define_singleton_method(:call_count)  { @call_count ||= 0 }
+      test_class.define_singleton_method(:call_count=) { |val| @call_count = val }
+      test_class.cache_with_timeout(:flapping_method) do
+        begin
+          if test_class.call_count.even?
+            test_class.call_count
+          else
+            raise "OOPS"
+          end
+        ensure
+          test_class.call_count += 1
+        end
+      end
+
+      expect(test_class.flapping_method(true)).to eq(0) # initializes cache to 0
+      expect(test_class.flapping_method).to eq(0)       # returns from cache
+
+      test_class.flapping_method(true) rescue nil       # blows up, clears cache for next request
+      expect(test_class.flapping_method).to eq(2)       # sets new value since cache is cleared
+      expect(test_class.flapping_method).to eq(2)       # returns from cache
+
+      test_class.flapping_method(true) rescue nil       # blows up, clears cache for next request
+      expect(test_class.flapping_method).to eq(4)       # sets new value since cache is cleared
+      expect(test_class.flapping_method).to eq(4)       # returns from cache
+    end
+
     it 'will not return the cached value when passed force_reload = true' do
       value = test_class.default(true)
       expect(test_class.default(true)).not_to eq(value)

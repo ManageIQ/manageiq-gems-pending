@@ -41,6 +41,22 @@ describe Module do
       expect(test_module.default).to eq(value)
     end
 
+    it 'will return a prior cached value if resetting the value fails' do
+      $already_run = false
+      test_class.cache_with_timeout(:flapping_method) do
+        if $already_run == false
+          $already_run = true
+          5
+        else
+          raise "OOPS"
+        end
+      end
+
+      test_class.flapping_method(true)             # sets cache to 5
+      test_class.flapping_method(true) rescue nil  # blows up, doesn't reset cache
+      expect(test_class.flapping_method).to eq(5)  # returns prior cached value of 5
+    end
+
     it 'will not return the cached value when passed force_reload = true' do
       value = test_class.default(true)
       expect(test_class.default(true)).not_to eq(value)

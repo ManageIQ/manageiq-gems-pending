@@ -26,15 +26,17 @@ class Module
         cache = $miq_cache_with_timeout[key]
 
         old_timeout = cache[:timeout]
-        cache.clear if force_reload || (old_timeout && Time.now.utc > old_timeout)
-        break cache[:value] unless cache.empty?
+        timeout_expired = !!old_timeout && (Time.now.utc > old_timeout)
+        break cache[:value] if (!force_reload && !timeout_expired && cache.key?(:value))
 
         new_timeout = timeout || 300 # 5 minutes
         new_timeout = new_timeout.call if new_timeout.kind_of?(Proc)
         new_timeout = Time.now.utc + new_timeout
+        new_value   = block.call
+        cache.clear
 
         cache[:timeout] = new_timeout
-        cache[:value]   = block.call
+        cache[:value]   = new_value
       end
     end
 

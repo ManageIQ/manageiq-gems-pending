@@ -5,10 +5,6 @@ require 'util/MiqSockUtil'
 require 'addressable'
 
 class File
-  def self.normalize(path)
-    File.expand_path(path.gsub(/\\/, "/"))
-  end
-
   # Extended File.size method to handle files over 2GB
   def self.sizeEx(path)
     case Sys::Platform::IMPL

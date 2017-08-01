@@ -1,19 +1,8 @@
-require 'sys-uname'
-require 'util/runcmd'
 require 'uri'
 require 'util/MiqSockUtil'
 require 'addressable'
 
 class File
-  # Extended File.size method to handle files over 2GB
-  def self.sizeEx(path)
-    case Sys::Platform::IMPL
-    when :linux
-      MiqUtil.runcmd("ls -lQ \"#{path}\"").split(" ")[4].to_i
-    else
-      File.size(path)
-    end
-  end
 
   def self.path_to_uri(file, hostname = nil)
     hostname ||= MiqSockUtil.getFullyQualifiedDomainName

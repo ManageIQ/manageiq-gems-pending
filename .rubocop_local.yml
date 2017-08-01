@@ -8,8 +8,6 @@ GlobalVars:
 #
 # Special Exclusions
 #
-AllCops:
-  TargetRubyVersion: 2.2
 Metrics/LineLength:
   Exclude:
     - Gemfile

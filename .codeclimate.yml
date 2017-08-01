@@ -9,7 +9,6 @@ exclude_paths:
 - "**.yml"
 - "spec/"
 - "test/"
-- "tmp/"
 - "lib/gems/pending/*/test/"
 engines:
   brakeman:

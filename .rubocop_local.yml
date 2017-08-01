@@ -5,15 +5,3 @@ GlobalVars:
   AllowedVariables:
   # Loggers
   - $log
-  - $vim_log
-#
-# Special Exclusions
-#
-AllCops:
-  TargetRubyVersion: 2.2
-Metrics/LineLength:
-  Exclude:
-    - Gemfile
-Style/ExtraSpacing:
-  Exclude:
-    - Gemfile

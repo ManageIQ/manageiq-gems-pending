@@ -5,12 +5,3 @@ GlobalVars:
   AllowedVariables:
   # Loggers
   - $log
-#
-# Special Exclusions
-#
-Metrics/LineLength:
-  Exclude:
-    - Gemfile
-Style/ExtraSpacing:
-  Exclude:
-    - Gemfile

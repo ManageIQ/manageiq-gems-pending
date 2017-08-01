@@ -1,19 +1,12 @@
 ---
 exclude_paths:
 - ".git/"
-- "**.svg"
-- "**.wsdl"
 - "**.xml"
-- "**.xsd"
 - "**.yaml"
 - "**.yml"
 - "spec/"
 - "test/"
-- "tmp/"
 - "lib/gems/pending/*/test/"
-- "lib/gems/pending/metadata/linux/test/Packages"
-- "lib/gems/pending/metadata/linux/test/tc_LinuxUtils.rb"
-- "lib/gems/pending/VcoWebService/vmwo.wsdl"
 engines:
   brakeman:
     # very slow :sad_panda:

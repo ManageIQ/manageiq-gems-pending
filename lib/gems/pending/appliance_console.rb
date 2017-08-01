@@ -82,8 +82,8 @@ include ApplianceConsole::Prompts
 
 # Restore database choices
 RESTORE_LOCAL   = "Local file".freeze
-RESTORE_NFS     = "Network File System (nfs)".freeze
-RESTORE_SMB     = "Samba (smb)".freeze
+RESTORE_NFS     = "Network File System (NFS)".freeze
+RESTORE_SMB     = "Samba (SMB)".freeze
 RESTORE_OPTIONS = [RESTORE_LOCAL, RESTORE_NFS, RESTORE_SMB, ApplianceConsole::CANCEL].freeze
 
 # Restart choices

@@ -1,10 +1,7 @@
 ---
 exclude_paths:
 - ".git/"
-- "**.svg"
-- "**.wsdl"
 - "**.xml"
-- "**.xsd"
 - "**.yaml"
 - "**.yml"
 - "spec/"

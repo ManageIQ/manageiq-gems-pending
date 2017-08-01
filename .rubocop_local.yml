@@ -5,7 +5,6 @@ GlobalVars:
   AllowedVariables:
   # Loggers
   - $log
-  - $vim_log
 #
 # Special Exclusions
 #

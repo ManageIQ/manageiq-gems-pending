@@ -307,7 +307,7 @@ Static Network Configuration
             system_hosts.hostname = new_host
             system_hosts.set_loopback_hostname(new_host)
             system_hosts.save
-            LinuxAdmin::Service.new("network").restart
+
             press_any_key
           end
         end

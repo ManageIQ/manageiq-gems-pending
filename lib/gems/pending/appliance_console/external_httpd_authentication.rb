@@ -128,7 +128,7 @@ module ApplianceConsole
 
     def configure_ipa_http_service
       say("Configuring IPA HTTP Service and Keytab ...")
-      AwesomeSpawn.run!("/bin/echo \"#{@password}\" | /usr/bin/kinit #{@principal}")
+      AwesomeSpawn.run!("/usr/bin/kinit", :params => [@principal], :stdin_data => @password)
       service = Principal.new(:hostname => @host, :realm => realm, :service => "HTTP", :ca_name => "ipa")
       service.register
       AwesomeSpawn.run!(IPA_GETKEYTAB, :params => {"-s" => @ipaserver, "-k" => HTTP_KEYTAB, "-p" => service.name})

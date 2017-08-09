@@ -37,7 +37,7 @@ module ApplianceConsole
       if PostgresAdmin.initialized?
         say(<<-EOF.gsub!(/^\s+/, ""))
           An internal database already exists.
-          Choose "Reset Internal Database" to reset the existing installation
+          Choose "Reset Configured Database" to reset the existing installation
           EOF
         return false
       end

@@ -1,6 +1,7 @@
 require "active_support/all"
 require "appliance_console/external_httpd_authentication"
 require "appliance_console/prompts"
+require "appliance_console/principal"
 require "linux_admin"
 
 describe ApplianceConsole::ExternalHttpdAuthentication do
@@ -160,6 +161,27 @@ describe ApplianceConsole::ExternalHttpdAuthentication do
       sssd_service = double(@spec_name, :restart => double(@spec_name, :enable => true))
       allow(LinuxAdmin::Service).to receive(:new).with("sssd").and_return(sssd_service)
       subject.post_activation
+    end
+  end
+
+  context "#configure_ipa_http_service" do
+    before do
+      allow(subject).to receive(:say)
+      service = double("Principal")
+      allow(ApplianceConsole::Principal).to receive(:new).and_return(service)
+      allow(service).to receive(:register)
+      allow(service).to receive(:name)
+      allow(FileUtils).to receive(:chown)
+      allow(FileUtils).to receive(:chmod)
+      allow(AwesomeSpawn).to receive(:run!).with("/usr/sbin/ipa-getkeytab", anything)
+    end
+
+    it "accept symbol '$' as part of password string" do
+      subject.instance_variable_set("@password", "$my_password")
+      expect(AwesomeSpawn).to receive(:run!).exactly(1).with("/usr/bin/kinit",
+                                                             :params     => ["admin"],
+                                                             :stdin_data => "$my_password")
+      subject.send(:configure_ipa_http_service)
     end
   end
 end

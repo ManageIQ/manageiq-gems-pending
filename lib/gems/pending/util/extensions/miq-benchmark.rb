@@ -22,15 +22,27 @@ module Benchmark
   # call completes.  If the hash already has a value for that key, the time is
   # accumulated.
   def self.realtime_block(key, &block)
-    outermost = !self.in_realtime_block?
     hash = current_realtime
-    self.current_realtime = hash if outermost
 
-    begin
+    if in_realtime_block?
       ret = realtime_store(hash, key, &block)
       return ret, hash
-    ensure
-      delete_current_realtime if outermost
+    else
+      # Outermost block.
+      begin
+        self.current_realtime = hash
+        begin
+          ret = realtime_store(hash, key, &block)
+          return ret, hash
+        ensure
+          delete_current_realtime
+        end
+      ensure
+        # A second layer of protection in case TimeoutError struck right after
+        # setting self.current_realtime, or right before `delete_current_realtime`.
+        # In those cases, current_realtime might (wrongly) still exist.
+        delete_current_realtime if in_realtime_block?
+      end
     end
   end
 

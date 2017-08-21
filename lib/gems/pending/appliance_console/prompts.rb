@@ -135,11 +135,6 @@ module ApplianceConsole
       pass == "********" ? (default || "") : pass
     end
 
-    def ask_for_password_or_none(prompt, default = nil)
-      prompt += " ('none' for no value)" if default && !prompt.include?('none')
-      ask_for_password(prompt, default).gsub(NONE_REGEXP, "")
-    end
-
     def ask_for_string(prompt, default = nil)
       just_ask(prompt, default)
     end

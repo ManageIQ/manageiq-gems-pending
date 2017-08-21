@@ -10,7 +10,6 @@ describe ApplianceConsole::DatabaseReplication do
     allow(subject).to receive(:clear_screen)
     allow(subject).to receive(:agree)
     allow(subject).to receive(:ask_for_ip_or_hostname)
-    allow(subject).to receive(:ask_for_password_or_none)
     allow(subject).to receive(:ask_for_password)
   end
 

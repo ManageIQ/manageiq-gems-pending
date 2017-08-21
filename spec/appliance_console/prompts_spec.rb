@@ -247,26 +247,6 @@ describe ApplianceConsole::Prompts do
       expect(subject.ask_for_password("prompt", "defaultpass")).to eq("defaultpass")
       expect_heard ["Enter the prompt: |********| ", ""]
     end
-
-    context "#or_none" do
-      it "should not append none if no default password" do
-        say "secret"
-        expect(subject.ask_for_password_or_none("prompt", nil)).to eq("secret")
-        expect_heard ["Enter the prompt: ", "******", ""]
-      end
-
-      it "should not botch passwords" do
-        say "secret"
-        expect(subject.ask_for_password_or_none("prompt", "defaultpass")).to eq("secret")
-        expect_heard ["Enter the prompt ('none' for no value): |********| ", "******", ""]
-      end
-
-      it "should support 'none' password" do
-        say "none"
-        expect(subject.ask_for_password_or_none("prompt", "defaultpass")).to eq("")
-        expect_heard ["Enter the prompt ('none' for no value): |********| ", "****", ""]
-      end
-    end
   end
 
   context "#ask_for_disk" do

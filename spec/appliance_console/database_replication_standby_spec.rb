@@ -17,7 +17,6 @@ describe ApplianceConsole::DatabaseReplicationStandby do
     allow(subject).to receive(:agree)
     allow(subject).to receive(:just_ask)
     allow(subject).to receive(:ask_for_ip_or_hostname)
-    allow(subject).to receive(:ask_for_password_or_none)
   end
 
   context "#ask_questions" do

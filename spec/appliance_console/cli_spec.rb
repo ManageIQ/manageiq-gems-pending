@@ -521,6 +521,33 @@ describe ApplianceConsole::Cli do
     end
   end
 
+  context "#config_db_hourly_maintenance" do
+    before do
+      @test_hourly_cron = "#{Dir.tmpdir}/miq-pg-maintenance-hourly.cron"
+      stub_const("ApplianceConsole::DatabaseMaintenanceHourly::HOURLY_CRON", @test_hourly_cron)
+    end
+
+    after do
+      FileUtils.rm_f(@test_hourly_cron)
+    end
+
+    let(:expected_cron_file) do
+      <<-EOT.strip_heredoc
+        #!/bin/sh
+        /usr/bin/hourly_reindex_metrics_tables
+        /usr/bin/hourly_reindex_miq_queue_table
+        /usr/bin/hourly_reindex_miq_workers_table
+        exit 0
+      EOT
+    end
+
+    it "creates a new hourly cron job" do
+      expect(FileUtils).to receive(:chmod).with(0755, @test_hourly_cron)
+      subject.config_db_hourly_maintenance
+      expect(File.read(@test_hourly_cron)).to eq(expected_cron_file)
+    end
+  end
+
   context "#disk_from_string" do
     before do
       allow(LinuxAdmin::Disk).to receive_messages(:local => [

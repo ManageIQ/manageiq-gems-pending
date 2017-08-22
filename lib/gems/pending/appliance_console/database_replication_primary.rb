@@ -9,6 +9,8 @@ module ApplianceConsole
 
     REGISTER_CMD = 'repmgr master register'.freeze
 
+    attr_accessor :node_number, :database_name, :database_user, :database_password
+
     def initialize
       self.cluster_name      = nil
       self.node_number       = nil

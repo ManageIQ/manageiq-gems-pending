@@ -13,7 +13,7 @@ module ApplianceConsole
     REGISTER_CMD    = 'repmgr standby register'.freeze
     REPMGRD_SERVICE = 'rh-postgresql95-repmgr'.freeze
 
-    attr_accessor :disk, :standby_host, :run_repmgrd_configuration, :resync_data, :force_register
+    attr_accessor :node_number, :database_name, :database_user, :database_password, :disk, :standby_host, :run_repmgrd_configuration, :resync_data, :force_register
 
     def initialize
       self.cluster_name      = nil

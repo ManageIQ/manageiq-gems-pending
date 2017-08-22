@@ -1,5 +1,7 @@
 require "appliance_console/cli"
 require "appliance_console/timezone_configuration"
+require "appliance_console/database_replication_primary"
+require "appliance_console/database_replication_standby"
 
 describe ApplianceConsole::Cli do
   subject { described_class.new }
@@ -153,6 +155,40 @@ describe ApplianceConsole::Cli do
       .and_return(double(:activate => true, :post_activation => true))
 
     subject.run
+  end
+
+  context "#db replication" do
+    let(:db_replication) { double("DB replication") }
+    it "set a primary replication" do
+      expect(subject).to receive(:say).twice
+      expect(ApplianceConsole::DatabaseReplicationPrimary).to receive(:new)
+        .with(:node_number       => 2,
+              :database_name     => 'vmdb_test',
+              :database_user     => 'test',
+              :database_password => 'testpass')
+        .and_return(db_replication)
+      expect(db_replication).to receive(:activate).and_return(true)
+      subject.parse(%w(--replication primary --replication-node 2 --dbname vmdb_test --username test --password testpass)).run
+    end
+
+    it "set a standby replication" do
+      expect(subject).to receive(:say).twice
+      expect(ApplianceConsole::DatabaseReplicationStandby).to receive(:new)
+        .with(:node_number       => 2,
+              :database_name     => 'vmdb_test',
+              :database_user     => 'test',
+              :database_password => 'testpass')
+        .and_return(db_replication)
+      expect(db_replication).to receive(:activate).and_return(true)
+      subject.parse(%w(--replication standby --replication-node 2 --dbname vmdb_test --username test --password testpass)).run
+    end
+
+    it "should failed with wrong replication type" do
+      expect(subject).to receive(:say).once
+      expect do
+        subject.parse(%w(--replication err --replication-node 2 --dbname vmdb_test --username test --password testpass)).run
+      end.to raise_error(RuntimeError, /Error option for replication, should be primary or standby/)
+    end
   end
 
   context "#ipa" do

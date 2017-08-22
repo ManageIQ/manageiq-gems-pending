@@ -3,6 +3,8 @@ require 'pathname'
 require 'appliance_console/utilities'
 require 'appliance_console/logging'
 require 'appliance_console/database_configuration'
+require 'appliance_console/database_replication_primary'
+require 'appliance_console/database_replication_standby'
 require 'appliance_console/internal_database_configuration'
 require 'appliance_console/external_database_configuration'
 require 'appliance_console/external_httpd_authentication'
@@ -24,6 +26,8 @@ end
 module ApplianceConsole
   class Cli
     attr_accessor :options
+
+    NETWORK_INTERFACE = "eth0".freeze
 
     # machine host
     def host
@@ -53,6 +57,10 @@ module ApplianceConsole
 
     def local_database?
       database? && local?(hostname)
+    end
+
+    def replication?
+      options[:username] && options[:password] && options[:dbname] && options[:replication] && options[:replication_node]
     end
 
     def certs?
@@ -118,6 +126,8 @@ module ApplianceConsole
         opt :password, "Database Password",  :type => :string,  :short => "p"
         opt :dbname,   "Database Name",      :type => :string,  :short => "d", :default => "vmdb_production"
         opt :standalone, "Run this server as a standalone database server", :type => :bool, :short => 'S'
+        opt :replication, "Replication type", :type => :string
+        opt :replication_node, "Node of DB Cluster", :type => :integer
         opt :key,      "Create encryption key",  :type => :boolean, :short => "k"
         opt :fetch_key, "SSH host with encryption key", :type => :string, :short => "K"
         opt :force_key, "Forcefully create encryption key", :type => :boolean, :short => "f"
@@ -148,7 +158,7 @@ module ApplianceConsole
     def run
       Trollop.educate unless set_host? || key? || database? || tmp_disk? || log_disk? ||
                              uninstall_ipa? || install_ipa? || certs? || extauth_opts? ||
-                             time_zone? || set_server_state?
+                             time_zone? || set_server_state? || replication?
       if set_host?
         system_hosts = LinuxAdmin::Hosts.new
         system_hosts.hostname = options[:host]
@@ -159,6 +169,7 @@ module ApplianceConsole
       create_key if key?
       set_db if database?
       set_time_zone if time_zone?
+      set_replication_db if replication?
       config_tmp_disk if tmp_disk?
       config_log_disk if log_disk?
       uninstall_ipa if uninstall_ipa?
@@ -227,6 +238,34 @@ module ApplianceConsole
 
       # enable/start related services
       config.post_activation
+    end
+
+    def set_replication_db
+      db_opts = {
+        :node_number       => options[:replication_node],
+        :database_name     => options[:dbname],
+        :database_user     => options[:username],
+        :database_password => options[:password]
+      }
+      case options[:replication]
+      when "primary"
+        db_replication = ApplianceConsole::DatabaseReplicationPrimary.new(db_opts)
+        say "Configuring primary replication database"
+      when "standby"
+        db_replication = ApplianceConsole::DatabaseReplicationStandby.new(db_opts)
+        say "Configuring standby replication database"
+      else
+        db_replication = nil
+        say "Error option for replication, should be primary or standby"
+        raise "Error option for replication, should be primary or standby"
+      end
+
+      if db_replication.activate
+        say "Database Replication configured"
+      else
+        say "Database Replication not configured"
+        raise MiqSignalError
+      end
     end
 
     def set_time_zone

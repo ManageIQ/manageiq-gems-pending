@@ -31,7 +31,8 @@ module ApplianceConsole
         "mail"        => "REMOTE_USER_EMAIL",
         "givenname"   => "REMOTE_USER_FIRSTNAME",
         "sn"          => "REMOTE_USER_LASTNAME",
-        "displayname" => "REMOTE_USER_FULLNAME"
+        "displayname" => "REMOTE_USER_FULLNAME",
+        "domainname"  => "REMOTE_USER_DOMAIN"
       }.freeze
 
       def template_directory

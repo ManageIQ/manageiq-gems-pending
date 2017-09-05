@@ -67,12 +67,16 @@ describe Benchmark do
   it "Timeout raising within .realtime_block" do
     expect(Benchmark.in_realtime_block?).to be_falsey
 
-    places_outcomes = {}
-    1000.times do |i|
+    # If something left over from previous tests gets GC'd during Timeout, its finalizer may
+    # be interrupted.  For example, interrupted Temfile cleanup may get stuck forever!
+    # This reduces chance of nasty interactions...
+    GC.start
+
+    20.times do |i|
       begin
         # keep entering/exiting, abort ASAP
         Timeout.timeout(1e-9) do
-          loop do
+          2_000_000.times do
             Benchmark.realtime_block(:test1) do
               Benchmark.realtime_block(:test2) do
               end
@@ -80,25 +84,12 @@ describe Benchmark do
             end
           end
         end
+        raise("Completed without Timeout!?  Tip: may result from unclosed Tempfile object.")
       rescue Timeout::Error => e
-        # sortable compact stacks: realtime_block and children, outer first, strip directories, pad line numbers
-        interesting_depth = e.backtrace.rindex { |s| s =~ /in `realtime_block'/ } || 5
-        where = e.backtrace[0..interesting_depth].reverse
-        where = where.collect { |s| s.sub(%r{/.*/}, '').sub(/\d+:/) { |linenum| '%03d:' % linenum.to_i } }
-        places_outcomes[where] ||= {:cleaned => 0, :failed => 0}
-        if Benchmark.in_realtime_block?
-          places_outcomes[where][:failed] += 1
-          Benchmark.delete_current_realtime
-        else
-          places_outcomes[where][:cleaned] += 1
-        end
-      else
-        fail "impossible: escaped infinite loop without exception"
+        where = e.backtrace.first(10).join("\n")
+        expect(Benchmark.in_realtime_block?).to be_falsey,
+                                                "failed on #{i}th Timeout, #{e.inspect} interrupted in:\n#{where}"
       end
-    end
-
-    places_outcomes.sort.each do |where, outcomes|
-      puts "cleaned\t#{outcomes[:cleaned]}\tfailed\t#{outcomes[:failed]}\t#{where.join(' -> ')}"
     end
   end
 end

@@ -66,6 +66,20 @@ describe VMDBLogger do
       buffer.rewind
       expect(buffer.read).to include(":password_for_important_thing: [FILTERED]")
     end
+
+    it "handles logging hash-like classes" do
+      require "active_support/core_ext/hash"
+      hash = ActiveSupport::HashWithIndifferentAccess.new(:a => 1, :b => {:c => 3})
+      logger.log_hashes(hash)
+
+      buffer.rewind
+      expect(buffer.read).to include(<<-EOS)
+---
+a: 1
+b:
+  c: 3
+      EOS
+    end
   end
 
   it ".contents with no log returns empty string" do

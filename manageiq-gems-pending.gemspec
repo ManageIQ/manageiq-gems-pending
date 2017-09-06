@@ -25,7 +25,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "activesupport",           ">= 5.0", "< 5.1"
   s.add_runtime_dependency "addressable",             "~> 2.4"
   s.add_runtime_dependency "awesome_spawn",           "~> 1.4"
-  s.add_runtime_dependency "azure-armrest",           "~> 0.7.0"
+  s.add_runtime_dependency "azure-armrest",           "~> 0.8.2"
   s.add_runtime_dependency "bcrypt",                  "~> 3.1.10"
   s.add_runtime_dependency "binary_struct",           "~> 2.1"
   s.add_runtime_dependency "bundler",                 ">= 1.8.4" # rails-assets requires bundler >= 1.8.4, see: https://rails-assets.org/
@@ -73,6 +73,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency "test-unit"
   s.add_development_dependency "timecop",      "~>0.7.3"
   s.add_development_dependency "vcr",          "~>3.0.0"
-  s.add_development_dependency "webmock",      "~>1.12"
+  s.add_development_dependency "webmock",      "~>2.3.1"
   s.add_development_dependency "xml-simple",   "~>1.1.0"
 end

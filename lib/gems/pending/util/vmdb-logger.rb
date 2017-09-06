@@ -113,7 +113,7 @@ class VMDBLogger < Logger
     filter = Array(options[:filter]).flatten.compact.map(&:to_s) << "password"
     filter.uniq!
 
-    values = YAML.dump(h).gsub(MiqPassword::REGEXP, "[FILTERED]")
+    values = YAML.dump(h.to_hash).gsub(MiqPassword::REGEXP, "[FILTERED]")
     values = values.split("\n").map do |l|
       if (key = filter.detect { |f| l.include?(f) })
         l.gsub!(/#{key}.*: (.+)/) { |m| m.gsub!($1, "[FILTERED]") }

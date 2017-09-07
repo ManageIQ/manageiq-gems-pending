@@ -29,6 +29,12 @@ describe ApplianceConsole::Prompts do
     Class.new(HighLine) { include ApplianceConsole::Prompts }.new(input, output)
   end
 
+  after do
+    # best-guess cleanup: Readline has .input=, .output= but no .input, .output
+    Readline.input = STDIN
+    Readline.output = STDOUT
+  end
+
   # net/ssh messes with track_eof
   # we need it for testing
   # set it back after we are done

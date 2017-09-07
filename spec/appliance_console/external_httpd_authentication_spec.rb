@@ -105,7 +105,7 @@ describe ApplianceConsole::ExternalHttpdAuthentication do
     end
 
     after do
-      FileUtils.rm_f(@test_kerberos_config.path)
+      @test_kerberos_config.close!
     end
 
     it "saves a backup copy of the kerberos config file" do

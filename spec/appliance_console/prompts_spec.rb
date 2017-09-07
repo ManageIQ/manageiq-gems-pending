@@ -9,15 +9,19 @@ require "linux_admin"
 
 describe ApplianceConsole::Prompts do
   let(:input) do
-    temp_stdin = Tempfile.new("temp_stdin")
-    File.open(temp_stdin.path, 'w+')
+    @temp_stdin = Tempfile.new("temp_stdin")
+    File.open(@temp_stdin.path, 'w+')
   end
   let(:readline_output) do
-    temp_stdout = Tempfile.new("temp_stdout")
-    File.open(temp_stdout.path, 'w+')
+    @temp_stdout = Tempfile.new("temp_stdout")
+    File.open(@temp_stdout.path, 'w+')
   end
   let(:output) { StringIO.new }
   let(:prompt) { "\n?  " }
+  after do
+    @temp_stdin.close! if @temp_stdin
+    @temp_stdout.close! if @temp_stdout
+  end
 
   subject do
     Readline.input = input

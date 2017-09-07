@@ -10,7 +10,7 @@ describe ApplianceConsole::DatabaseMaintenancePeriodic do
   end
 
   after do
-    FileUtils.rm_f(@test_crontab1.path)
+    @test_crontab1.close!
   end
 
   describe "#confirm" do
@@ -69,7 +69,7 @@ describe ApplianceConsole::DatabaseMaintenancePeriodic do
       end
 
       after do
-        FileUtils.rm_f(@test_crontab.path)
+        @test_crontab.close!
       end
 
       let(:expected_crontab_file) do
@@ -115,7 +115,7 @@ describe ApplianceConsole::DatabaseMaintenancePeriodic do
       end
 
       after do
-        FileUtils.rm_f(@test_crontab.path)
+        @test_crontab.close!
       end
 
       it "removes the periodic database maintenance entries from the crontab" do

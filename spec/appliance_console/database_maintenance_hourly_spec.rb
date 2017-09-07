@@ -40,7 +40,7 @@ describe ApplianceConsole::DatabaseMaintenanceHourly do
       end
 
       after do
-        FileUtils.rm_f(@test_hourly_cron.path)
+        @test_hourly_cron.close!
       end
 
       it "returns true when un-configure is confirmed" do
@@ -92,7 +92,7 @@ describe ApplianceConsole::DatabaseMaintenanceHourly do
       end
 
       after do
-        FileUtils.rm_f(@test_hourly_cron.path)
+        @test_hourly_cron.close!
       end
 
       it "removes the existing hourly cron job" do

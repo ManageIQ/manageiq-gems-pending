@@ -105,14 +105,14 @@ describe ApplianceConsole::DatabaseReplication do
   end
 
   context "#write_pgpass_file" do
-    let(:pgpass_path) { Tempfile.new("pgpass").path }
-
     before do
-      stub_const("#{described_class}::PGPASS_FILE", pgpass_path)
+      @tempfile_pgpass = Tempfile.new("pgpass")
+      @pgpass_path = @tempfile_pgpass.path
+      stub_const("#{described_class}::PGPASS_FILE", @pgpass_path)
     end
 
     after do
-      FileUtils.rm_f(pgpass_path)
+      @tempfile_pgpass.close!
     end
 
     it "writes the .pgpass file correctly" do
@@ -120,15 +120,15 @@ describe ApplianceConsole::DatabaseReplication do
       subject.database_user     = "someuser"
       subject.database_password = "secret"
 
-      expect(FileUtils).to receive(:chown).with("postgres", "postgres", pgpass_path)
+      expect(FileUtils).to receive(:chown).with("postgres", "postgres", @pgpass_path)
       subject.write_pgpass_file
 
-      expect(File.read(pgpass_path)).to eq(<<-EOS.gsub(/^\s+/, ""))
+      expect(File.read(@pgpass_path)).to eq(<<-EOS.gsub(/^\s+/, ""))
         *:*:dbname:someuser:secret
         *:*:replication:someuser:secret
       EOS
 
-      pgpass_stat = File.stat(pgpass_path)
+      pgpass_stat = File.stat(@pgpass_path)
       expect(pgpass_stat.mode.to_s(8)).to eq("100600")
     end
   end

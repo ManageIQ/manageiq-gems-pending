@@ -66,10 +66,13 @@ module ApplianceConsole
     end
 
     def save_new_key
-      FileUtils.mv(NEW_KEY_FILE, KEY_FILE, :force => true)
-    rescue => e
-      say("Failed to overwrite original key, original key kept. #{e.message}")
-      return false
+      begin
+        FileUtils.mv(NEW_KEY_FILE, KEY_FILE, :force => true)
+      rescue => e
+        say("Failed to overwrite original key, original key kept. #{e.message}")
+        return false
+      end
+      FileUtils.chmod(0o400, KEY_FILE)
     end
 
     def remove_new_key_if_any

@@ -461,7 +461,7 @@ Static Network Configuration
           elsif !rake_success
             say("\nDatabase restore failed")
             connections = ApplianceConsole::Utilities.db_connections - 1
-            say("\nThere are #{connections} connection preventing a database restore") if connections > 0
+            say("\nThere #{connections > 1 ? "are #{connections} connections" : "is 1 connection"} preventing a database restore") if connections > 0
           end
         end
         press_any_key

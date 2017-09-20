@@ -15,7 +15,7 @@ class MiqAzureVm < MiqVm
     if args[:image_uri]
       @uri = args[:image_uri]
     elsif args[:resource_group] && args[:name]
-      vm_obj = vm_svc.get(@name, @resource_group.name)
+      vm_obj = vm_svc.get(@name, @resource_group)
       os_disk = vm_obj.properties.storage_profile.os_disk
       if vm_obj.managed_disk?
         #
@@ -102,7 +102,7 @@ class MiqAzureVm < MiqVm
     disk_format              = @vmConfig.getHash["#{disk_tag}.format"]
     disk_info.format         = disk_format unless disk_format.blank?
     disk_info.rawDisk        = true
-    disk_info.resource_group = @resource_group.name
+    disk_info.resource_group = @resource_group
     disk_info
   end
 

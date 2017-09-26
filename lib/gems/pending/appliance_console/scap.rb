@@ -12,7 +12,7 @@ module ApplianceConsole
         require 'yaml'
         scap_config = YAML.load_file(yaml_filename)
         begin
-          LinuxAdmin::Scap.new.lockdown(*scap_config['rules'], scap_config['values'])
+          LinuxAdmin::Scap.new("rhel7").lockdown(*scap_config['rules'], scap_config['values'])
         rescue => e
           say("Configuration failed: #{e.message}")
         else

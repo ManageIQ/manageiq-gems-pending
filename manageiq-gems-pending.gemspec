@@ -50,6 +50,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rspec",                     "~> 3.5.0"
   s.add_development_dependency "simplecov"
   s.add_development_dependency "test-unit"
-  s.add_development_dependency "timecop",                   "~> 0.7.3"
+  s.add_development_dependency "timecop",                   "~> 0.9.1"
   s.add_development_dependency "xml-simple",                "~> 1.1.0"
 end

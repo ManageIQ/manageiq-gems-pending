@@ -31,7 +31,7 @@ module ApplianceConsole
       if !LinuxAdmin::Scap.openscap_available?
         say("OpenSCAP has not been installed")
         false
-      elsif !LinuxAdmin::Scap.ssg_available?
+      elsif !LinuxAdmin::Scap.ssg_available?("rhel7")
         say("SCAP Security Guide has not been installed")
         false
       else

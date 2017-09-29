@@ -291,6 +291,13 @@ describe ApplianceConsole::Prompts do
           "No partition found for database disk. You probably want to add an unpartitioned disk and try again.", ""
         ]
       end
+
+      it "should raise an exception if not allow none" do
+        expect { subject.ask_for_disk("database disk", true, false) }.to raise_error(MiqSignalError)
+        expect_heard [
+          "No partition found for database disk. You probably want to add an unpartitioned disk and try again."
+        ]
+      end
     end
 
     context "with one disk" do

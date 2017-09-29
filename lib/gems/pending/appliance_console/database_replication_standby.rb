@@ -30,7 +30,7 @@ module ApplianceConsole
       clear_screen
       say("Establish Replication Standby Server\n")
       return false if !data_dir_empty? && !confirm_data_resync
-      self.disk = ask_for_disk("Standby database disk")
+      self.disk = ask_for_disk("Standby database disk", true, false)
       ask_for_unique_cluster_node_number
       ask_for_database_credentials
       ask_for_standby_host

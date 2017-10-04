@@ -32,7 +32,7 @@ describe ApplianceConsole::Cli do
   end
 
   it "should set database host to localhost if running locally" do
-    subject.parse(%w(--internal -r 1 --dbdisk x))
+    subject.parse(%w(--internal -r 1 --dbdisk x --password pass))
     expect_v2_key
     expect(subject).to receive(:disk_from_string).with('x').and_return('/dev/x')
     expect(subject).to receive(:say)
@@ -40,6 +40,7 @@ describe ApplianceConsole::Cli do
       .with(:region            => 1,
             :database          => 'vmdb_production',
             :username          => 'root',
+            :password          => 'pass',
             :interactive       => false,
             :disk              => '/dev/x',
             :run_as_evm_server => true)
@@ -153,6 +154,12 @@ describe ApplianceConsole::Cli do
       .and_return(double(:activate => true, :post_activation => true))
 
     subject.run
+  end
+
+  it "should not allow empty password in setting database" do
+    subject.parse(%w(--internal --username user -r 1 --dbdisk x))
+    expect_v2_key
+    expect { subject.run }.to raise_error(RuntimeError, "A password is required to configure a database")
   end
 
   context "#ipa" do

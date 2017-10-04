@@ -182,11 +182,16 @@ module ApplianceConsole
 
     def set_db
       raise "No encryption key (v2_key) present" unless key_configuration.key_exist?
+      raise "Must provide a password to set database" unless password?
       if local?
         set_internal_db
       else
         set_external_db
       end
+    end
+
+    def password?
+      options[:password] && !options[:password].strip.empty?
     end
 
     def set_internal_db

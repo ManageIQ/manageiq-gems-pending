@@ -43,7 +43,7 @@ describe ApplianceConsole::Cli do
             :interactive       => false,
             :disk              => '/dev/x',
             :run_as_evm_server => true)
-      .and_return(double(:activate => true, :post_activation => true))
+      .and_return(double(:check_disk_is_mount_point => true, :activate => true, :post_activation => true))
     expect(subject.key_configuration).not_to receive(:activate)
     subject.run
   end
@@ -61,7 +61,7 @@ describe ApplianceConsole::Cli do
             :interactive       => false,
             :disk              => 'x',
             :run_as_evm_server => true)
-      .and_return(double(:activate => true, :post_activation => true))
+      .and_return(double(:check_disk_is_mount_point => true, :activate => true, :post_activation => true))
 
     subject.run
   end
@@ -79,7 +79,7 @@ describe ApplianceConsole::Cli do
             :interactive       => false,
             :disk              => 'x',
             :run_as_evm_server => false)
-      .and_return(double(:activate => true, :post_activation => true))
+      .and_return(double(:check_disk_is_mount_point => true, :activate => true, :post_activation => true))
     subject.run
   end
 
@@ -88,7 +88,7 @@ describe ApplianceConsole::Cli do
     expect_v2_key
     expect(subject).to receive(:disk_from_string).and_return('x')
     expect(subject).to receive(:say).twice
-    config_double = double(:activate => false)
+    config_double = double(:check_disk_is_mount_point => true, :activate => false)
     expect(ApplianceConsole::InternalDatabaseConfiguration).to receive(:new)
       .with(:region            => 1,
             :database          => 'vmdb_production',
@@ -99,6 +99,26 @@ describe ApplianceConsole::Cli do
             :run_as_evm_server => true)
       .and_return(config_double)
     expect(config_double).not_to receive(:post_activation)
+
+    subject.run
+  end
+
+  it "should not run activation if internal database not setting in a separate mount point" do
+    subject.parse(%w(--internal --username user --password pass -r 1))
+    expect_v2_key
+    expect(subject).to receive(:disk_from_string).and_return(nil)
+    expect(subject).to receive(:say).exactly(3).times
+    config_double = double
+    expect(ApplianceConsole::InternalDatabaseConfiguration).to receive(:new)
+      .with(:region            => 1,
+            :database          => 'vmdb_production',
+            :username          => 'user',
+            :password          => 'pass',
+            :interactive       => false,
+            :run_as_evm_server => true)
+      .and_return(config_double)
+    expect(config_double).to receive(:check_disk_is_mount_point).and_raise("The disk for database must be a mount point")
+    expect(config_double).not_to receive(:activation)
 
     subject.run
   end

@@ -34,6 +34,25 @@ describe ApplianceConsole::InternalDatabaseConfiguration do
     @config.choose_disk
   end
 
+  context "#check_disk_is_mount_point" do
+    it "not raise error if disk is given" do
+      expect(@config).to receive(:disk).and_return("/x")
+      @config.check_disk_is_mount_point
+    end
+
+    it "not raise error if no disk given but mount point for database is really a mount point" do
+      expect(@config).to receive(:disk).and_return(nil)
+      expect(@config).to receive(:pg_mount_point?).and_return(true)
+      @config.check_disk_is_mount_point
+    end
+
+    it "raise error if no disk given and not a mount point" do
+      expect(@config).to receive(:disk).and_return(nil)
+      expect(@config).to receive(:pg_mount_point?).and_return(false)
+      expect { @config.check_disk_is_mount_point }.to raise_error(RuntimeError, "The disk for database must be a mount point")
+    end
+  end
+
   it ".postgresql_template" do
     allow(PostgresAdmin).to receive_messages(:data_directory     => Pathname.new("/var/lib/pgsql/data"))
     allow(PostgresAdmin).to receive_messages(:template_directory => Pathname.new("/opt/manageiq/manageiq-appliance/TEMPLATE"))

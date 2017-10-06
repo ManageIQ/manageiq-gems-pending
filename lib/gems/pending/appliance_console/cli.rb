@@ -200,6 +200,7 @@ module ApplianceConsole
         :disk              => disk_from_string(options[:dbdisk]),
         :run_as_evm_server => !options[:standalone]
       }.delete_if { |_n, v| v.nil? })
+      config.check_disk_is_mount_point
 
       # create partition, pv, vg, lv, ext4, update fstab, mount disk
       # initdb, relabel log directory for selinux, update configs,
@@ -212,6 +213,9 @@ module ApplianceConsole
 
       # enable/start related services
       config.post_activation
+    rescue RuntimeError => e
+      say e.message
+      say "Failed to configure internal database"
     end
 
     def set_external_db

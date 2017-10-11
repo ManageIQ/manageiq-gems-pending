@@ -208,9 +208,10 @@ module ApplianceConsole
       end
     end
 
-    def just_agree(prompt, character = nil)
-      agree(prompt, character) do |q|
+    def just_agree(prompt, default = nil)
+      agree(prompt) do |q|
         q.readline = true
+        q.default = default if default
         yield q if block_given?
       end
     end

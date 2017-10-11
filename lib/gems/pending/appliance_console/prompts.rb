@@ -54,11 +54,12 @@ module ApplianceConsole
 
     def are_you_sure?(clarifier = nil)
       clarifier = " you want to #{clarifier}" if clarifier && !clarifier.include?("want")
-      agree("Are you sure#{clarifier}? (Y/N): ")
+      just_agree("Are you sure#{clarifier}? (Y/N): ")
     end
 
     def ask_yn?(prompt, default = nil)
       ask("#{prompt}? (Y/N): ") do |q|
+        q.readline = true
         q.default = default if default
         q.validate = ->(p) { (p.blank? && default) || %w(y n).include?(p.downcase[0]) }
         q.responses[:not_valid] = "Please provide yes or no."
@@ -185,6 +186,7 @@ module ApplianceConsole
       default = default_to_index(default, options)
       selection = nil
       choose do |menu|
+        menu.readline     = true
         menu.default      = default
         menu.index        = :number
         menu.index_suffix = ") "
@@ -202,6 +204,13 @@ module ApplianceConsole
         q.default = default.to_s if default
         q.validate = validate if validate
         q.responses[:not_valid] = error_text ? "Please provide #{error_text}" : "Please provide in the specified format"
+        yield q if block_given?
+      end
+    end
+
+    def just_agree(prompt, character = nil)
+      agree(prompt, character) do |q|
+        q.readline = true
         yield q if block_given?
       end
     end

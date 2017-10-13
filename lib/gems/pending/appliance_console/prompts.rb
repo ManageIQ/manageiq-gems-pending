@@ -208,7 +208,7 @@ module ApplianceConsole
       end
     end
 
-    def just_agree(prompt, default = nil)
+    def just_ask_yn?(prompt, default = nil)
       agree(prompt) do |q|
         q.readline = true
         q.default = default if default

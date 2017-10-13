@@ -3,6 +3,7 @@ require "appliance_console/logical_volume_management"
 require "pathname"
 require "util/postgres_admin"
 require "pg"
+require "linux_admin"
 
 RAILS_ROOT ||= Pathname.new(__dir__).join("../../../")
 
@@ -49,6 +50,7 @@ module ApplianceConsole
 
     def ask_questions
       choose_disk
+      check_disk_is_mount_point
       self.run_as_evm_server = !ask_yn?(<<-EOS.gsub!(/^ +/m, ""), "N")
 
         Should this appliance run as a standalone database server?
@@ -67,6 +69,11 @@ module ApplianceConsole
 
     def choose_disk
       @disk = ask_for_disk("database disk")
+    end
+
+    def check_disk_is_mount_point
+      error_message = "The disk for database must be a mount point"
+      raise error_message unless disk || pg_mount_point?
     end
 
     def initialize_postgresql_disk
@@ -108,7 +115,7 @@ module ApplianceConsole
     private
 
     def mount_point
-      Pathname.new(ENV.fetch("APPLIANCE_PG_MOUNT_POINT"))
+      PostgresAdmin.mount_point
     end
 
     def copy_template(src, src_dir = self.class.postgresql_template, dest_dir = PostgresAdmin.data_directory)
@@ -119,6 +126,10 @@ module ApplianceConsole
       else
         FileUtils.cp full_src, dest_dir
       end
+    end
+
+    def pg_mount_point?
+      LinuxAdmin::LogicalVolume.mount_point_exists?(mount_point)
     end
 
     def run_initdb

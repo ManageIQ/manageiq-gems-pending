@@ -54,10 +54,14 @@ module ApplianceConsole
 
     def are_you_sure?(clarifier = nil)
       clarifier = " you want to #{clarifier}" if clarifier && !clarifier.include?("want")
-      ask_yn?("Are you sure#{clarifier}", nil, "Please enter \"yes\" or \"no\"")
+      just_ask_yn?("Are you sure#{clarifier}", nil, "Please enter \"yes\" or \"no\"")
     end
 
-    def ask_yn?(prompt, default = nil, error_msg = "Please provide yes or no")
+    def ask_yn?(prompt, default = nil)
+      just_ask_yn?(prompt, default)
+    end
+
+    def just_ask_yn?(prompt, default = nil, error_msg = "Please provide yes or no")
       answer = ask("#{prompt}? (Y/N): ") do |q|
         q.readline = true
         q.default = default if default

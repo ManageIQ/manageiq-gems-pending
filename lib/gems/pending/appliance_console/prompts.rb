@@ -66,7 +66,7 @@ module ApplianceConsole
         q.readline = true
         q.default = default if default
       end
-      validator = ->(p) { (p.blank? && default) || %(y n).include?(p.downcase[0]) }
+      validator = ->(p) { (p.blank? && default) || (!p.blank? && %(y n).include?(p.downcase[0])) }
       until validator.call(answer.to_s)
         say(error_msg)
         answer = ask("?  ") do |q|

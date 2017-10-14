@@ -62,9 +62,9 @@ module ApplianceConsole
         q.readline = true
         q.default = default if default
       end
-      validator = lambda { |p| (p.blank? && default) || %(y n).include?(p.downcase[0]) }
-      while !validator.(answer.to_s)
-        puts "Please provide yes or no"
+      validator = ->(p) { (p.blank? && default) || %(y n).include?(p.downcase[0]) }
+      until validator.call(answer.to_s)
+        say("Please provide yes or no")
         answer = ask("?  ") do |q|
           q.readline = true
           q.default = defualt if default

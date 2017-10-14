@@ -193,7 +193,6 @@ module ApplianceConsole
       default = default_to_index(default, options)
       selection = nil
       choose do |menu|
-        menu.readline     = true
         menu.default      = default
         menu.index        = :number
         menu.index_suffix = ") "

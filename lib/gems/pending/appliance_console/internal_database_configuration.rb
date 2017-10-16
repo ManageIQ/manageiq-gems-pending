@@ -129,7 +129,7 @@ module ApplianceConsole
     end
 
     def pg_mount_point?
-      LinuxAdmin::LogicalVolume.mount_point_exists?(mount_point)
+      LinuxAdmin::LogicalVolume.mount_point_exists?(mount_point.to_s)
     end
 
     def run_initdb

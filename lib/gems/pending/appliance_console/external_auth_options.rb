@@ -8,9 +8,6 @@ RAILS_ROOT ||= Pathname.new(__dir__).join("../../..")
 
 module ApplianceConsole
   class ExternalAuthOptions
-    # VMDB_YML      = RAILS_ROOT.join("config/vmdb.yml.db")
-    # VMDB_YML_TMPL = RAILS_ROOT.join("config/vmdb.tmpl.yml")
-
     AUTH_PATH = "/authentication".freeze
 
     EXT_AUTH_OPTIONS = {

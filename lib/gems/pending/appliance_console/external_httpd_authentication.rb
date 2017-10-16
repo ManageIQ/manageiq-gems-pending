@@ -1,4 +1,4 @@
-require "appliance_console/external_httpd_configuration"
+require "appliance_console/external_httpd_authentication/external_httpd_configuration"
 require "appliance_console/principal"
 
 module ApplianceConsole

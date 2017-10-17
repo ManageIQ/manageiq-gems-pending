@@ -127,25 +127,25 @@ module ApplianceConsole
         opt :key,      "Create encryption key",  :type => :boolean, :short => "k"
         opt :fetch_key, "SSH host with encryption key", :type => :string, :short => "K"
         opt :force_key, "Forcefully create encryption key", :type => :boolean, :short => "f"
-        opt :sshlogin,  "SSH login",         :type => :string,                 :default => "root"
-        opt :sshpassword, "SSH password",    :type => :string
         opt :verbose,  "Verbose",            :type => :boolean, :short => "v"
-        opt :dbdisk,   "Database Disk Path", :type => :string
-        opt :logdisk,  "Log Disk Path",      :type => :string
-        opt :tmpdisk,   "Temp storage Disk Path", :type => :string
-        opt :uninstall_ipa, "Uninstall IPA Client", :type => :boolean,         :default => false
-        opt :ipaserver,  "IPA Server FQDN",  :type => :string
-        opt :ipaprincipal,  "IPA Server principal", :type => :string,          :default => "admin"
-        opt :ipapassword,   "IPA Server password",  :type => :string
-        opt :ipadomain,     "IPA Server domain (optional)", :type => :string
-        opt :iparealm,      "IPA Server realm (optional)", :type => :string
-        opt :ca,                   "CA name used for certmonger",       :type => :string,  :default => "ipa"
-        opt :timezone,             "Time zone",                         :type => :string
-        opt :postgres_client_cert, "install certs for postgres client", :type => :boolean
-        opt :postgres_server_cert, "install certs for postgres server", :type => :boolean
-        opt :http_cert,            "install certs for http server",     :type => :boolean
-        opt :extauth_opts,         "External Authentication Options",   :type => :string
-        opt :server,               "Server status",                     :type => :string
+        opt :sshlogin,  "SSH login",         :type => :string,                 :default => "root", :short => :none
+        opt :sshpassword, "SSH password",    :type => :string, :short => :none
+        opt :dbdisk,   "Database Disk Path", :type => :string, :short => :none
+        opt :logdisk,  "Log Disk Path",      :type => :string, :short => :none
+        opt :tmpdisk,   "Temp storage Disk Path", :type => :string, :short => :none
+        opt :uninstall_ipa, "Uninstall IPA Client", :type => :boolean,         :default => false, :short => :none
+        opt :ipaserver,  "IPA Server FQDN",  :type => :string, :short => :none
+        opt :ipaprincipal,  "IPA Server principal", :type => :string,          :default => "admin", :short => :none
+        opt :ipapassword,   "IPA Server password",  :type => :string, :short => :none
+        opt :ipadomain,     "IPA Server domain (optional)", :type => :string, :short => :none
+        opt :iparealm,      "IPA Server realm (optional)", :type => :string, :short => :none
+        opt :ca,                   "CA name used for certmonger",       :type => :string,  :default => "ipa", :short => :none
+        opt :timezone,             "Time zone",                         :type => :string, :short => :none
+        opt :postgres_client_cert, "install certs for postgres client", :type => :boolean, :short => :none
+        opt :postgres_server_cert, "install certs for postgres server", :type => :boolean, :short => :none
+        opt :http_cert,            "install certs for http server",     :type => :boolean, :short => :none
+        opt :extauth_opts,         "External Authentication Options",   :type => :string, :short => :none
+        opt :server,               "Server status",                     :type => :string, :short => :none
       end
       Trollop.die :region, "needed when setting up a local database" if options[:region].nil? && local_database?
       self

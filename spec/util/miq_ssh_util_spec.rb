@@ -1,4 +1,4 @@
-require 'util/MiqSshUtilV2'
+require 'util/MiqSshUtil'
 
 describe MiqSshUtil do
   context "#temp_cmd_file" do

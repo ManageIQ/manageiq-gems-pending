@@ -1,5 +1,4 @@
 require 'util/miq-xml'
-require 'util/miq-logger'
 require 'util/runcmd'
 require 'io/wait'
 require 'open-uri'

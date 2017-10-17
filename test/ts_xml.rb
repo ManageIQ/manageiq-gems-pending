@@ -1,10 +1,9 @@
 require_relative './test_helper'
 
-require 'util/miq-logger'
-
 # Setup console logging
-$log = MIQLogger.get_log(nil, nil)
-$log.level = Log4r::WARN
+require 'logger'
+$log = Logger.new(STDOUT)
+$log.level = Logger::WARN
 
 require_relative 'xml/tc_xml'
 require_relative 'xml/tc_rexml'

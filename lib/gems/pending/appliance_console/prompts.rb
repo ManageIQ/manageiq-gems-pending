@@ -54,15 +54,27 @@ module ApplianceConsole
 
     def are_you_sure?(clarifier = nil)
       clarifier = " you want to #{clarifier}" if clarifier && !clarifier.include?("want")
-      agree("Are you sure#{clarifier}? (Y/N): ")
+      just_ask_yn?("Are you sure#{clarifier}", nil, "Please enter \"yes\" or \"no\".")
     end
 
     def ask_yn?(prompt, default = nil)
-      ask("#{prompt}? (Y/N): ") do |q|
+      just_ask_yn?(prompt, default)
+    end
+
+    def just_ask_yn?(prompt, default = nil, error_msg = "Please provide yes or no.")
+      answer = ask("#{prompt}? (Y/N): ") do |q|
+        q.readline = true
         q.default = default if default
-        q.validate = ->(p) { (p.blank? && default) || %w(y n).include?(p.downcase[0]) }
-        q.responses[:not_valid] = "Please provide yes or no."
-      end.downcase[0] == 'y'
+      end
+      validator = ->(p) { (p.blank? && default) || (!p.blank? && %(y n).include?(p.downcase[0])) }
+      until validator.call(answer.to_s)
+        say(error_msg)
+        answer = ask("?  ") do |q|
+          q.readline = true
+          q.default = defualt if default
+        end
+      end
+      answer.downcase[0] == 'y'
     end
 
     def ask_for_domain(prompt, default = nil, validate = DOMAIN_REGEXP, error_text = "a valid Domain.", &block)

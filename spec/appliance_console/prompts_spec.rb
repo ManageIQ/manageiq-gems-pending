@@ -133,7 +133,7 @@ describe ApplianceConsole::Prompts do
       error = %(Please enter "yes" or "no".\n)
       say %w(um yes)
       expect(subject.are_you_sure?).to be_truthy
-      expect_heard [prompt + error, prompt]
+      expect_heard [prompt, error, prompt]
     end
 
     it "should ask are you sure with clarifier" do
@@ -428,7 +428,7 @@ describe ApplianceConsole::Prompts do
       error = "Please provide yes or no."
       say %w(x z yes)
       expect(subject.ask_yn?("prompt")).to be_truthy
-      expect_heard ["prompt? (Y/N): ", error, prompt + error, prompt]
+      expect_heard ["prompt? (Y/N): ", error, prompt, error, prompt]
     end
 
     it "should respond to no" do

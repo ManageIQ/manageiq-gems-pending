@@ -30,7 +30,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "highline",                "~> 1.6.21" # Needed for the appliance_console
   s.add_runtime_dependency "linux_admin",             "~> 1.0"
   s.add_runtime_dependency "log4r",                   "=  1.1.8"
-  s.add_runtime_dependency "memoist",                 "~> 0.15.0"
   s.add_runtime_dependency "more_core_extensions",    "~> 3.4"
   s.add_runtime_dependency "net-scp",                 "~> 1.2.1"
   s.add_runtime_dependency "net-sftp",                "~> 2.1.2"

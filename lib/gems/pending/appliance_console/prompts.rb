@@ -73,6 +73,10 @@ module ApplianceConsole
       just_ask(prompt, default, validate, error_text, &block)
     end
 
+    def ask_for_ip_or_none(prompt, default = nil)
+      ask_for_ip(prompt, default, Regexp.union(NONE_REGEXP, IP_REGEXP)).gsub(NONE_REGEXP, "")
+    end
+
     def ask_for_ipv4(prompt, default)
       ask_for_ip(prompt, default, IPV4_REGEXP)
     end

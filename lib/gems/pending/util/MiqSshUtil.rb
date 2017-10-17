@@ -1,65 +1,263 @@
-require 'net/ssh'
-require 'net/ssh/version'  unless defined?(Net::SSH::Version)
-require 'net/sftp'
-require 'net/sftp/version' unless defined?(Net::SFTP::Version)
-require 'stringio'
-require 'util/MiqSockUtil'
+class MiqSshUtil
+  attr_reader :status, :host
 
-# puts "SSH Version: #{Net::SSH::Version::STRING}"
-# puts "SFTP Version: #{Net::SFTP::Version::STRING}"
+  def initialize(host, user, password, options = {})
+    @host     = host
+    @user     = user
+    @password = password
+    @status   = 0
+    @shell    = nil
+    @options  = {:password => @password, :remember_host => false, :verbose => :warn}.merge(options)
 
-if Net::SSH::Version::MAJOR > 1
-  require 'util/MiqSshUtilV2'
-else
-  raise "MiqSshUtil does not support version #{Net::SSH::Version::STRING} of Net::SSH"
-end
+    # Seems like in 2.9.2, there needs to be blank :keys, when we are passing private key as string
+    @options[:keys] = [] if options[:key_data]
 
-if __FILE__ == $0
-  require 'log4r'
+    # Pull the 'remember_host' key out of the hash because the SSH initializer will complain
+    @remember_host     = @options.delete(:remember_host)
+    @su_user           = @options.delete(:su_user)
+    @su_password       = @options.delete(:su_password)
+    @passwordless_sudo = @options.delete(:passwordless_sudo)
 
-  #
-  # Formatter to output log messages to the console.
-  #
-  class ConsoleFormatter < Log4r::Formatter
-    def format(event)
-      (event.data.kind_of?(String) ? event.data : event.data.inspect) + "\n"
+    # Obsolete, delete if passed in
+    @options.delete(:authentication_prompt_delay)
+
+    # don't use the ssh-agent
+    @options[:use_agent] = false
+
+    # Set logging to use our default handle if it exists and one was not passed in
+    unless @options.key?(:logger)
+      #        @options[:logger] = $log if $log
+    end
+  end # def initialize
+
+  def get_file(from, to)
+    Net::SFTP.start(@host, @user, @options) do |sftp|
+      $log.debug "MiqSshUtil::get_file - Copying file #{@host}:#{from} to #{to}." if $log
+      data = sftp.download!(from, to)
+      $log.debug "MiqSshUtil::get_file - Copying of #{@host}:#{from} to #{to}, complete." if $log
+      return data
     end
   end
-  $log = Log4r::Logger.new 'toplog'
-  Log4r::StderrOutputter.new('err_console', :level => Log4r::DEBUG, :formatter => ConsoleFormatter)
-  $log.add 'err_console'
 
-  puts "SSH  Version: #{Net::SSH::Version::STRING}"
-  puts "SFTP Version: #{Net::SFTP::Version::STRING}"
+  def exec(cmd, doneStr = nil)
+    errBuf = ""
+    outBuf = ""
+    status = nil
+    signal = nil
 
-  host          = 'host_for_su_testing'
-  userid        = 'user'
-  password      = 'secret'
-  root_user     = 'root'
-  root_password = 'secret'
+    # If passwordless sudo is true, we will just prepend every command by sudo
+    cmd  = 'sudo ' + cmd if @passwordless_sudo
 
-  # host          = 'host_for_non_su_testing'
-  # userid        = 'root'
-  # password      = 'secret'
-  # root_user     = nil
-  # root_password = nil
+    run_session do |ssh|
+      ssh.open_channel do |channel|
+        channel.on_data do |_channel, data|
+          $log.debug "MiqSshUtil::exec - STDOUT: #{data}" if $log
+          outBuf << data
+          data.each_line { |l| return outBuf if doneStr == l.chomp } unless doneStr.nil?
+        end
 
-  local_file    = "/Users/myuser/.bash_profile"
-  remote_file   = "/tmp/.bash_profile"
+        channel.on_extended_data do |_channel, data|
+          $log.debug "MiqSshUtil::exec - STDERR: #{data}" if $log
+          errBuf << data
+        end
 
-  s = MiqSshUtil.new(host, userid, password, :su_user => root_user, :su_password => root_password)
-  puts s.exec("ls -l /")
-  puts s.suexec("id") if userid && root_user && userid != root_user
-  puts s.suexec("ls -l /") if userid && root_user && userid != root_user
-  s.cp(local_file, remote_file)
-  s.get_file(remote_file, "#{local_file}.via_sftp")
+        channel.on_request('exit-status') do |_channel, data|
+          status = data.read_long
+          $log.debug "MiqSshUtil::exec - STATUS: #{status}" if $log
+        end
 
-  MiqSshUtil.shell_with_su(host, userid, password, root_user, root_password) do |ssu, _shell|
-    puts ssu.suexec("id") if userid && root_user && userid != root_user
-    puts ssu.shell_exec("id")
-    puts ssu.shell_exec("esxupdate query")
-    puts ssu.shell_exec("chkconfig --list")
-    puts ssu.shell_exec("rpm -qa --queryformat '%{NAME}|%{VERSION}|%{ARCH}|%{GROUP}|%{RELEASE}|%{SUMMARY}\n'")
-    puts ssu.shell_exec("grep PermitRootLogin /etc/ssh/sshd_config")
+        channel.on_request('exit-signal') do |_channel, data|
+          signal = data.read_string
+          $log.debug "MiqSshUtil::exec - SIGNAL: #{signal}" if $log
+        end
+
+        channel.on_eof do |_channel|
+          $log.debug "MiqSshUtil::exec - EOF RECEIVED" if $log
+        end
+
+        channel.on_close do |_channel|
+          $log.debug "MiqSshUtil::exec - Command: #{cmd}, exit status: #{status}" if $log
+          unless signal.nil? || status.zero?
+            raise "MiqSshUtil::exec - Command #{cmd}, exited with signal #{signal}" unless signal.nil?
+            raise "MiqSshUtil::exec - Command #{cmd}, exited with status #{status}" if errBuf.empty?
+            raise "MiqSshUtil::exec - Command #{cmd} failed: #{errBuf}, status: #{status}"
+          end
+          return outBuf
+        end
+
+        $log.debug "MiqSshUtil::exec - Command: #{cmd} started." if $log
+        channel.exec(cmd) { |_channel, success| raise "MiqSshUtil::exec - Could not execute command #{cmd}" unless success }
+      end
+      ssh.loop
+    end
+  end # def exec
+
+  def suexec(cmd_str, doneStr = nil)
+    errBuf = ""
+    outBuf = ""
+    prompt = ""
+    cmdRX  = ""
+    status = nil
+    signal = nil
+    state  = :initial
+
+    run_session do |ssh|
+      temp_cmd_file(cmd_str) do |cmd|
+        ssh.open_channel do |channel|
+          # now we request a "pty" (i.e. interactive) session so we can send data back and forth if needed.
+          # it WILL NOT WORK without this, and it has to be done before any call to exec.
+          channel.request_pty(:chars_wide => 256) do |_channel, success|
+            raise "Could not obtain pty (i.e. an interactive ssh session)" unless success
+          end
+
+          channel.on_data do |channel, data|
+            $log.debug "MiqSshUtil::suexec - state: [#{state.inspect}] STDOUT: [#{data.hex_dump.chomp}]" if $log
+            if state == :prompt
+              # Detect the common prompts
+              # someuser@somehost ... $  rootuser@somehost ... #  [someuser@somehost ...] $  [rootuser@somehost ...] #
+              prompt = data if data =~ /^\[*[\w\-\.]+@[\w\-\.]+.+\]*[\#\$]\s*$/
+              outBuf << data
+              unless doneStr.nil?
+                data.each_line { |l| return outBuf if doneStr == l.chomp }
+              end
+
+              if outBuf[-prompt.length, prompt.length] == prompt
+                return outBuf[0..(outBuf.length - prompt.length)]
+              end
+            end
+
+            if state == :command_sent
+              cmdRX << data
+              state = :prompt if cmdRX == "#{cmd}\r\n"
+            end
+
+            if (state == :password_sent)
+              prompt << data.lstrip
+              if data.strip =~ /\#/
+                $log.debug "MiqSshUtil::suexec - Superuser Prompt detected: sending command #{cmd}" if $log
+                channel.send_data("#{cmd}\n")
+                state = :command_sent
+              end
+            end
+
+            if (state == :initial)
+              prompt << data.lstrip
+              if data.strip =~ /[Pp]assword:/
+                prompt = ""
+                $log.debug "MiqSshUtil::suexec - Password Prompt detected: sending su password" if $log
+                channel.send_data("#{@su_password}\n")
+                state = :password_sent
+              end
+            end
+          end
+
+          channel.on_extended_data do |_channel, data|
+            $log.debug "MiqSshUtil::suexec - STDERR: #{data}" if $log
+            errBuf << data
+          end
+
+          channel.on_request('exit-status') do |_channel, data|
+            status = data.read_long
+            $log.debug "MiqSshUtil::suexec - STATUS: #{status}" if $log
+          end
+
+          channel.on_request('exit-signal') do |_channel, data|
+            signal = data.read_string
+            $log.debug "MiqSshUtil::suexec - SIGNAL: #{signal}" if $log
+          end
+
+          channel.on_eof do |_channel|
+            $log.debug "MiqSshUtil::suexec - EOF RECEIVED" if $log
+          end
+
+          channel.on_close do |_channel|
+            errBuf << prompt if [:initial, :password_sent].include?(state)
+            $log.debug "MiqSshUtil::suexec - Command: #{cmd}, exit status: #{status}" if $log
+            raise "MiqSshUtil::suexec - Command #{cmd}, exited with signal #{signal}" unless signal.nil?
+            unless status.zero?
+              raise "MiqSshUtil::suexec - Command #{cmd}, exited with status #{status}" if errBuf.empty?
+              raise "MiqSshUtil::suexec - Command #{cmd} failed: #{errBuf}, status: #{status}"
+            end
+            return outBuf
+          end
+
+          $log.debug "MiqSshUtil::suexec - Command: [#{cmd_str}] started." if $log
+          su_command = @su_user == 'root' ? "su -l\n" : "su -l #{@su_user}\n"
+          channel.exec(su_command) { |_channel, success| raise "MiqSshUtil::suexec - Could not execute command #{cmd}" unless success }
+        end
+      end
+      ssh.loop
+    end
+  end # suexec
+
+  def temp_cmd_file(cmd)
+    temp_remote_script = Tempfile.new(["miq-", ".sh"], "/var/tmp")
+    temp_file          = temp_remote_script.path
+    begin
+      temp_remote_script.write(cmd)
+      temp_remote_script.close
+      remote_cmd = "chmod 700 #{temp_file}; #{temp_file}; rm -f #{temp_file}"
+      yield(remote_cmd)
+    ensure
+      temp_remote_script.close!
+    end
+  end
+
+  def self.shell_with_su(host, remote_user, remote_password, su_user, su_password, options = {})
+    options[:su_user], options[:su_password] = su_user, su_password
+    ssu = MiqSshUtil.new(host, remote_user, remote_password, options)
+    yield(ssu, nil)
+  end
+
+  def shell_exec(cmd, doneStr = nil, _shell = nil)
+    return exec(cmd, doneStr) if @su_user.nil?
+    ret = suexec(cmd, doneStr)
+    # Remove escape character from the end of the line
+    ret.sub!(/\e$/, '')
+    ret
+  end
+
+  def fileOpen(file_path, perm = 'r')
+    require 'tempfile'
+    if block_given?
+      Tempfile.open('miqscvmm') do |tf|
+        tf.close
+        get_file(file_path, tf.path)
+        File.open(tf.path, perm) { |f| yield(f) }
+      end
+    else
+      tf = Tempfile.open('miqscvmm')
+      tf.close
+      get_file(file_path, tf.path)
+      f = File.open(tf.path, perm)
+      return f
+    end
+  end
+
+  def fileExists?(filename)
+    shell_exec("test -f #{filename}") rescue return false
+    true
+  end
+
+  # This method runs the ssh session and can handle reseting the ssh fingerprint
+  # if it does not match and raises an error.
+  def run_session
+    first_try = true
+
+    begin
+      Net::SSH.start(@host, @user, @options) do |ssh|
+        yield(ssh)
+      end
+    rescue Net::SSH::HostKeyMismatch => e
+      if @remember_host == true && first_try
+        # Save fingerprint and try again
+        first_try = false
+        e.remember_host!
+        retry
+      else
+        # Re-raise error
+        raise e
+      end
+    end
   end
 end

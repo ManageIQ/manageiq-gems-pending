@@ -21,13 +21,11 @@ Gem::Specification.new do |s|
   s.required_ruby_version = "> 2.2.2"
 
   s.add_runtime_dependency "actionpack",              ">= 5.0", "< 5.1"
-  s.add_runtime_dependency "activerecord",            ">= 5.0", "< 5.1" # used by appliance_console
+  s.add_runtime_dependency "activerecord",            ">= 5.0", "< 5.1"
   s.add_runtime_dependency "activesupport",           ">= 5.0", "< 5.1"
   s.add_runtime_dependency "awesome_spawn",           "~> 1.4"
-  s.add_runtime_dependency "bcrypt",                  "~> 3.1.10"
   s.add_runtime_dependency "binary_struct",           "~> 2.1"
   s.add_runtime_dependency "bundler",                 ">= 1.8.4" # rails-assets requires bundler >= 1.8.4, see: https://rails-assets.org/
-  s.add_runtime_dependency "highline",                "~> 1.6.21" # Needed for the appliance_console
   s.add_runtime_dependency "linux_admin",             "~> 1.0"
   s.add_runtime_dependency "log4r",                   "=  1.1.8"
   s.add_runtime_dependency "more_core_extensions",    "~> 3.4"
@@ -39,7 +37,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "rake",                    ">= 11.0"
   s.add_runtime_dependency "sys-proctable",           "~> 1.1.5"
   s.add_runtime_dependency "sys-uname",               "~> 1.0.1"
-  s.add_runtime_dependency "trollop",                 "~> 2.0"
   s.add_runtime_dependency "uuidtools",               "~> 2.1.3"
   s.add_runtime_dependency "winrm",                   "~> 2.1"
   s.add_runtime_dependency "winrm-elevated",          "~> 1.0.1"

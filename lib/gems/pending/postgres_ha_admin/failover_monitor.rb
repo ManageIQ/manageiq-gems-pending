@@ -1,7 +1,7 @@
 require 'active_support/all'
 require 'postgres_ha_admin/failover_databases'
 require 'postgres_ha_admin/database_yml'
-require 'util/postgres_admin'
+require 'manageiq-postgres_admin'
 require 'pg'
 require 'linux_admin'
 
@@ -96,7 +96,7 @@ module PostgresHaAdmin
     def execute_failover
       failover_attempts.times do
         with_each_standby_connection do |connection, params|
-          next if PostgresAdmin.database_in_recovery?(connection)
+          next if ManageIQ::PostgresAdmin.database_in_recovery?(connection)
           next unless @failover_db.host_is_repmgr_primary?(params[:host], connection)
           @logger.info("Failing over to server using conninfo: #{params.reject { |k, _v| k == :password }}")
           @failover_db.update_failover_yml(connection)

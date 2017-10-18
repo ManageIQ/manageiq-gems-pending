@@ -1,5 +1,5 @@
 require 'postgres_ha_admin/failover_monitor'
-require 'util/postgres_admin'
+require 'manageiq-postgres_admin'
 
 describe PostgresHaAdmin::FailoverMonitor do
   let(:db_yml)      { double('DatabaseYml') }
@@ -96,13 +96,13 @@ failover_attempts: 20
 
       it "does not update 'database.yml' and 'failover_databases.yml' if all standby DBs are in recovery mode" do
         failover_not_executed
-        expect(PostgresAdmin).to receive(:database_in_recovery?).and_return(true, true, true).ordered
+        expect(ManageIQ::PostgresAdmin).to receive(:database_in_recovery?).and_return(true, true, true).ordered
         failover_monitor.monitor
       end
 
       it "does not update 'database.yml' and 'failover_databases.yml' if there is no master database avaiable" do
         failover_not_executed
-        expect(PostgresAdmin).to receive(:database_in_recovery?).and_return(false, false, false).ordered
+        expect(ManageIQ::PostgresAdmin).to receive(:database_in_recovery?).and_return(false, false, false).ordered
         expect(failover_db).to receive(:host_is_repmgr_primary?).and_return(false, false, false).ordered
         failover_monitor.monitor
       end
@@ -110,7 +110,7 @@ failover_attempts: 20
       it "updates 'database.yml' and 'failover_databases.yml' and restart evm server if new primary db available" do
         failover_executed
         expect(failover_monitor).to receive(:raise_failover_event)
-        expect(PostgresAdmin).to receive(:database_in_recovery?).and_return(false)
+        expect(ManageIQ::PostgresAdmin).to receive(:database_in_recovery?).and_return(false)
         expect(failover_db).to receive(:host_is_repmgr_primary?).and_return(true)
         failover_monitor.monitor
       end

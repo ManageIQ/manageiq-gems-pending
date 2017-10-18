@@ -28,6 +28,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "bundler",                 ">= 1.8.4" # rails-assets requires bundler >= 1.8.4, see: https://rails-assets.org/
   s.add_runtime_dependency "linux_admin",             "~> 1.0"
   s.add_runtime_dependency "log4r",                   "=  1.1.8"
+  s.add_runtime_dependency "manageiq-postgres_admin", "~> 1.0" # For postgres_ha_admin
   s.add_runtime_dependency "more_core_extensions",    "~> 3.4"
   s.add_runtime_dependency "net-scp",                 "~> 1.2.1"
   s.add_runtime_dependency "net-sftp",                "~> 2.1.2"

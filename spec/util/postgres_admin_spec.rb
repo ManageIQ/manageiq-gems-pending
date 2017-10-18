@@ -105,22 +105,4 @@ describe PostgresAdmin do
       expect { described_class.before_restore({}) }.to_not raise_error
     end
   end
-
-  describe ".database_in_recovery?" do
-    before do
-      begin
-        @connection = PG::Connection.open(:dbname => 'travis', :user => 'travis')
-      rescue PG::ConnectionBad
-        skip "travis database does not exist"
-      end
-    end
-
-    after do
-      @connection.finish if @connection
-    end
-
-    it "returns false if postgres database not in recovery mode" do
-      expect(described_class.database_in_recovery?(@connection)).to be false
-    end
-  end
 end

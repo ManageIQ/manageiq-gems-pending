@@ -1,7 +1,6 @@
 require 'active_support/all'
 require 'postgres_ha_admin/failover_databases'
 require 'postgres_ha_admin/database_yml'
-require 'util/postgres_admin'
 require 'pg'
 require 'linux_admin'
 
@@ -96,7 +95,7 @@ module PostgresHaAdmin
     def execute_failover
       failover_attempts.times do
         with_each_standby_connection do |connection, params|
-          next if PostgresAdmin.database_in_recovery?(connection)
+          next if database_in_recovery?(connection)
           next unless @failover_db.host_is_repmgr_primary?(params[:host], connection)
           @logger.info("Failing over to server using conninfo: #{params.reject { |k, _v| k == :password }}")
           @failover_db.update_failover_yml(connection)
@@ -134,6 +133,17 @@ module PostgresHaAdmin
 
     def stop_evmserverd
       LinuxAdmin::Service.new("evmserverd").stop
+    end
+
+    # Checks if postgres database is in recovery mode
+    #
+    # @param pg_connection [PG::Connection] established pg connection
+    # @return [Boolean] true if database in recovery mode
+    def database_in_recovery?(pg_connection)
+      pg_connection.exec("SELECT pg_catalog.pg_is_in_recovery()") do |db_result|
+        result = db_result.map_types!(PG::BasicTypeMapForResults.new(pg_connection)).first
+        result['pg_is_in_recovery']
+      end
     end
   end
 end

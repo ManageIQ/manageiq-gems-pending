@@ -2,7 +2,7 @@ require "simplecov"
 SimpleCov.start { command_name "spec" }
 
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
-require 'manageiq/gems/pending'
+require 'manageiq-gems-pending'
 
 # Initialize the global logger that might be expected
 require 'logger'

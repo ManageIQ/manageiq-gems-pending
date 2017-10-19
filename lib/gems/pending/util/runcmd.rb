@@ -1,5 +1,3 @@
-require 'log4r'
-
 class MiqUtil
   def self.runcmd(cmd_str, test = false)
     if !test

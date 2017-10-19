@@ -19,6 +19,9 @@ Dir.mkdir(RAILS_ROOT.join("log"))
 # in ./support/ and its subdirectories.
 Dir[File.expand_path(File.join(__dir__, 'support/**/*.rb'))].each { |f| require f }
 
+# A bunch of tests rely on ActiveSupport helper methods
+require 'active_support/all'
+
 RSpec.configure do |config|
   config.after(:each) do
     Module.clear_all_cache_with_timeout if Module.respond_to?(:clear_all_cache_with_timeout)

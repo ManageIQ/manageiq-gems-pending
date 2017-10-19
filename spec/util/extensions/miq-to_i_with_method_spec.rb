@@ -1,5 +1,4 @@
 require 'util/extensions/miq-to_i_with_method'
-require 'active_support/core_ext/numeric'
 
 describe "to_i_with_method" do
   it 'String#to_i_with_method' do

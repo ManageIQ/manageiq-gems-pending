@@ -1,5 +1,4 @@
 require "util/postgres_admin"
-require 'pg'
 
 describe PostgresAdmin do
   context "ENV dependent" do

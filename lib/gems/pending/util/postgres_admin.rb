@@ -130,17 +130,16 @@ class PostgresAdmin
   end
 
   def self.backup_pg_compress(opts)
-    # 3)
-    # Use pg_dump's custom dump format.  If PostgreSQL was built on a system with
-    # the zlib compression library installed, the custom dump format will compress
-    # data as it writes it to the output file. This will produce dump file sizes
-    # similar to using gzip, but it has the added advantage that tables can be restored
-    # selectively. The following command dumps a database using the custom dump format:
-
     opts = opts.dup
-    dbname = opts.delete(:dbname)
-    runcmd("pg_dump", opts, :format => "c", :file => opts[:local_file], nil => dbname)
-    opts[:local_file]
+
+    # discard dbname as pg_basebackup does not connect to a specific database
+    opts.delete(:dbname)
+
+    path = Pathname.new(opts.delete(:local_file))
+
+    runcmd("pg_basebackup", opts, :z => nil, :format => "t", :xlog_method => "fetch", :pgdata => path.dirname)
+    FileUtils.mv(path.dirname.join("base.tar.gz"), path)
+    path.to_s
   end
 
   def self.recreate_db(opts)

@@ -84,14 +84,45 @@ class PostgresAdmin
     FileUtils.rm_rf(PostgresAdmin.data_directory.children.map(&:to_s))
   end
 
+  def self.pg_dump_file?(file)
+    !!file_type(file).match("PostgreSQL custom database dump")
+  end
+
+  def self.base_backup_file?(file)
+    !!file_type(file).match("gzip compressed data")
+  end
+
   def self.backup(opts)
     backup_pg_compress(opts)
   end
 
   def self.restore(opts)
-    restore_pg_compress(opts)
+    file = opts[:local_file]
+    if pg_dump_file?(file)
+      restore_pg_dump(opts)
+    elsif base_backup_file?(file)
+      restore_pg_basebackup(file)
+    else
+      raise "#{file} is not a database backup"
+    end
   end
 
+  def self.restore_pg_basebackup(file)
+    pg_service = LinuxAdmin::Service.new(service_name)
+
+    pg_service.stop
+    prep_data_directory
+
+    require 'zlib'
+    require 'archive/tar/minitar'
+
+    tgz = Zlib::GzipReader.new(File.open(file, 'rb'))
+    Archive::Tar::Minitar.unpack(tgz, data_directory.to_s)
+    FileUtils.chown_R(PostgresAdmin.user, PostgresAdmin.user, PostgresAdmin.data_directory)
+
+    pg_service.start
+    file
+  end
 
   def self.unload_pglogical_extension(opts)
     runcmd("psql", opts, :command => <<-SQL)
@@ -145,7 +176,7 @@ class PostgresAdmin
            :command => "CREATE DATABASE #{dbname} WITH OWNER = #{opts[:username] || 'root'} ENCODING = 'UTF8'")
   end
 
-  def self.restore_pg_compress(opts)
+  def self.restore_pg_dump(opts)
     unload_pglogical_extension(opts)
     recreate_db(opts)
 
@@ -218,5 +249,9 @@ class PostgresAdmin
     AwesomeSpawn.run!(cmd_str, :params => params, :env => {
                         "PGUSER"     => opts[:username],
                         "PGPASSWORD" => opts[:password]}).output
+  end
+
+  private_class_method def self.file_type(file)
+    AwesomeSpawn.run!("file", :params => {:b => nil, nil => file}).output
   end
 end

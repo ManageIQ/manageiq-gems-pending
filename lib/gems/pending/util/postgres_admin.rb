@@ -146,38 +146,6 @@ class PostgresAdmin
   end
 
   def self.restore_pg_compress(opts)
-    # -1
-    # --single-transaction: Execute the restore as a single transaction (that is, wrap the
-    #   emitted commands in BEGIN/COMMIT). This ensures that either all the commands complete
-    #   successfully, or no changes are applied. This option implies --exit-on-error.
-    # -c
-    # --clean
-    #   Clean (drop) database objects before recreating them.
-    # -C
-    # --create
-    #   Create the database before restoring into it. (When this option is used, the database
-    #   named with -d is used only to issue the initial CREATE DATABASE command. All data
-    #   is restored into the database name that appears in the archive.)
-    # -e
-    # --exit-on-error
-    #   Exit if an error is encountered while sending SQL commands to the database. The default is to continue and to display a count of errors at the end of the restoration.
-    # -O
-    # --no-owner
-    #   Do not output commands to set ownership of objects to match the original database.
-    #   By default, pg_restore issues ALTER OWNER or SET SESSION AUTHORIZATION statements to
-    #   set ownership of created schema elements. These statements will fail unless the initial
-    #   connection to the database is made by a superuser (or the same user that owns all of the
-    #   objects in the script). With -O, any user name can be used for the initial connection,
-    #   and this user will own all the created objects.
-    # -a
-    # --data-only
-    #   Restore only the data, not the schema (data definitions).
-    # -U root -h localhost -p 5432
-
-    # `psql -d #{opts[:dbname]} -c "DROP DATABASE #{opts[:dbname]}; CREATE DATABASE #{opts[:dbname]} WITH OWNER = root ENCODING = 'UTF8';"`
-
-    # TODO: In order to restore, we need to drop the database if it exists, and recreate it it blank
-    # An alternative is to use the -a option to only restore the data if there is not a migration/schema change
     unload_pglogical_extension(opts)
     recreate_db(opts)
 

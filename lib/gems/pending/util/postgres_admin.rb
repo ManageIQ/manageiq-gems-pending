@@ -89,16 +89,9 @@ class PostgresAdmin
   end
 
   def self.restore(opts)
-    before_restore(opts)
     restore_pg_compress(opts)
   end
 
-  def self.before_restore(opts)
-    # Drop subscriptions, unload extension and ensure pglogical connections are closed before proceeding
-    unload_pglogical_extension(opts)
-  rescue AwesomeSpawn::CommandResultError
-    $log.info("MIQ(#{name}.#{__method__}) Ignoring failure to remove pglogical before restore ...")
-  end
 
   def self.unload_pglogical_extension(opts)
     runcmd("psql", opts, :command => <<-SQL)
@@ -127,6 +120,8 @@ class PostgresAdmin
       $log.info("MIQ(#{name}.#{__method__}) Waiting on #{count} pglogical connections to close...")
       sleep 5
     end
+  rescue AwesomeSpawn::CommandResultError
+    $log.info("MIQ(#{name}.#{__method__}) Ignoring failure to remove pglogical before restore ...")
   end
 
   def self.backup_pg_compress(opts)
@@ -183,6 +178,7 @@ class PostgresAdmin
 
     # TODO: In order to restore, we need to drop the database if it exists, and recreate it it blank
     # An alternative is to use the -a option to only restore the data if there is not a migration/schema change
+    unload_pglogical_extension(opts)
     recreate_db(opts)
 
     runcmd("pg_restore", opts, :verbose => nil, :exit_on_error => nil, nil => opts[:local_file])

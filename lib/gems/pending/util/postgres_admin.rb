@@ -84,20 +84,44 @@ class PostgresAdmin
     FileUtils.rm_rf(PostgresAdmin.data_directory.children.map(&:to_s))
   end
 
+  def self.pg_dump_file?(file)
+    !!file_type(file).match("PostgreSQL custom database dump")
+  end
+
+  def self.base_backup_file?(file)
+    !!file_type(file).match("gzip compressed data")
+  end
+
   def self.backup(opts)
     backup_pg_compress(opts)
   end
 
   def self.restore(opts)
-    before_restore(opts)
-    restore_pg_compress(opts)
+    file = opts[:local_file]
+    if pg_dump_file?(file)
+      restore_pg_dump(opts)
+    elsif base_backup_file?(file)
+      restore_pg_basebackup(file)
+    else
+      raise "#{file} is not a database backup"
+    end
   end
 
-  def self.before_restore(opts)
-    # Drop subscriptions, unload extension and ensure pglogical connections are closed before proceeding
-    unload_pglogical_extension(opts)
-  rescue AwesomeSpawn::CommandResultError
-    $log.info("MIQ(#{name}.#{__method__}) Ignoring failure to remove pglogical before restore ...")
+  def self.restore_pg_basebackup(file)
+    pg_service = LinuxAdmin::Service.new(service_name)
+
+    pg_service.stop
+    prep_data_directory
+
+    require 'zlib'
+    require 'archive/tar/minitar'
+
+    tgz = Zlib::GzipReader.new(File.open(file, 'rb'))
+    Archive::Tar::Minitar.unpack(tgz, data_directory.to_s)
+    FileUtils.chown_R(PostgresAdmin.user, PostgresAdmin.user, PostgresAdmin.data_directory)
+
+    pg_service.start
+    file
   end
 
   def self.unload_pglogical_extension(opts)
@@ -127,20 +151,21 @@ class PostgresAdmin
       $log.info("MIQ(#{name}.#{__method__}) Waiting on #{count} pglogical connections to close...")
       sleep 5
     end
+  rescue AwesomeSpawn::CommandResultError
+    $log.info("MIQ(#{name}.#{__method__}) Ignoring failure to remove pglogical before restore ...")
   end
 
   def self.backup_pg_compress(opts)
-    # 3)
-    # Use pg_dump's custom dump format.  If PostgreSQL was built on a system with
-    # the zlib compression library installed, the custom dump format will compress
-    # data as it writes it to the output file. This will produce dump file sizes
-    # similar to using gzip, but it has the added advantage that tables can be restored
-    # selectively. The following command dumps a database using the custom dump format:
-
     opts = opts.dup
-    dbname = opts.delete(:dbname)
-    runcmd("pg_dump", opts, :format => "c", :file => opts[:local_file], nil => dbname)
-    opts[:local_file]
+
+    # discard dbname as pg_basebackup does not connect to a specific database
+    opts.delete(:dbname)
+
+    path = Pathname.new(opts.delete(:local_file))
+
+    runcmd("pg_basebackup", opts, :z => nil, :format => "t", :xlog_method => "fetch", :pgdata => path.dirname)
+    FileUtils.mv(path.dirname.join("base.tar.gz"), path)
+    path.to_s
   end
 
   def self.recreate_db(opts)
@@ -151,39 +176,8 @@ class PostgresAdmin
            :command => "CREATE DATABASE #{dbname} WITH OWNER = #{opts[:username] || 'root'} ENCODING = 'UTF8'")
   end
 
-  def self.restore_pg_compress(opts)
-    # -1
-    # --single-transaction: Execute the restore as a single transaction (that is, wrap the
-    #   emitted commands in BEGIN/COMMIT). This ensures that either all the commands complete
-    #   successfully, or no changes are applied. This option implies --exit-on-error.
-    # -c
-    # --clean
-    #   Clean (drop) database objects before recreating them.
-    # -C
-    # --create
-    #   Create the database before restoring into it. (When this option is used, the database
-    #   named with -d is used only to issue the initial CREATE DATABASE command. All data
-    #   is restored into the database name that appears in the archive.)
-    # -e
-    # --exit-on-error
-    #   Exit if an error is encountered while sending SQL commands to the database. The default is to continue and to display a count of errors at the end of the restoration.
-    # -O
-    # --no-owner
-    #   Do not output commands to set ownership of objects to match the original database.
-    #   By default, pg_restore issues ALTER OWNER or SET SESSION AUTHORIZATION statements to
-    #   set ownership of created schema elements. These statements will fail unless the initial
-    #   connection to the database is made by a superuser (or the same user that owns all of the
-    #   objects in the script). With -O, any user name can be used for the initial connection,
-    #   and this user will own all the created objects.
-    # -a
-    # --data-only
-    #   Restore only the data, not the schema (data definitions).
-    # -U root -h localhost -p 5432
-
-    # `psql -d #{opts[:dbname]} -c "DROP DATABASE #{opts[:dbname]}; CREATE DATABASE #{opts[:dbname]} WITH OWNER = root ENCODING = 'UTF8';"`
-
-    # TODO: In order to restore, we need to drop the database if it exists, and recreate it it blank
-    # An alternative is to use the -a option to only restore the data if there is not a migration/schema change
+  def self.restore_pg_dump(opts)
+    unload_pglogical_extension(opts)
     recreate_db(opts)
 
     runcmd("pg_restore", opts, :verbose => nil, :exit_on_error => nil, nil => opts[:local_file])
@@ -255,5 +249,9 @@ class PostgresAdmin
     AwesomeSpawn.run!(cmd_str, :params => params, :env => {
                         "PGUSER"     => opts[:username],
                         "PGPASSWORD" => opts[:password]}).output
+  end
+
+  private_class_method def self.file_type(file)
+    AwesomeSpawn.run!("file", :params => {:b => nil, nil => file}).output
   end
 end

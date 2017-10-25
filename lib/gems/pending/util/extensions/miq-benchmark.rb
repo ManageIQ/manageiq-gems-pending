@@ -34,6 +34,10 @@ module Benchmark
         begin
           ret = realtime_store(hash, key, &block)
           return ret, hash
+        rescue Exception
+          # Don't let timings be lost on exception when there is nobody else to pick them up.
+          Logger.new($stderr).info("Exception in realtime_block #{key.inspect} - Timings: #{hash.inspect}")
+          raise
         ensure
           delete_current_realtime
         end

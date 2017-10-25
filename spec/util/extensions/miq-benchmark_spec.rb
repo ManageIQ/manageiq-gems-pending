@@ -64,6 +64,43 @@ describe Benchmark do
     expect(Benchmark.in_realtime_block?).to be_falsey
   end
 
+  it '.realtime_block with an Exception aborting outermost block' do
+    expect do
+      Benchmark.realtime_block(:test1) do
+        Timecop.travel(2.1)
+        Benchmark.realtime_block(:test2) do
+          Timecop.travel(5.1)
+          raise Exception
+        end
+      end
+    end.to raise_exception(Exception)
+      .and output(/Exception in realtime_block :test1 - Timings: {:test2=>5\.\d*, :test1=>7\.\d*}/).to_stderr
+
+    expect(Benchmark.in_realtime_block?).to be_falsey
+  end
+
+  it '.realtime_block with an Exception caught in inner block' do
+    result = timings = nil
+    expect do
+      result, timings = Benchmark.realtime_block(:test1) do
+        begin
+          Timecop.travel(500)
+          Benchmark.realtime_block(:test2) do
+            Timecop.travel(500)
+            raise Exception
+          end
+        rescue Exception
+          "value"
+        end
+      end
+    end.to_not output.to_stderr
+
+    expect(result).to eq("value")
+    expect(timings[:test1]).to be_within(0.5).of(1000)
+    expect(timings[:test2]).to be_within(0.5).of(500)
+    expect(Benchmark.in_realtime_block?).to be_falsey
+  end
+
   it "Timeout raising within .realtime_block" do
     expect(Benchmark.in_realtime_block?).to be_falsey
 

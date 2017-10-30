@@ -207,6 +207,10 @@ class MiqSshUtil
     options[:su_user], options[:su_password] = su_user, su_password
     ssu = MiqSshUtil.new(host, remote_user, remote_password, options)
     yield(ssu, nil)
+  rescue Net::SSH::AuthenticationFailed
+    raise MiqException::MiqInvalidCredentialsError
+  rescue Net::SSH::HostKeyMismatch
+    raise MiqException::MiqSshUtilHostKeyMismatch
   end
 
   def shell_exec(cmd, doneStr = nil, _shell = nil)

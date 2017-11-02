@@ -167,4 +167,6 @@ module MiqException
   # TODO: Rename MiqException::Error class to avoid issues returning derived error classes over DRB.
   #       Then change MiqVimResourceNotFound to derive from MiqVimError
   class MiqVimResourceNotFound < RuntimeError; end
+
+  class MiqSshUtilHostKeyMismatch < Error; end
 end

@@ -36,7 +36,7 @@ module Benchmark
           return ret, hash
         rescue Exception
           # Don't let timings be lost on exception when there is nobody else to pick them up.
-          Logger.new($stderr).info("Exception in realtime_block #{key.inspect} - Timings: #{hash.inspect}")
+          logger.info("Exception in realtime_block #{key.inspect} - Timings: #{hash.inspect}")
           raise
         ensure
           delete_current_realtime
@@ -70,6 +70,13 @@ module Benchmark
 
   def self.delete_current_realtime
     @@realtime_by_tid.delete(thread_unique_identifier)
+  end
+
+  private_class_method def self.logger
+    @logger ||= begin
+      require 'logger'
+      $log || Logger.new($stderr)
+    end
   end
 
   @@realtime_by_tid = {}

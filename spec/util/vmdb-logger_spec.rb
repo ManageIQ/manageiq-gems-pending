@@ -96,13 +96,11 @@ b:
   end
 
   context "long messages" do
-    before(:each) do
-      @logger = VMDBLogger.new(@log)
-    end
+    let(:logger) { VMDBLogger.new(@log) }
 
     it "truncates long messages when max_message_size is set" do
       msg = "a" * 1_572_864 # 1.5 mb in bytes
-      _, message = @logger.formatter.call(:error, Time.now.utc, "", msg).split("-- : ")
+      _, message = logger.formatter.call(:error, Time.now.utc, "", msg).split("-- : ")
       expect(message.strip.size).to eq(1.megabyte)
     end
   end

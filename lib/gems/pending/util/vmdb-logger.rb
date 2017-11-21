@@ -1,8 +1,12 @@
 require 'logger'
 require 'active_support/core_ext/object/try'
+require 'active_support/core_ext/numeric/bytes'
+require 'active_support/core_ext/string'
 require 'English'
 
 class VMDBLogger < Logger
+  MAX_LOG_LINE_LENGTH = 1.megabyte
+
   def initialize(*args)
     super
     self.level = INFO
@@ -156,9 +160,7 @@ class VMDBLogger < Logger
     FORMAT = "[----] %s, [%s#%d:%x] %5s -- %s: %s\n"
 
     def call(severity, time, progname, msg)
-      max_log_line_length = 1.megabyte
-
-      msg = prefix_task_id(msg2str(msg)).truncate(max_log_line_length)
+      msg = prefix_task_id(msg2str(msg)).truncate(MAX_LOG_LINE_LENGTH)
       FORMAT % [severity[0..0], format_datetime(time), $PROCESS_ID, Thread.current.object_id, severity, progname, msg]
     end
 

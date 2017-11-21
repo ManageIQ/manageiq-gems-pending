@@ -156,8 +156,9 @@ class VMDBLogger < Logger
     FORMAT = "[----] %s, [%s#%d:%x] %5s -- %s: %s\n"
 
     def call(severity, time, progname, msg)
-      msg = prefix_task_id(msg2str(msg))
+      max_log_line_length = 1.megabyte
 
+      msg = prefix_task_id(msg2str(msg)).truncate(max_log_line_length)
       FORMAT % [severity[0..0], format_datetime(time), $PROCESS_ID, Thread.current.object_id, severity, progname, msg]
     end
 

@@ -95,6 +95,12 @@ b:
     expect(VMDBLogger.contents("mylog.log")).to eq("")
   end
 
+  context "long messages" do
+    it "truncates long messages when max_message_size is set" do
+      # TODO Add test body!
+    end
+  end
+
   context "with evm log snippet with invalid utf8 byte sequence data" do
     before(:each) do
       @log = File.expand_path(File.join(File.dirname(__FILE__), "data/redundant_utf8_byte_sequence.log"))

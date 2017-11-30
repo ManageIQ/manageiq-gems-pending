@@ -98,20 +98,20 @@ class MiqProcess
       wmi.release
     when :linux
       x = MiqProcess.linux_process_stat(pid)
-      result[:name]           = x[:name]
-      result[:priority]       = x[:priority]
-      result[:memory_usage]   = x[:rss] * 4096
-      result[:memory_size]    = x[:vsize]
-      percent_memory          = (1.0 * result[:memory_usage]) / MiqSystem.total_memory
-      result[:percent_memory] = round_to(percent_memory * 100.0, 2)
-      result[:cpu_time]       = x[:stime] + x[:utime]
-      cpu_status              = MiqSystem.status[:cpu]
-      cpu_total               = (0..3).inject(0) { |sum, x| sum + cpu_status[x].to_i }
-      cpu_total /= MiqSystem.num_cpus
-      percent_cpu             = (1.0 * result[:cpu_time]) / cpu_total
-      result[:percent_cpu]    = round_to(percent_cpu * 100.0, 2)
+      result[:name]                  = x[:name]
+      result[:priority]              = x[:priority]
+      result[:memory_usage]          = x[:rss] * 4096
+      result[:memory_size]           = x[:vsize]
+      percent_memory                 = (1.0 * result[:memory_usage]) / MiqSystem.total_memory
+      result[:percent_memory]        = round_to(percent_memory * 100.0, 2)
+      result[:cpu_time]              = x[:stime] + x[:utime]
+      cpu_status                     = MiqSystem.status[:cpu]
+      cpu_total                      = (0..3).inject(0) { |sum, x| sum + cpu_status[x].to_i }
+      cpu_total                     /= MiqSystem.num_cpus
+      percent_cpu                    = (1.0 * result[:cpu_time]) / cpu_total
+      result[:percent_cpu]           = round_to(percent_cpu * 100.0, 2)
       result[:proportional_set_size] = Sys::ProcTable.ps(pid).smaps.pss
-      result[:unique_set_size] = Sys::ProcTable.ps(pid).smaps.uss
+      result[:unique_set_size]       = Sys::ProcTable.ps(pid).smaps.uss
     when :macosx
       h = nil
       begin

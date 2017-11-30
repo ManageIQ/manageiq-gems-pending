@@ -110,8 +110,10 @@ class MiqProcess
       cpu_total                     /= MiqSystem.num_cpus
       percent_cpu                    = (1.0 * result[:cpu_time]) / cpu_total
       result[:percent_cpu]           = round_to(percent_cpu * 100.0, 2)
-      result[:proportional_set_size] = Sys::ProcTable.ps(pid).smaps.pss
-      result[:unique_set_size]       = Sys::ProcTable.ps(pid).smaps.uss
+
+      smaps = Sys::ProcTable.ps(pid).smaps
+      result[:proportional_set_size] = smaps.pss
+      result[:unique_set_size]       = smaps.uss
     when :macosx
       h = nil
       begin

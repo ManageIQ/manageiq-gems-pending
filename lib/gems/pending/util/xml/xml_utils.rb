@@ -62,6 +62,12 @@ class XmlFind
 end
 
 class XmlHelpers
+  # Validate attributes before inserting into xml
+  def self.validate_attrs(h)
+    return nil if h.nil?
+    h.inject({}) { |options, (key, value)| options[key.to_s] = value.to_s.force_encoding('UTF-8').valid_encoding? ? value : "Invalid encoding found"; options }
+  end
+
   def self.stringify_keys(h)
     return nil if h.nil?
     h.inject({}) { |options, (key, value)| options[key.to_s] = value; options }

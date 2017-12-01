@@ -148,7 +148,7 @@ module REXML
         rescue => err
           if err.class == ::Encoding::CompatibilityError
             second_utf8 = second.to_s.force_encoding('UTF-8')
-            @value = Text.unnormalize(second_utf8, nil)
+            @value = Text.unnormalize(second_utf8.valid_encoding? ? second_utf8 : "Invalid encoding found", nil)
           else
             $log.error "Encoding error: #{second_utf8}" if $log
           end
@@ -223,7 +223,7 @@ module REXML
     def add_element(element, attrs = nil)
       return add_element_orig(element) if element.kind_of?(REXML::Element)
       attrs.delete_if { |_k, v| v.nil? } unless attrs.nil?
-      add_element_orig(element.to_s, XmlHelpers.stringify_keys(attrs))
+      add_element_orig(element.to_s, XmlHelpers.validate_attrs(attrs))
     end
 
     alias_method :add_attribute_orig, :add_attribute

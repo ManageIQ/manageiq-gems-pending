@@ -147,8 +147,8 @@ module REXML
           @value = Text.unnormalize(second.to_s, nil)
         rescue => err
           if err.class == ::Encoding::CompatibilityError
-            second_utf8 = second.to_s.force_encoding('UTF-8')
-            @value = Text.unnormalize(second_utf8.valid_encoding? ? second_utf8 : "Invalid encoding found", nil)
+            second_utf8 = second.to_s.force_encoding('UTF-8').encode('UTF-8', :invalid => :replace, :undef => :replace, :replace => '')
+            @value = Text.unnormalize(second_utf8)
           else
             $log.error "Encoding error: #{second_utf8}" if $log
           end

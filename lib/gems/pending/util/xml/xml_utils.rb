@@ -62,10 +62,28 @@ class XmlFind
 end
 
 class XmlHelpers
+  # reference from REXML::TEXT
+  VALID_CHAR = [
+    0x9, 0xA, 0xD,
+    (0x20..0xD7FF),
+    (0xE000..0xFFFD),
+    (0x10000..0x10FFFF)
+  ]
+
+  def self.remove_invalid_chars(str)
+    str.chars.reject do |c|
+      case c.ord
+      when *VALID_CHAR
+      else
+        ''
+      end
+    end.join
+  end
+
   # Validate attributes before inserting into xml
   def self.validate_attrs(h)
     return nil if h.nil?
-    h.inject({}) { |options, (key, value)| options[key.to_s] = value.to_s.force_encoding('UTF-8').valid_encoding? ? value : "Invalid encoding found"; options }
+    h.each_with_object({}) { |(k, v), h| h[k.to_s] = remove_invalid_chars(v.to_s.encode('UTF-8', :undef => :replace, :invalid => :replace, :replace => '')) }
   end
 
   def self.stringify_keys(h)

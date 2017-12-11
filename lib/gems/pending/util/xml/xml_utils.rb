@@ -62,18 +62,10 @@ class XmlFind
 end
 
 class XmlHelpers
-  # reference from REXML::TEXT
-  VALID_CHAR = [
-    0x9, 0xA, 0xD,
-    (0x20..0xD7FF),
-    (0xE000..0xFFFD),
-    (0x10000..0x10FFFF)
-  ]
-
   def self.remove_invalid_chars(str)
     str.chars.reject do |c|
       case c.ord
-      when *VALID_CHAR
+      when *REXML::Text::VALID_CHAR
       else
         ''
       end
@@ -93,6 +85,7 @@ class XmlHelpers
 end
 
 class Xml2tags
+
   def self.walk(node, parents = "")
     tags = []
 

@@ -9,7 +9,12 @@ class MiqSshUtil
     @password = password
     @status   = 0
     @shell    = nil
-    @options  = {:password => @password, :remember_host => false, :verbose => :warn}.merge(options)
+    @options  = {
+      :password        => @password,
+      :remember_host   => false,
+      :verbose         => :warn,
+      :non_interactive => true,
+    }.merge(options)
 
     # Seems like in 2.9.2, there needs to be blank :keys, when we are passing private key as string
     @options[:keys] = [] if options[:key_data]

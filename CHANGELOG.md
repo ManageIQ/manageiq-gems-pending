@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
+## Unreleased as of Sprint 75 ending 2017-12-11
+
+### Added
+- Get the unique_set_size with other process info [(#317)](https://github.com/ManageIQ/manageiq-gems-pending/pull/317)
+
 ## Unreleased as of Sprint 73 ending 2017-11-13
 
 ### Fixed

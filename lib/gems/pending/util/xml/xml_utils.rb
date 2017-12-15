@@ -62,6 +62,22 @@ class XmlFind
 end
 
 class XmlHelpers
+  def self.remove_invalid_chars(str)
+    str.chars.reject do |c|
+      case c.ord
+      when *REXML::Text::VALID_CHAR
+      else
+        ''
+      end
+    end.join
+  end
+
+  # Validate attributes before inserting into xml
+  def self.validate_attrs(h)
+    return nil if h.nil?
+    h.each_with_object({}) { |(k, v), h| h[k.to_s] = remove_invalid_chars(v.to_s.encode('UTF-8', :undef => :replace, :invalid => :replace, :replace => '')) }
+  end
+
   def self.stringify_keys(h)
     return nil if h.nil?
     h.inject({}) { |options, (key, value)| options[key.to_s] = value; options }
@@ -69,6 +85,7 @@ class XmlHelpers
 end
 
 class Xml2tags
+
   def self.walk(node, parents = "")
     tags = []
 

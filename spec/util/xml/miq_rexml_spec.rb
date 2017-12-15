@@ -27,4 +27,11 @@ describe MIQRexml do
     xml = MiqXml.load(doc_text)
     expect(xml.root.elements[1].attributes['attr1']).to eq(attr_string)
   end
+
+  it "add_element with control characters" do
+    attr_hash = { "attr1" => "test\u000Fst\u001Fring" }
+    doc = MiqXml.createDoc(nil)
+    doc.add_element('element_1', attr_hash)
+    expect(doc.elements[1].attributes['attr1']).to eq("teststring")
+  end
 end

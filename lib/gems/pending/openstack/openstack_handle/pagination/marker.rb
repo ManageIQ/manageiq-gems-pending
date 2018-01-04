@@ -16,7 +16,7 @@ module OpenstackHandle
           all_objects.concat(objects_on_page)
         end
 
-        all_objects
+        all_objects.uniq(&:identity)
       end
 
       private

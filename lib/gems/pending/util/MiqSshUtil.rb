@@ -1,4 +1,5 @@
 require 'net/ssh'
+require 'net/sftp'
 
 class MiqSshUtil
   attr_reader :status, :host

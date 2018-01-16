@@ -26,7 +26,8 @@ engines:
     enabled: true
     config:
       languages:
-      - ruby
+        ruby:
+          count_threshold: 5
   fixme:
     # let's enable later
     enabled: false
@@ -36,6 +37,11 @@ engines:
   rubocop:
     enabled: true
     config: '.rubocop_cc.yml'
+checks:
+  method-complexity:
+    enabled: true
+    config:
+      threshold: 8
 prepare:
   fetch:
   - url: "https://raw.githubusercontent.com/ManageIQ/guides/master/.rubocop_base.yml"

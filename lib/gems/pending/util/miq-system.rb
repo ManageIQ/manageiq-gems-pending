@@ -47,7 +47,7 @@ class MiqSystem
 
   def self.num_cpus
     return unless Sys::Platform::IMPL == :linux
-    require 'linux_admin'
+    require_linux_admin
     @num_cpus ||= LinuxAdmin::Hardware.new.total_cores
   end
 
@@ -227,6 +227,12 @@ class MiqSystem
     when :linux         then `xdg-open #{url.shellescape}`
     when :mingw, :mswin then `start "#{url.gsub('"', '""')}"`
     end
+  end
+
+  def self.require_linux_admin
+    return true if @linux_admin_required
+    require "linux_admin"
+    @linux_admin_required = true
   end
 end
 

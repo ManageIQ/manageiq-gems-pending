@@ -163,6 +163,7 @@ class PostgresAdmin
 
     path = Pathname.new(opts.delete(:local_file))
 
+    FileUtils.mkdir_p(path.dirname)
     Dir.mktmpdir("vmdb_backup", path.dirname) do |dir|
       runcmd("pg_basebackup", opts, :z => nil, :format => "t", :xlog_method => "fetch", :pgdata => dir)
       FileUtils.mv(File.join(dir, "base.tar.gz"), path)

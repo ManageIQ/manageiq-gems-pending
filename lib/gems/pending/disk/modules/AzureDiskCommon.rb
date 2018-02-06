@@ -43,7 +43,7 @@ module AzureDiskCommon
   end
 
   def d_close_common
-    @managed_disk&.close
+    @managed_disk.close if @managed_disk
     return nil unless $log.debug?
     t1 = Time.now.to_i
     $log.debug("#{@my_class}: close(#{@disk_path})")

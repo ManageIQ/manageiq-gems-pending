@@ -228,7 +228,8 @@ module REXML
 
     alias_method :add_attribute_orig, :add_attribute
     def add_attribute(key, value)
-      add_attribute_orig(key.to_s, value.to_s) unless value.nil?
+      value_utf8 = value.to_s.force_encoding('UTF-8').encode('UTF-8', :invalid => :replace, :undef => :replace, :replace => '') unless value.nil?
+      add_attribute_orig(key.to_s, value_utf8) unless value_utf8.nil?
     end
 
     alias_method :add_attributes_orig, :add_attributes

@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
+## Unreleased as of Sprint 81 ending 2018-03-12
+
+### Fixed
+- Fixed to validate attributes before inserting into XML. [(#339)](https://github.com/ManageIQ/manageiq-gems-pending/pull/339)
+- Dont mess with pglogical from PostgresAdmin [(#336)](https://github.com/ManageIQ/manageiq-gems-pending/pull/336)
+
+## Gaprindashvili-2 released 2018-03-06
+
+### Fixed
+- Create an empty directory for pg_basebackup [(#331)](https://github.com/ManageIQ/manageiq-gems-pending/pull/331)
+- Fix ENOENT error from backup_pg_compress [(#332)](https://github.com/ManageIQ/manageiq-gems-pending/pull/332)
+
 ## Gaprindashvili-1 - Released 2018-01-31
 
 ### Added
@@ -26,12 +38,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - Add valid_encoding checking before inserting into xml object [(#318)](https://github.com/ManageIQ/manageiq-gems-pending/pull/318)
 - Truncating log messages when they are too large [(#315)](https://github.com/ManageIQ/manageiq-gems-pending/pull/315)
 - Fix require net/sftp for Users SSA [(#323)](https://github.com/ManageIQ/manageiq-gems-pending/pull/323)
-
-## Unreleased as of Sprint 78 ending 2018-01-29
-
-### Fixed
-- Fix ENOENT error from backup_pg_compress [(#332)](https://github.com/ManageIQ/manageiq-gems-pending/pull/332)
-- Create an empty directory for pg_basebackup [(#331)](https://github.com/ManageIQ/manageiq-gems-pending/pull/331)
 
 ## Unreleased as of Sprint 73 ending 2017-11-13
 

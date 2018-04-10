@@ -1,13 +1,14 @@
 module NTFSProbe
   def self.probe(dobj)
     unless dobj.kind_of?(MiqDisk)
-      $log&.debug "NTFSProbe << FALSE because Disk Object class is not MiqDisk, but is '#{dobj.class}'"
+      $log.debug "NTFSProbe << FALSE because Disk Object class is not MiqDisk, but is '#{dobj.class}'" if $log
       return false
     end
 
     # Check for oem name = NTFS.
     dobj.seek(3)
-    bs = dobj.read(8)&.unpack('a8')
+    buf = dobj.read(8)
+    bs  = buf.unpack('a8') if buf
     oem = bs[0].strip if bs
 
     ntfs = oem == 'NTFS'

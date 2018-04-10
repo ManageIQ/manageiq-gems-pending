@@ -101,7 +101,7 @@ module Lvm2Scanner
   def self.readLabel(d, s)
     d.seek(s * SECTOR_SIZE, IO::SEEK_SET)
     lh = readStruct(d, LABEL_HEADER)
-    return lh if lh&.lvm_id == LVM_ID
+    return lh if lh && lh.lvm_id == LVM_ID
     nil
   end # def self.readLabel
 
@@ -163,7 +163,7 @@ module Lvm2Scanner
   def self.readStruct(d, struct)
     OpenStruct.new(struct.decode(d.read(struct.size)))
   rescue StandardError => err
-    $log&.debug err.to_s
+    $log.debug err.to_s if $log
     nil
   end # def self.readStruct
 end # module Lvm2Scanner

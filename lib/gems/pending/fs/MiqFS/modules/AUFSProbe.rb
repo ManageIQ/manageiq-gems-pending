@@ -15,7 +15,7 @@ module AUFSProbe
     # Check for aufs magic number or name at offset.
     dobj.seek(AUFS_SUPER_OFFSET + AUFS_MAGIC_OFFSET)
     buf = dobj.read(AUFS_MAGIC_SIZE)
-    bs = buf&.unpack('L')
+    bs  = buf.unpack('L') if buf
     magic = bs.nil? ? nil : bs[0]
 
     raise "AUFS is Not Supported" if magic == AUFS_SUPER_MAGIC || buf == AUFS_FSTYPE

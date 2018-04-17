@@ -127,7 +127,7 @@ class MiqLoggerLine < String
   alias_method :to_a,  :parts
   alias_method :split, :parts
 
-  PARTS = %w(time pid tid level q_task_id message)
+  PARTS = %w(time pid tid level q_task_id fq_method message).freeze
   PARTS.each_with_index do |m, i|
     define_method(m) { parts[i] }
   end
@@ -158,9 +158,10 @@ class MiqLoggerLine < String
     else
       q_task_id = nil
     end
+    fq_method = message[/^MIQ\(([\d\w\:\.\#\_\-]*)\)/, 1] if message && message.start_with?("MIQ(")
     message.chomp!
 
-    return time, pid, tid, level, q_task_id, message
+    return time, pid, tid, level, q_task_id, fq_method, message
   rescue
     return nil, nil, nil, nil, nil, line
   end

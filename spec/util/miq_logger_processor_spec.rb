@@ -11,6 +11,7 @@ describe MiqLoggerProcessor do
       "15aee2c37f0c",
       "INFO",
       nil,
+      "SQLServer.apply_connection_config",
       "MIQ(SQLServer.apply_connection_config) trans_isolation_level: [], lock_timeout: []",
     ],
     [
@@ -20,6 +21,7 @@ describe MiqLoggerProcessor do
       "03941abd4fe",
       "INFO",
       nil,
+      "EmsRefreshWorker",
       "MIQ(EmsRefreshWorker) ID [108482], PID [14909], GUID [0461c4a4-32e0-11e0-89ad-0050569a00bb], Zone [WB], Active Roles",
     ],
     [
@@ -28,6 +30,7 @@ describe MiqLoggerProcessor do
       "14909",
       "15aee2c37f0c",
       "INFO",
+      nil,
       nil,
       "  :cpu_usage_threshold: 100\r\nthis\r\nis a\r\nmultiline",
     ],
@@ -38,6 +41,7 @@ describe MiqLoggerProcessor do
       "15c945a976fc",
       "INFO",
       "1753657a-3288-11e0-bd88-0050569a00ba",
+      "MiqQueue.get",
       "MIQ(MiqQueue.get)        Message id: [18261690] stale, retrying...",
     ],
     [
@@ -47,6 +51,7 @@ describe MiqLoggerProcessor do
       "15a82de14700",
       "INFO",
       "job_dispatcher",
+      "MiqQueue.get",
       "MIQ(MiqQueue.get)        Message id: [18261690] stale, retrying...",
     ],
     [
@@ -56,6 +61,7 @@ describe MiqLoggerProcessor do
       "15aee2c37f0c",
       "INFO",
       nil,
+      "SQLServer.apply_connection_config",
       "MIQ(SQLServer.apply_connection_config) trans_isolation_level: [], lock_timeout: []",
     ],
   ]
@@ -132,8 +138,12 @@ describe MiqLoggerProcessor do
       expect(@lines[4]).to eq(EXPECTED_RAW_LINES[4])
     end
 
-    it "will read lines with a numeric starting message correctly" do
+    it "will extract the fully qualified method name when available" do
       expect(@lines[5]).to eq(EXPECTED_RAW_LINES[5])
+    end
+
+    it "will read lines with a numeric starting message correctly" do
+      expect(@lines[6]).to eq(EXPECTED_RAW_LINES[6])
     end
   end
 

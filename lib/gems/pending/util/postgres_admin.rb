@@ -2,8 +2,6 @@ require 'awesome_spawn'
 require 'pathname'
 require 'linux_admin'
 
-RAILS_ROOT ||= Pathname.new(__dir__).join("../../../")
-
 class PostgresAdmin
   def self.data_directory
     Pathname.new(ENV.fetch("APPLIANCE_PG_DATA"))
@@ -28,10 +26,6 @@ class PostgresAdmin
   # Unprivileged user to run postgresql
   def self.user
     "postgres".freeze
-  end
-
-  def self.certificate_location
-    RAILS_ROOT.join("certs")
   end
 
   def self.logical_volume_name

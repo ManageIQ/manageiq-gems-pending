@@ -5,7 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
-## Gaprindashvili-2
+## Gaprindashvili-3
+
+### Fixed
+- Dont mess with pglogical from PostgresAdmin [(#336)](https://github.com/ManageIQ/manageiq-gems-pending/pull/336)
+- Fixed to validate attributes before inserting into XML. [(#339)](https://github.com/ManageIQ/manageiq-gems-pending/pull/339)
+
+## Gaprindashvili-2 - Released 2018-03-07
 
 ### Fixed
 - Create an empty directory for pg_basebackup [(#331)](https://github.com/ManageIQ/manageiq-gems-pending/pull/331)

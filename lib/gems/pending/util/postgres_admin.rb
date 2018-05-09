@@ -207,13 +207,7 @@ class PostgresAdmin
   end
 
   def self.runcmd(cmd_str, opts, args)
-    default_args            = {:no_password => nil}
-    default_args[:dbname]   = opts[:dbname]   if opts[:dbname]
-    default_args[:username] = opts[:username] if opts[:username]
-    default_args[:host]     = opts[:hostname] if opts[:hostname]
-    args = default_args.merge(args)
-
-    runcmd_with_logging(cmd_str, opts, args)
+    runcmd_with_logging(cmd_str, opts, combine_command_args(opts, args))
   end
 
   def self.runcmd_with_logging(cmd_str, opts, params = {})

@@ -118,6 +118,13 @@ class PostgresAdmin
     file
   end
 
+  def self.backup_pg_dump(opts)
+    opts = opts.dup
+    dbname = opts.delete(:dbname)
+    runcmd("pg_dump", opts, :format => "c", :file => opts[:local_file], nil => dbname)
+    opts[:local_file]
+  end
+
   def self.backup_pg_compress(opts)
     opts = opts.dup
 

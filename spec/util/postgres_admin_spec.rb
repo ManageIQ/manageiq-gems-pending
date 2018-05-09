@@ -1,6 +1,84 @@
 require "util/postgres_admin"
 
 describe PostgresAdmin do
+  describe ".backup_pg_dump" do
+    subject             { described_class }
+
+    let(:local_file)    { nil }
+    let(:expected_opts) { {} }
+    let(:expected_args) { default_args }
+    let(:default_args) do
+      {
+        :no_password => nil,
+        :format      => "c",
+        :file        => local_file,
+        nil          => nil
+      }
+    end
+
+    before do
+      expect(subject).to receive(:runcmd_with_logging)
+                           .with("pg_dump", expected_opts, expected_args)
+    end
+
+    context "with empty args" do
+      it "runs the command and returns the :local_file opt" do
+        expect(subject.backup_pg_dump({})).to eq(local_file)
+      end
+    end
+
+    context "with :local_file in opts" do
+      let(:local_file)    { "/some/path/to/pg.dump" }
+      let(:expected_opts) { { :local_file => local_file } }
+
+      it "runs the command and returns the :local_file opt" do
+        opts = expected_opts
+        expect(subject.backup_pg_dump(opts)).to eq(local_file)
+      end
+    end
+
+    context "with :local_file and :dbname in opts" do
+      let(:local_file)    { "/some/path/to/pg.dump" }
+      let(:expected_opts) { { :local_file => local_file } }
+      let(:expected_args) { default_args.merge(nil => "mydb") }
+
+      it "runs the command and returns the :local_file opt" do
+        opts = expected_opts.merge(:dbname => "mydb")
+        expect(subject.backup_pg_dump(opts)).to eq(local_file)
+      end
+    end
+
+    context "with :local_file, :dbname, :username, and :password in opts" do
+      let(:local_file)    { "/some/path/to/pg.dump" }
+      let(:expected_opts) do
+        {
+          :local_file => local_file,
+          :username   => "admin",
+          :password   => "smartvm"
+        }
+      end
+      let(:expected_args) do
+        default_args.merge(nil => "mydb", :username => "admin")
+      end
+
+      it "runs the command and returns the :local_file opt" do
+        opts = expected_opts.merge(:dbname => "mydb")
+        expect(subject.backup_pg_dump(opts)).to eq(local_file)
+      end
+    end
+
+    context "with :local_file, :dbname and :hostname in opts" do
+      let(:local_file)    { "/some/path/to/pg.dump" }
+      let(:expected_opts) { { :local_file => local_file, :hostname => 'foo' } }
+      let(:expected_args) { default_args.merge(nil => "mydb", :host => 'foo') }
+
+      it "runs the command and returns the :local_file opt" do
+        opts = expected_opts.merge(:dbname => "mydb")
+        expect(subject.backup_pg_dump(opts)).to eq(local_file)
+      end
+    end
+  end
+
   context "ENV dependent" do
     after do
       ENV.delete_if { |k, _| k.start_with?("APPLIANCE") }

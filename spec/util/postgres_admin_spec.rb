@@ -17,8 +17,7 @@ describe PostgresAdmin do
     end
 
     before do
-      expect(subject).to receive(:runcmd_with_logging)
-                           .with("pg_dump", expected_opts, expected_args)
+      expect(subject).to receive(:runcmd_with_logging).with("pg_dump", expected_opts, expected_args)
     end
 
     context "with empty args" do

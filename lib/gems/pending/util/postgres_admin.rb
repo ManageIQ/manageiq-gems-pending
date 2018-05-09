@@ -226,4 +226,12 @@ class PostgresAdmin
   private_class_method def self.file_type(file)
     AwesomeSpawn.run!("file", :params => {:b => nil, nil => file}).output
   end
+
+  private_class_method def self.combine_command_args(opts, args)
+    default_args            = {:no_password => nil}
+    default_args[:dbname]   = opts[:dbname]   if opts[:dbname]
+    default_args[:username] = opts[:username] if opts[:username]
+    default_args[:host]     = opts[:hostname] if opts[:hostname]
+    default_args.merge(args)
+  end
 end

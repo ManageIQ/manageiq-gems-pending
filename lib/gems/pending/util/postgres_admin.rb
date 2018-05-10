@@ -121,7 +121,11 @@ class PostgresAdmin
   def self.backup_pg_dump(opts)
     opts = opts.dup
     dbname = opts.delete(:dbname)
-    runcmd("pg_dump", opts, :format => "c", :file => opts[:local_file], nil => dbname)
+
+    args = combine_command_args(opts, :format => "c", :file => opts[:local_file], nil => dbname)
+    args = handle_multi_value_pg_dump_args!(opts, args)
+
+    runcmd_with_logging("pg_dump", opts, args)
     opts[:local_file]
   end
 
@@ -227,5 +231,26 @@ class PostgresAdmin
     default_args[:username] = opts[:username] if opts[:username]
     default_args[:host]     = opts[:hostname] if opts[:hostname]
     default_args.merge(args)
+  end
+
+  # rubocop:disable Style/SymbolArray
+  PG_DUMP_MULTI_VALUE_ARGS = [
+    :t, :table,  :T, :"exclude-table", :"exclude-table-data",
+    :n, :schema, :N, :"exclude-schema"
+  ].freeze
+  # rubocop:enable Style/SymbolArray
+  #
+  # NOTE:  Potentially mutates opts hash (args becomes new array and not
+  # mutated by this method)
+  private_class_method def self.handle_multi_value_pg_dump_args!(opts, args)
+    if opts.keys.any? { |key| PG_DUMP_MULTI_VALUE_ARGS.include?(key) }
+      args = args.to_a
+      PG_DUMP_MULTI_VALUE_ARGS.each do |table_key|
+        next unless opts.key?(table_key)
+        table_val = opts.delete(table_key)
+        args += Array.wrap(table_val).map! { |v| [table_key, v] }
+      end
+    end
+    args
   end
 end

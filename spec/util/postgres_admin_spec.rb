@@ -76,6 +76,84 @@ describe PostgresAdmin do
         expect(subject.backup_pg_dump(opts)).to eq(local_file)
       end
     end
+
+    shared_examples "for splitting multi value arg" do |arg_type|
+      arg_as_cmdline_opt = "-#{'-' if arg_type.size > 1}#{arg_type}"
+
+      let(:local_file) { "/some/path/to/pg.dump" }
+
+      context "with #{arg_as_cmdline_opt} as a single value" do
+        let(:expected_opts) { { :local_file => local_file } }
+        let(:expected_args) do
+          default_args.to_a << [arg_type, "value1"]
+        end
+
+        it "runs the command and returns the :local_file opt" do
+          opts = expected_opts.merge(arg_type => "value1")
+          expect(subject.backup_pg_dump(opts)).to eq(local_file)
+        end
+      end
+
+      context "with #{arg_as_cmdline_opt} as a single value array" do
+        let(:expected_opts) { { :local_file => local_file } }
+        let(:expected_args) do
+          default_args.to_a << [arg_type, "value1"]
+        end
+
+        it "runs the command and returns the :local_file opt" do
+          opts = expected_opts.merge(arg_type => ["value1"])
+          expect(subject.backup_pg_dump(opts)).to eq(local_file)
+        end
+      end
+
+      context "with #{arg_as_cmdline_opt} as a multi value array" do
+        let(:expected_opts) { { :local_file => local_file } }
+        let(:expected_args) do
+          default_args.to_a << [arg_type, "value1"] << [arg_type, "value2"]
+        end
+
+        it "runs the command and returns the :local_file opt" do
+          opts = expected_opts.merge(arg_type => %w[value1 value2])
+          expect(subject.backup_pg_dump(opts)).to eq(local_file)
+        end
+      end
+    end
+
+    context "with :local_file, :t in opts" do
+      include_examples "for splitting multi value arg", :t
+    end
+
+    context "with :local_file, :table in opts" do
+      include_examples "for splitting multi value arg", :table
+    end
+
+    context "with :local_file, :T in opts" do
+      include_examples "for splitting multi value arg", :T
+    end
+
+    context "with :local_file, :exclude-table in opts" do
+      include_examples "for splitting multi value arg", :"exclude-table"
+    end
+
+    context "with :local_file, :exclude-table-data in opts" do
+      include_examples "for splitting multi value arg", :"exclude-table-data"
+    end
+
+    context "with :local_file, :t in opts" do
+      include_examples "for splitting multi value arg", :n
+    end
+
+    context "with :local_file, :table in opts" do
+      include_examples "for splitting multi value arg", :schema
+    end
+
+    context "with :local_file, :T in opts" do
+      include_examples "for splitting multi value arg", :N
+    end
+
+    context "with :local_file, :exclude-table in opts" do
+      include_examples "for splitting multi value arg", :"exclude-schema"
+    end
   end
 
   context "ENV dependent" do

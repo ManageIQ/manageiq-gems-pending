@@ -8,3 +8,6 @@
 /pkg/
 /spec/reports/
 /tmp/
+
+# ruby version management
+.ruby-version

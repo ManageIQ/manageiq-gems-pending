@@ -2,7 +2,6 @@ require 'util/mount/miq_generic_mount_session'
 require 'aws-sdk'
 
 class MiqS3Session < MiqGenericMountSession
-
   def initialize(log_settings)
     log_header = "MIQ(#{self.class.name}-initialize)"
     logger.debug("#{log_header} initialize: log_settings are #{log_settings}")
@@ -15,7 +14,7 @@ class MiqS3Session < MiqGenericMountSession
   end
 
   def s3
-    @s3 ||= Aws::S3::Resource.new(region: @settings[:region], access_key_id: @settings[:username], secret_access_key: @settings[:password])
+    @s3 ||= Aws::S3::Resource.new(:region => @settings[:region], :access_key_id => @settings[:username], :secret_access_key => @settings[:password])
   end
 
   def connect
@@ -47,20 +46,18 @@ class MiqS3Session < MiqGenericMountSession
   end
 
   def copy_dump_to_store(database_opts, connect_opts)
-    begin
-      # Strip off "s3://" prefix to get the bucket name.
-      bucket_name = connect_opts[:uri].split(':')[1].split(/\//)[2]
-      if (dump_bucket = s3.bucket(bucket_name)).exists?
-        logger.debug("Found bucket #{bucket_name}")
-      else
-        logger.debug("Bucket #{bucket_name} does not exist, creating.")
-        dump_bucket.create
-      end
-      # write dump file to s3
-      logger.debug("Writing [#{database_opts[:local_file]}] to Bucket #{bucket_name}.")
-      dump_bucket.object(database_opts[:object_file]).upload_file(database_opts[:local_file])
-    rescue => err
-      logger.error("Error copying dump from temporary location to S3 object store #{err}")
+    # Strip off "s3://" prefix to get the bucket name.
+    bucket_name = connect_opts[:uri].split(':')[1].split(/\//)[2]
+    if (dump_bucket = s3.bucket(bucket_name)).exists?
+      logger.debug("Found bucket #{bucket_name}")
+    else
+      logger.debug("Bucket #{bucket_name} does not exist, creating.")
+      dump_bucket.create
     end
+    # write dump file to s3
+    logger.debug("Writing [#{database_opts[:local_file]}] to Bucket #{bucket_name}.")
+    dump_bucket.object(database_opts[:object_file]).upload_file(database_opts[:local_file])
+  rescue => err
+    logger.error("Error copying dump from temporary location to S3 object store #{err}")
   end
 end

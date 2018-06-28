@@ -18,8 +18,7 @@ class MiqS3Session < MiqGenericMountSession
   end
 
   def connect
-    _scheme, _userinfo, @host, _port, _registry, @mount_root, _opaque, _query, _fragment = URI.split(URI.encode(@settings[:uri]))
-    @mount_path = @mount_root.split("/")[0..1].join("/")
+    _scheme, _userinfo, @host, _port, _registry, @mount_path, _opaque, _query, _fragment = URI.split(URI.encode(@settings[:uri]))
     super
   end
 
@@ -28,26 +27,19 @@ class MiqS3Session < MiqGenericMountSession
     FileUtils.rm_rf(@mnt_point) if File.exist?(@mnt_point)
   end
 
-  def mount_root
-    File.join(@mnt_point, (@mount_root.split("/") - @mount_path.split("/")))
-  end
-
   def uri_to_local_path(remote_file)
     # Strip off the leading "s3:/" from the URI"
-    log_header = "MIQ(#{self.class.name}-uri_to_local_path)"
-    logger.debug("#{log_header} remote_file is [#{remote_file}]")
-    file_part = remote_file.split(':')[1].split(/\//)[1..-1].join('/')
-    File.join(@mnt_point, file_part)
+    File.join(@mnt_point, URI(remote_file).host, URI(remote_file).path)
   end
 
   def uri_to_object_path(remote_file)
     # Strip off the leading "s3://" and the bucket name from the URI"
-    remote_file.split(':')[1].split(/\//)[3..-1].join('/')
+    # Also remove the leading delimiter.
+    URI(remote_file).path[1..-1]
   end
 
   def copy_dump_to_store(database_opts, connect_opts)
-    # Strip off "s3://" prefix to get the bucket name.
-    bucket_name = connect_opts[:uri].split(':')[1].split(/\//)[2]
+    bucket_name = URI(connect_opts[:uri]).host
     if (dump_bucket = s3.bucket(bucket_name)).exists?
       logger.debug("Found bucket #{bucket_name}")
     else
@@ -55,7 +47,7 @@ class MiqS3Session < MiqGenericMountSession
       dump_bucket.create
     end
     # write dump file to s3
-    logger.debug("Writing [#{database_opts[:local_file]}] to Bucket #{bucket_name}.")
+    logger.debug("Writing [#{database_opts[:local_file]}] to Bucket [#{bucket_name}] using object file name [#{database_opts[:object_file]}]")
     dump_bucket.object(database_opts[:object_file]).upload_file(database_opts[:local_file])
   rescue => err
     logger.error("Error copying dump from temporary location to S3 object store #{err}")

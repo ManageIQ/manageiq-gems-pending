@@ -252,4 +252,26 @@ describe PostgresAdmin do
       end
     end
   end
+
+  describe ".runcmd_with_logging" do
+    let(:args)     { { :no_password => nil, :dbname => "vmdb_production" } }
+    let(:db_creds) { { :username => "root", :password => "hunter2" } }
+    let(:env)      { { "PGUSER" => db_creds[:username], "PGPASSWORD" => db_creds[:password] } }
+
+    let(:awesome_spawn_stub) { double(:output => "foo") }
+
+    it "runs a single command" do
+      expect(AwesomeSpawn).to receive(:run!).with("pg_dump", :params => args, :env => env)
+                                            .and_return(awesome_spawn_stub)
+      described_class.runcmd_with_logging("pg_dump", db_creds, args)
+    end
+
+    it "accepts pipes" do
+      opts         = db_creds.merge(:pipe => [["split", { :params => { :b => "250M" } }]])
+      expected_cmd = [["pg_dump", { :params => args }], ["split", { :params => { :b => "250M" } }]]
+      expect(AwesomeSpawn).to receive(:run!).with(expected_cmd, :params => args, :env => env)
+                                            .and_return(awesome_spawn_stub)
+      described_class.runcmd_with_logging("pg_dump", opts, args)
+    end
+  end
 end

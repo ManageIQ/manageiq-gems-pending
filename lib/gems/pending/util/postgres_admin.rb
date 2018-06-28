@@ -215,8 +215,13 @@ class PostgresAdmin
   end
 
   def self.runcmd_with_logging(cmd_str, opts, params = {})
+    cmd = if opts[:pipe]
+            opts[:pipe].dup.unshift([cmd_str, { :params => params }])
+          else
+            cmd_str
+          end
     $log.info("MIQ(#{name}.#{__method__}) Running command... #{AwesomeSpawn.build_command_line(cmd_str, params)}")
-    AwesomeSpawn.run!(cmd_str, :params => params, :env => {
+    AwesomeSpawn.run!(cmd, :params => params, :env => {
                         "PGUSER"     => opts[:username],
                         "PGPASSWORD" => opts[:password]}).output
   end

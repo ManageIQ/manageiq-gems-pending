@@ -38,8 +38,8 @@ class MiqS3Session < MiqGenericMountSession
     URI(remote_file).path[1..-1]
   end
 
-  def copy_dump_to_store(database_opts, connect_opts)
-    bucket_name = URI(connect_opts[:uri]).host
+  def add(local_file, uri, object_file)
+    bucket_name = URI(uri).host
     if (dump_bucket = s3.bucket(bucket_name)).exists?
       logger.debug("Found bucket #{bucket_name}")
     else
@@ -47,9 +47,19 @@ class MiqS3Session < MiqGenericMountSession
       dump_bucket.create
     end
     # write dump file to s3
-    logger.debug("Writing [#{database_opts[:local_file]}] to Bucket [#{bucket_name}] using object file name [#{database_opts[:object_file]}]")
-    dump_bucket.object(database_opts[:object_file]).upload_file(database_opts[:local_file])
-  rescue => err
-    logger.error("Error copying dump from temporary location to S3 object store #{err}")
+    logger.debug("Writing [#{local_file}] to Bucket [#{bucket_name}] using object file name [#{object_file}]")
+    begin
+      dump_bucket.object(object_file).upload_file(local_file)
+    rescue Aws::S3::Errors::AccessDenied => err
+      disconnect
+      logger.error("Access to S3 bucket #{bucket_name} restricted.  Try a different name. #{err}")
+      msg = "Access to S3 bucket #{bucket_name} restricted.  Try a different name. #{err}"
+      raise err, msg, err.backtrace
+    rescue => err
+      disconnect
+      logger.error("Error uploading #{local_file} to S3 bucket #{bucket_name}. #{err}")
+      msg = "Error uploading #{local_file} to S3 bucket #{bucket_name}. #{err}"
+      raise err, msg, err.backtrace
+    end
   end
 end

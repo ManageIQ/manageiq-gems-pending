@@ -18,7 +18,8 @@ class MiqS3Session < MiqGenericMountSession
   end
 
   def connect
-    _scheme, _userinfo, @host, _port, _registry, @mount_path, _opaque, _query, _fragment = URI.split(URI.encode(@settings[:uri]))
+    @host       = URI(uri).host
+    @mount_path = URI(uri).path
     super
   end
 

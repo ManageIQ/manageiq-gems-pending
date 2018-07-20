@@ -1,5 +1,4 @@
 require 'util/mount/miq_generic_mount_session'
-require 'aws-sdk'
 
 class MiqS3Session < MiqGenericMountSession
   def initialize(log_settings)
@@ -7,19 +6,15 @@ class MiqS3Session < MiqGenericMountSession
     logger.debug("#{log_header} initialize: log_settings are #{log_settings}")
     super(log_settings)
     logger.debug("#{log_header} initialize: @settings are #{@settings}")
-    raise "username is a required value!" if @settings[:username].nil?
-    raise "password is a required value!" if @settings[:password].nil?
-    raise "region is a required value!" if @settings[:region].nil?
-    @s3 = s3
-  end
-
-  def s3
-    @s3 ||= Aws::S3::Resource.new(:region => @settings[:region], :access_key_id => @settings[:username], :secret_access_key => @settings[:password])
+    # NOTE: This line to be removed once manageiq-ui-class region change implemented.
+    @settings[:region] = "us-east-1" if @settings[:region].nil?
+    raise "username, password, and region are required values!" if @settings[:username].nil? || @settings[:password].nil? || @settings[:region].nil?
+    @host       = URI(@settings[:uri]).host
+    @mount_path = URI(@settings[:uri]).path
   end
 
   def connect
-    @host       = URI(uri).host
-    @mount_path = URI(uri).path
+    # No actual "connection" to S3 required here.
     super
   end
 
@@ -39,7 +34,9 @@ class MiqS3Session < MiqGenericMountSession
     URI(remote_file).path[1..-1]
   end
 
-  def add(local_file, uri, object_file)
+  # def add(local_file, uri, object_file)
+  def add(local_file, uri)
+    require 'aws-sdk'
     bucket_name = URI(uri).host
     if (dump_bucket = s3.bucket(bucket_name)).exists?
       logger.debug("Found bucket #{bucket_name}")
@@ -47,6 +44,7 @@ class MiqS3Session < MiqGenericMountSession
       logger.debug("Bucket #{bucket_name} does not exist, creating.")
       dump_bucket.create
     end
+    object_file = uri_to_object_path(uri)
     # write dump file to s3
     logger.debug("Writing [#{local_file}] to Bucket [#{bucket_name}] using object file name [#{object_file}]")
     begin
@@ -62,5 +60,11 @@ class MiqS3Session < MiqGenericMountSession
       msg = "Error uploading #{local_file} to S3 bucket #{bucket_name}. #{err}"
       raise err, msg, err.backtrace
     end
+  end
+
+  private
+
+  def s3
+    @s3 ||= Aws::S3::Resource.new(:region => @settings[:region], :access_key_id => @settings[:username], :secret_access_key => @settings[:password])
   end
 end

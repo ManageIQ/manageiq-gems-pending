@@ -43,7 +43,7 @@ class MiqS3Session < MiqGenericMountSession
     logger.debug("Writing [#{local_file}] to Bucket [#{bucket_name}] using object file name [#{object_file}]")
     begin
       dump_bucket.object(object_file).upload_file(local_file)
-    rescue Aws::S3::Errors::AccessDenied => err
+    rescue Aws::S3::Errors::AccessDenied, Aws::S3::Errors::Forbidden => err
       disconnect
       logger.error("Access to S3 bucket #{bucket_name} restricted.  Try a different name. #{err}")
       msg = "Access to S3 bucket #{bucket_name} restricted.  Try a different name. #{err}"
@@ -54,6 +54,38 @@ class MiqS3Session < MiqGenericMountSession
       msg = "Error uploading #{local_file} to S3 bucket #{bucket_name}. #{err}"
       raise err, msg, err.backtrace
     end
+  end
+
+  def download(local_file, remote_file)
+    require 'aws-sdk'
+    bucket_name = URI(remote_file).host
+    if (dump_bucket = s3.bucket(bucket_name)).exists?
+      logger.debug("Found bucket #{bucket_name}")
+    else
+      logger.error("Bucket #{bucket_name} does not exist, unable to download [#{remote_file}].")
+      raise "Bucket #{bucket_name} does not exist, unable to download [#{remote_file}]."
+    end
+    object_file = uri_to_object_path(remote_file)
+    local_file  = File.join(@mnt_point, File.basename(local_file))
+    logger.debug("Downloading [#{object_file}] from bucket [#{bucket_name}] to local file [#{local_file}]")
+    begin
+      dump_bucket.object(object_file).download_file(local_file)
+    rescue Aws::S3::Errors::AccessDenied, Aws::S3::Errors::Forbidden => err
+      disconnect
+      logger.error("Access to S3 bucket #{bucket_name} restricted.  Try a different name. #{err}")
+      msg = "Access to S3 bucket #{bucket_name} restricted.  Try a different name. #{err}"
+      raise err, msg, err.backtrace
+    rescue => err
+      disconnect
+      logger.error("Error downloading #{remote_file} from S3. #{err}")
+      msg = "Error downloading #{remote_file} from S3. #{err}"
+      raise err, msg, err.backtrace
+    end
+    local_file
+  end
+
+  def supports_objects?
+    true
   end
 
   private

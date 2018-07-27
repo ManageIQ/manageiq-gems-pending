@@ -18,9 +18,9 @@ class MiqS3Session < MiqGenericMountSession
     super
   end
 
-  def disconnect
-    return if @mnt_point.nil?
-    FileUtils.rm_rf(@mnt_point) if File.exist?(@mnt_point)
+  def self.raw_disconnect(mnt_point)
+    return if mnt_point.nil?
+    FileUtils.rm_rf(mnt_point) if File.exist?(mnt_point)
   end
 
   def uri_to_local_path(remote_file)
@@ -34,7 +34,6 @@ class MiqS3Session < MiqGenericMountSession
     URI(remote_file).path[1..-1]
   end
 
-  # def add(local_file, uri, object_file)
   def add(local_file, uri)
     require 'aws-sdk'
     bucket_name = URI(uri).host

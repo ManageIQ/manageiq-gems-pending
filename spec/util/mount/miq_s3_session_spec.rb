@@ -36,16 +36,16 @@ describe MiqS3Session do
 
   it "#@mnt_point starts with '/tmp/miq_'" do
     result = @session.mnt_point
-    expect(result).to     start_with("/tmp/miq_")
+    expect(result).to start_with("/tmp/miq_")
   end
 
   it "#uri_to_local_path returns a new local path" do
     result = @session.uri_to_local_path(@uri)
-    expect(result).to     match(/^\/tmp\/miq_.*\/tmp\/abc\/def$/)
+    expect(result).to match(/^\/tmp\/miq_.*\/tmp\/abc\/def$/)
   end
 
   it "#uri_to_object_path returns a new object path" do
     result = @session.uri_to_object_path(@uri)
-    expect(result).to     eq("abc/def")
+    expect(result).to eq("abc/def")
   end
 end

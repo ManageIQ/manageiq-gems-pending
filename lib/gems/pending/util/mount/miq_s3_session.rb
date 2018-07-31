@@ -13,11 +13,6 @@ class MiqS3Session < MiqGenericMountSession
     @mount_path = URI(@settings[:uri]).path
   end
 
-  def connect
-    # No actual "connection" to S3 required here.
-    super
-  end
-
   def self.raw_disconnect(mnt_point)
     return if mnt_point.nil?
     FileUtils.rm_rf(mnt_point) if File.exist?(mnt_point)

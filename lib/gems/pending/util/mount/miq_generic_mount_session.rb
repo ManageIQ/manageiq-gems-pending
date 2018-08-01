@@ -258,6 +258,10 @@ class MiqGenericMountSession
         logger.info("#{log_header} Skipping add since URI: [#{dest_uri}] already exists")
         return dest_uri
       end
+      unless File.exist?(source)
+        logger.info("#{log_header} Skipping add since file: [#{source}] does not exist")
+        return source
+      end
 
       logger.info("#{log_header} Building relative path: [#{relpath}]...")
       FileUtils.mkdir_p(File.dirname(relpath))

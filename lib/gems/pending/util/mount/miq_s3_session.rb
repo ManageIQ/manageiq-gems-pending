@@ -84,10 +84,6 @@ class MiqS3Session < MiqGenericMountSession
     local_file
   end
 
-  def supports_objects?
-    true
-  end
-
   private
 
   def s3

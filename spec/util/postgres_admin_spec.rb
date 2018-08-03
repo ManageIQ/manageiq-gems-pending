@@ -77,6 +77,17 @@ describe PostgresAdmin do
       end
     end
 
+    context "with :local_file == '-'" do
+      let(:local_file)    { "-" }
+      let(:expected_opts) { { :local_file => local_file } }
+      let(:expected_args) { default_args.tap { |args| args.delete(:file) } }
+
+      it "runs the command, doesn't pass a --file arg, and returns the :local_file opt" do
+        opts = expected_opts
+        expect(subject.backup_pg_dump(opts)).to eq(local_file)
+      end
+    end
+
     shared_examples "for splitting multi value arg" do |arg_type|
       arg_as_cmdline_opt = "-#{'-' if arg_type.size > 1}#{arg_type}"
 
@@ -250,6 +261,64 @@ describe PostgresAdmin do
           end
         end
       end
+    end
+  end
+
+  describe ".backup_pg_compress" do
+    let(:cmd)          { "pg_basebackup" }
+    let(:base_params)  { {:z => nil, :format => "t", :xlog_method => "fetch"} }
+
+    context "with :local_file == '-'" do
+      let(:opts) { {:local_file => "-"} }
+
+      it "calls `runcmd` with --pgdata='-'" do
+        params = base_params.merge(:pgdata => "-")
+        expect(described_class).to receive(:runcmd).with(cmd, opts, params)
+
+        described_class.backup_pg_compress(opts)
+      end
+    end
+
+    context "with :local_file == 'path/to/my/backup/base.tar.gz'" do
+      let(:dir)  { File.join("path", "to", "my", "backup") }
+      let(:opts) { { :local_file => File.join(dir, "base.tar.gz") } }
+
+      it "calls `runcmd` with --pgdata='path/to/my/backup'" do
+        pgdata_dir  = File.join(dir, "vmdb_backup")
+        result_file = File.join(pgdata_dir, "base.tar.gz")
+        result_path = Pathname.new(opts[:local_file])
+        params      = base_params.merge(:pgdata => pgdata_dir)
+
+        allow(FileUtils).to        receive(:mkdir_p).with(result_path.parent)
+        allow(Dir).to              receive(:mktmpdir).with("vmdb_backup", result_path.parent)
+                                                     .and_yield(pgdata_dir)
+        allow(FileUtils).to        receive(:mv).with(result_file, result_path)
+        expect(described_class).to receive(:runcmd).with(cmd, {}, params)
+
+        described_class.backup_pg_compress(opts)
+      end
+    end
+  end
+
+  describe ".runcmd_with_logging" do
+    let(:args)     { { :no_password => nil, :dbname => "vmdb_production" } }
+    let(:db_creds) { { :username => "root", :password => "hunter2" } }
+    let(:env)      { { "PGUSER" => db_creds[:username], "PGPASSWORD" => db_creds[:password] } }
+
+    let(:awesome_spawn_stub) { double(:output => "foo") }
+
+    it "runs a single command" do
+      expect(AwesomeSpawn).to receive(:run!).with("pg_dump", :params => args, :env => env)
+                                            .and_return(awesome_spawn_stub)
+      described_class.runcmd_with_logging("pg_dump", db_creds, args)
+    end
+
+    it "accepts pipes" do
+      opts         = db_creds.merge(:pipe => [["split", { :params => { :b => "250M" } }]])
+      expected_cmd = [["pg_dump", { :params => args }], ["split", { :params => { :b => "250M" } }]]
+      expect(AwesomeSpawn).to receive(:run!).with(expected_cmd, :params => args, :env => env)
+                                            .and_return(awesome_spawn_stub)
+      described_class.runcmd_with_logging("pg_dump", opts, args)
     end
   end
 end

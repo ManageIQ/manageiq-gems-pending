@@ -122,7 +122,12 @@ class PostgresAdmin
     opts = opts.dup
     dbname = opts.delete(:dbname)
 
-    args = combine_command_args(opts, :format => "c", :file => opts[:local_file], nil => dbname)
+    # Split up like this on purpose because arg order matters.
+    dump_args        = { :format => "c" }
+    dump_args[:file] = opts[:local_file] unless opts[:local_file] == "-"
+    dump_args[nil]   = dbname
+
+    args = combine_command_args(opts, dump_args)
     args = handle_multi_value_pg_dump_args!(opts, args)
 
     runcmd_with_logging("pg_dump", opts, args)
@@ -134,15 +139,21 @@ class PostgresAdmin
 
     # discard dbname as pg_basebackup does not connect to a specific database
     opts.delete(:dbname)
+    base_params = {:z => nil, :format => "t", :xlog_method => "fetch"}
 
-    path = Pathname.new(opts.delete(:local_file))
+    if opts[:local_file] == "-"
+      runcmd("pg_basebackup", opts, base_params.merge(:pgdata => "-"))
+      opts[:local_file]
+    else
+      path = Pathname.new(opts.delete(:local_file))
 
-    FileUtils.mkdir_p(path.dirname)
-    Dir.mktmpdir("vmdb_backup", path.dirname) do |dir|
-      runcmd("pg_basebackup", opts, :z => nil, :format => "t", :xlog_method => "fetch", :pgdata => dir)
-      FileUtils.mv(File.join(dir, "base.tar.gz"), path)
+      FileUtils.mkdir_p(path.dirname)
+      Dir.mktmpdir("vmdb_backup", path.dirname) do |dir|
+        runcmd("pg_basebackup", opts, base_params.merge(:pgdata => dir))
+        FileUtils.mv(File.join(dir, "base.tar.gz"), path)
+      end
+      path.to_s
     end
-    path.to_s
   end
 
   def self.recreate_db(opts)
@@ -215,8 +226,13 @@ class PostgresAdmin
   end
 
   def self.runcmd_with_logging(cmd_str, opts, params = {})
+    cmd = if opts[:pipe]
+            opts[:pipe].dup.unshift([cmd_str, { :params => params }])
+          else
+            cmd_str
+          end
     $log.info("MIQ(#{name}.#{__method__}) Running command... #{AwesomeSpawn.build_command_line(cmd_str, params)}")
-    AwesomeSpawn.run!(cmd_str, :params => params, :env => {
+    AwesomeSpawn.run!(cmd, :params => params, :env => {
                         "PGUSER"     => opts[:username],
                         "PGPASSWORD" => opts[:password]}).output
   end

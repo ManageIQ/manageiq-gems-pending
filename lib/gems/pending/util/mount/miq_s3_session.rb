@@ -2,10 +2,7 @@ require 'util/mount/miq_generic_mount_session'
 
 class MiqS3Session < MiqGenericMountSession
   def initialize(log_settings)
-    log_header = "MIQ(#{self.class.name}-initialize)"
-    logger.debug("#{log_header} initialize: log_settings are #{log_settings}")
     super(log_settings)
-    logger.debug("#{log_header} initialize: @settings are #{@settings}")
     # NOTE: This line to be removed once manageiq-ui-class region change implemented.
     @settings[:region] = "us-east-1" if @settings[:region].nil?
     raise "username, password, and region are required values!" if @settings[:username].nil? || @settings[:password].nil? || @settings[:region].nil?

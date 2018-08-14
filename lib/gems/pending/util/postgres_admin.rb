@@ -235,8 +235,8 @@ class PostgresAdmin
 
   # rubocop:disable Style/SymbolArray
   PG_DUMP_MULTI_VALUE_ARGS = [
-    :t, :table,  :T, :"exclude-table", :"exclude-table-data",
-    :n, :schema, :N, :"exclude-schema"
+    :t, :table,  :T, :exclude_table,  :"exclude-table", :exclude_table_data, :"exclude-table-data",
+    :n, :schema, :N, :exclude_schema, :"exclude-schema"
   ].freeze
   # rubocop:enable Style/SymbolArray
   #

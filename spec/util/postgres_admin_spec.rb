@@ -131,12 +131,20 @@ describe PostgresAdmin do
       include_examples "for splitting multi value arg", :T
     end
 
+    context "with :local_file, :exclude_table in opts" do
+      include_examples "for splitting multi value arg", :exclude_table
+    end
+
     context "with :local_file, :exclude-table in opts" do
       include_examples "for splitting multi value arg", :"exclude-table"
     end
 
     context "with :local_file, :exclude-table-data in opts" do
       include_examples "for splitting multi value arg", :"exclude-table-data"
+    end
+
+    context "with :local_file, :exclude_table_data in opts" do
+      include_examples "for splitting multi value arg", :exclude_table_data
     end
 
     context "with :local_file, :t in opts" do
@@ -153,6 +161,10 @@ describe PostgresAdmin do
 
     context "with :local_file, :exclude-table in opts" do
       include_examples "for splitting multi value arg", :"exclude-schema"
+    end
+
+    context "with :local_file, :exclude_table in opts" do
+      include_examples "for splitting multi value arg", :exclude_schema
     end
   end
 

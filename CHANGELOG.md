@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
+## Unreleased as of Sprint 92 ending 2018-08-13
+
+### Added
+-  Enables downloading backup file from S3 prior to running restore command [(#357)](https://github.com/ManageIQ/manageiq-gems-pending/pull/357)
+
+### Removed
+- Remove Debug Messages [(#359)](https://github.com/ManageIQ/manageiq-gems-pending/pull/359)
+
 ## Unreleased as of Sprint 87 ending 2018-06-04
 
 ### Added

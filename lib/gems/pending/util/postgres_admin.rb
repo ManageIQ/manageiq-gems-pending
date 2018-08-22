@@ -136,12 +136,26 @@ class PostgresAdmin
     opts.delete(:dbname)
 
     path = Pathname.new(opts.delete(:local_file))
-
     FileUtils.mkdir_p(path.dirname)
-    Dir.mktmpdir("vmdb_backup", path.dirname) do |dir|
-      runcmd("pg_basebackup", opts, :z => nil, :format => "t", :xlog_method => "fetch", :pgdata => dir)
-      FileUtils.mv(File.join(dir, "base.tar.gz"), path)
-    end
+
+    # Build commandline from AwesomeSpawn
+    args = {:z => nil, :format => "t", :xlog_method => "fetch", :pgdata => "-"}
+    cmd  = AwesomeSpawn.build_command_line("pg_basebackup", combine_command_args(opts, args))
+    $log.info("MIQ(#{name}.#{__method__}) Running command... #{cmd}")
+
+    # Run command in a separate thread
+    read, write    = IO.pipe
+    error_path     = Dir::Tmpname.create("") { |tmpname| tmpname }
+    process_thread = Process.detach(Kernel.spawn(pg_env(opts), cmd, :out => write, :err => error_path))
+    stream_reader  = Thread.new { IO.copy_stream(read, path) } # Copy output to path
+    write.close
+
+    # Wait for them to finish
+    process_status = process_thread.value
+    stream_reader.join
+    read.close
+
+    handle_error(cmd, process_status.exitstatus, error_path)
     path.to_s
   end
 
@@ -216,9 +230,7 @@ class PostgresAdmin
 
   def self.runcmd_with_logging(cmd_str, opts, params = {})
     $log.info("MIQ(#{name}.#{__method__}) Running command... #{AwesomeSpawn.build_command_line(cmd_str, params)}")
-    AwesomeSpawn.run!(cmd_str, :params => params, :env => {
-                        "PGUSER"     => opts[:username],
-                        "PGPASSWORD" => opts[:password]}).output
+    AwesomeSpawn.run!(cmd_str, :params => params, :env => pg_env(opts)).output
   end
 
   private_class_method def self.file_type(file)
@@ -233,6 +245,12 @@ class PostgresAdmin
     default_args.merge(args)
   end
 
+  private_class_method def self.pg_env(opts)
+    {
+      "PGUSER"     => opts[:username],
+      "PGPASSWORD" => opts[:password]
+    }
+  end
   # rubocop:disable Style/SymbolArray
   PG_DUMP_MULTI_VALUE_ARGS = [
     :t, :table,  :T, :exclude_table,  :"exclude-table", :exclude_table_data, :"exclude-table-data",
@@ -252,5 +270,17 @@ class PostgresAdmin
       end
     end
     args
+  end
+
+  private_class_method def self.handle_error(cmd, exit_status, error_path)
+    if exit_status != 0
+      result = AwesomeSpawn::CommandResult.new(cmd, "", File.read(error_path), exit_status)
+      message = AwesomeSpawn::CommandResultError.default_message(cmd, exit_status)
+      $log.error("AwesomeSpawn: #{message}")
+      $log.error("AwesomeSpawn: #{result.error}")
+      raise AwesomeSpawn::CommandResultError.new(message, command_result)
+    end
+  ensure
+    File.delete(error_path) if File.exist?(error_path)
   end
 end

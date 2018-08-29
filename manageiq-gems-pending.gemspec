@@ -36,7 +36,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "fog-openstack",           "=0.1.22"
   s.add_runtime_dependency "hawkular-client",         "=3.0.1"
   s.add_runtime_dependency "highline",                "~> 1.6.21" # Needed for the appliance_console
-  s.add_runtime_dependency "httpclient",              "~>2.7.1"
+  s.add_runtime_dependency "httpclient",              "~>2.8.1"
   s.add_runtime_dependency "image-inspector-client",  "~>1.0.3"
   s.add_runtime_dependency "iniparse"
   s.add_runtime_dependency "kubeclient",              "~>2.4.0"

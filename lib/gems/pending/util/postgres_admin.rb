@@ -278,7 +278,7 @@ class PostgresAdmin
       message = AwesomeSpawn::CommandResultError.default_message(cmd, exit_status)
       $log.error("AwesomeSpawn: #{message}")
       $log.error("AwesomeSpawn: #{result.error}")
-      raise AwesomeSpawn::CommandResultError.new(message, command_result)
+      raise AwesomeSpawn::CommandResultError.new(message, result)
     end
   ensure
     File.delete(error_path) if File.exist?(error_path)

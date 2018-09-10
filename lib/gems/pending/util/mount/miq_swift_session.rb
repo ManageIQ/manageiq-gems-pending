@@ -83,9 +83,9 @@ class MiqSwiftSession < MiqGenericMountSession
     extra_options[:domain_id] = @domain_id
     extra_options[:omit_default_port] = ::Settings.ems.ems_openstack.excon.omit_default_port
     extra_options[:read_timeout]      = ::Settings.ems.ems_openstack.excon.read_timeout
-    extra_options[:service]   = "Compute"
-    
-    @osh   ||= OpenstackHandle::Handle.new(@username, @password, @host, @port, @api_version, @security_protocol, extra_options)
+    extra_options[:service] = "Compute"
+
+    @osh ||= OpenstackHandle::Handle.new(@username, @password, @host, @port, @api_version, @security_protocol, extra_options)
     @osh.connection_options = {:instrumentor => $fog_log}
     begin
       @swift ||= @osh.swift_service

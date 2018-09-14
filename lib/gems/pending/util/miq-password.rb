@@ -6,7 +6,8 @@ class MiqPassword
   class MiqPasswordError < StandardError; end
 
   CURRENT_VERSION = "2"
-  REGEXP = /v([0-9]+):\{([^}]*)\}/
+  REGEXP = /v([0-2]):\{([^}]*)\}/
+  REGEXP_PASSWORD = /v[0-2](:\{[^}]*\}|%3A%7B.*?%7D)/ # for "v2:{...}" or its URL encoded string
   REGEXP_START_LINE = /^#{REGEXP}/
 
   attr_reader :encStr
@@ -81,11 +82,11 @@ class MiqPassword
   end
 
   def self.sanitize_string(s)
-    s.gsub(REGEXP, '********')
+    s.gsub(REGEXP_PASSWORD, '********')
   end
 
   def self.sanitize_string!(s)
-    s.gsub!(REGEXP, '********')
+    s.gsub!(REGEXP_PASSWORD, '********')
   end
 
   def self.try_decrypt(str)

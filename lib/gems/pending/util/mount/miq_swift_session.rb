@@ -1,5 +1,4 @@
 require 'util/mount/miq_generic_mount_session'
-require 'excon'
 
 class MiqSwiftSession < MiqGenericMountSession
   def initialize(log_settings)
@@ -31,10 +30,12 @@ class MiqSwiftSession < MiqGenericMountSession
   def add(local_file, uri)
     begin
       container = swift.directories.get(@container_name)
+      logger.debug("Swift container [#{container}] found")
     rescue Fog::Storage::OpenStack::NotFound
       logger.debug("Swift container #{@container_name} does not exist.  Creating.")
       begin
         container = swift.directories.create(:key => @container_name)
+        logger.debug("Swift container [#{container}] created")
       rescue => err
         disconnect
         logger.error("Error creating Swift container #{@container_name}. #{err}")

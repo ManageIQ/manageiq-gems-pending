@@ -87,7 +87,6 @@ class MiqSwiftSession < MiqGenericMountSession
     extra_options[:service] = "Compute"
 
     @osh ||= OpenstackHandle::Handle.new(@username, @password, @host, @port, @api_version, @security_protocol, extra_options)
-    @osh.connection_options = {:instrumentor => $fog_log}
     begin
       @swift ||= @osh.swift_service
     rescue Excon::Errors::Unauthorized => err
@@ -104,18 +103,7 @@ class MiqSwiftSession < MiqGenericMountSession
   end
 
   def query_params(query_string)
-    query_string.split('&').each do |query|
-      query_parts = query.split('=')
-      case query_parts[0]
-      when 'region'
-        @region = query_parts[1]
-      when 'api_version'
-        @api_version = query_parts[1]
-      when 'domain_id'
-        @domain_id = query_parts[1]
-      when 'security_protocol'
-        @security_protocol = query_parts[1]
-      end
-    end
+    parts = URI.decode_www_form(query_string).to_h
+    @region, @api_version, @domain_id, @security_protocol = parts.values_at("region", "api_version", "domain_id", "security_protocol")
   end
 end

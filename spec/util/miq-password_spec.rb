@@ -212,8 +212,10 @@ describe MiqPassword do
   end
 
   it ".sanitize_string" do
-    expect(MiqPassword.sanitize_string!("some :password: v1:{XAWlcAlViNwB} and another :password: v2:{egr+hObB}")).to eq(
-      "some :password: ******** and another :password: ********")
+    expect(MiqPassword.sanitize_string("some :password: v1:{XAWlcAlViNwB} and another :password: v2:{egr+hObB}"))
+      .to eq("some :password: ******** and another :password: ********")
+    expect(MiqPassword.sanitize_string("some :enocded_password: v1%3A%7BXAWlcAlViNwB%7D and another :enocded_password: v2%3A%7Begr%2BhObB%7D"))
+      .to eq("some :enocded_password: ******** and another :enocded_password: ********")
   end
 
   it ".sanitize_string!" do

@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
+## Unreleased as of Sprint 95 ending 2018-09-24
+
+### Added
+- MiqFileStorage interface and subclassing (with file splitting) [(#361)](https://github.com/ManageIQ/manageiq-gems-pending/pull/361)
+
 ## Unreleased as of Sprint 94 ending 2018-09-10
 
 ### Added

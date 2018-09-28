@@ -9,6 +9,7 @@ class MiqPassword
   REGEXP = /v([0-2]):\{([^}]*)\}/
   REGEXP_PASSWORD = /v[0-2](:\{[^}]*\}|%3A%7B.*?%7D)/ # for "v2:{...}" or its URL encoded string
   REGEXP_START_LINE = /^#{REGEXP}/
+  MASK = '********'.freeze
 
   attr_reader :encStr
 
@@ -82,11 +83,11 @@ class MiqPassword
   end
 
   def self.sanitize_string(s)
-    s.gsub(REGEXP_PASSWORD, '********')
+    s.gsub(REGEXP_PASSWORD, MASK)
   end
 
   def self.sanitize_string!(s)
-    s.gsub!(REGEXP_PASSWORD, '********')
+    s.gsub!(REGEXP_PASSWORD, MASK)
   end
 
   def self.try_decrypt(str)

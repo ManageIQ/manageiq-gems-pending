@@ -47,7 +47,7 @@ class MiqSshUtil
     end
   end
 
-  def exec(cmd, doneStr = nil)
+  def exec(cmd, doneStr = nil, stdin = nil)
     errBuf = ""
     outBuf = ""
     status = nil
@@ -94,13 +94,19 @@ class MiqSshUtil
         end
 
         $log.debug "MiqSshUtil::exec - Command: #{cmd} started." if $log
-        channel.exec(cmd) { |_channel, success| raise "MiqSshUtil::exec - Could not execute command #{cmd}" unless success }
+        channel.exec(cmd) do |chan, success|
+          raise "MiqSshUtil::exec - Could not execute command #{cmd}" unless success
+          if stdin.present?
+            chan.send_data(stdin)
+            chan.eof!
+          end
+        end
       end
       ssh.loop
     end
   end # def exec
 
-  def suexec(cmd_str, doneStr = nil)
+  def suexec(cmd_str, doneStr = nil, stdin = nil)
     errBuf = ""
     outBuf = ""
     prompt = ""
@@ -191,7 +197,13 @@ class MiqSshUtil
 
           $log.debug "MiqSshUtil::suexec - Command: [#{cmd_str}] started." if $log
           su_command = @su_user == 'root' ? "su -l\n" : "su -l #{@su_user}\n"
-          channel.exec(su_command) { |_channel, success| raise "MiqSshUtil::suexec - Could not execute command #{cmd}" unless success }
+          channel.exec(su_command) do |chan, success|
+            raise "MiqSshUtil::suexec - Could not execute command #{cmd}" unless success
+            if stdin.present?
+              chan.send_data(stdin)
+              chan.eof!
+            end
+          end
         end
       end
       ssh.loop

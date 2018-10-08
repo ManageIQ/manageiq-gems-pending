@@ -249,7 +249,7 @@ class PostgresAdmin
     {
       "PGUSER"     => opts[:username],
       "PGPASSWORD" => opts[:password]
-    }
+    }.delete_blanks
   end
   # rubocop:disable Style/SymbolArray
   PG_DUMP_MULTI_VALUE_ARGS = [

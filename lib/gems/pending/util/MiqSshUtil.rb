@@ -233,9 +233,9 @@ class MiqSshUtil
     raise MiqException::MiqSshUtilHostKeyMismatch
   end
 
-  def shell_exec(cmd, doneStr = nil, _shell = nil)
-    return exec(cmd, doneStr) if @su_user.nil?
-    ret = suexec(cmd, doneStr)
+  def shell_exec(cmd, doneStr = nil, _shell = nil, stdin = nil)
+    return exec(cmd, doneStr, stdin) if @su_user.nil?
+    ret = suexec(cmd, doneStr, stdin)
     # Remove escape character from the end of the line
     ret.sub!(/\e$/, '')
     ret

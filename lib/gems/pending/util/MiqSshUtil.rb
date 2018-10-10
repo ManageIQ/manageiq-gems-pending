@@ -39,9 +39,9 @@ class MiqSshUtil
   end # def initialize
 
   def get_file(from, to)
-    Net::SFTP.start(@host, @user, @options) do |sftp|
+    run_session do |ssh|
       $log.debug "MiqSshUtil::get_file - Copying file #{@host}:#{from} to #{to}." if $log
-      data = sftp.download!(from, to)
+      data = ssh.sftp.download!(from, to)
       $log.debug "MiqSshUtil::get_file - Copying of #{@host}:#{from} to #{to}, complete." if $log
       return data
     end

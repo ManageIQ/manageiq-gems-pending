@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
+## Unreleased as of Sprint 96 ending 2018-10-08
+
+### Added
+- Add support to send data on standard input when executing a command [(#379)](https://github.com/ManageIQ/manageiq-gems-pending/pull/379)
+- Don't set empty ENV values for database dumps [(#378)](https://github.com/ManageIQ/manageiq-gems-pending/pull/378)
+
+### Fixed
+- Changes to MiqPassword.sanitize_string to support URL encoded password. [(#373)](https://github.com/ManageIQ/manageiq-gems-pending/pull/373)
+
 ## Unreleased as of Sprint 95 ending 2018-09-24
 
 ### Added

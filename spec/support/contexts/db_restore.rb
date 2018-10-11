@@ -72,11 +72,40 @@ shared_context "Database Restore Validation Helpers" do
       #   https://github.com/travis-ci/travis-build/blob/4f580b2/lib/travis/build/bash/travis_setup_postgresql.bash#L26-L27
       #   https://github.com/travis-ci/travis-cookbooks/blob/46a8e7fd/cookbooks/travis_postgresql/templates/ubuntu/9.5/postgresql.conf.erb#L41-L45
       #
-      ENV["APPLIANCE_PG_DATA"]    = "/var/lib/postgresql/9.5/main"
-      ENV["APPLIANCE_PG_SERVICE"] = "ci_pg_instance"
+      # Unfortunately the plot thickens a bit since they do two things that is
+      # different from our appliance installs:
+      #
+      #   - 'RAMFS' is used for their data directory, but is sync'd from
+      #     /var/lib/postgresql/9.5/main via their init scripts
+      #   - The configs and data are in separate dirs (/etc and /var/lib
+      #     respectively)
+      #
+      # An example of the running `postgres` command can be found below
+      #
+      #   $ /usr/lib/postgresql/9.5/bin/postgres                       \
+      #       -D /var/ramfs/postgresql/9.5/main                        \
+      #       -c config_file=/etc/postgresql/9.5/main/postgresql.conf
+      #
+      # The other issue we run into is that we basically require `sudo` for
+      # most of our actions in `PostgresAdmin`, and specs are run using the
+      # un-elevated CI user, travis.
+      #
+      # The command below basically runs the the PostgresAdmin command in a
+      # subprocess with elevated privleges, instead of trying to stub
+      # everything and correct it in a case by case basis.
+      env = {
+        "APPLIANCE_PG_DATA"    => "/var/lib/postgresql/9.5/main",
+        "APPLIANCE_PG_SERVICE" => "ci_pg_instance"
+      }
 
-      allow(LinuxAdmin::Service).to receive(:new).with(PostgresAdmin.service_name)
-                                                 .and_return(CiPostgresRunner)
+      allow(PostgresAdmin).to receive(:restore) do |opts|
+        dir_opts     = "-I #{RestoreHelper::SPEC_DIR} -I #{RestoreHelper::LIB_DIR}"
+        require_opts = "-r linux_admin -r ci_helper -r gems/pending/util/postgres_admin"
+        ruby_eval    = "-e 'PostgresAdmin.restore(#{opts.inspect})'"
+        cmd          = "sudo #{Gem.ruby} #{dir_opts} #{require_opts} #{ruby_eval}"
+
+        system(env, cmd)
+      end
     end
   end
 end

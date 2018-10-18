@@ -28,6 +28,10 @@ class PostgresAdmin
     "postgres".freeze
   end
 
+  def self.group
+    user
+  end
+
   def self.logical_volume_name
     "lv_pg".freeze
   end
@@ -74,7 +78,7 @@ class PostgresAdmin
   def self.prep_data_directory
     # initdb will fail if the database directory is not empty or not owned by the PostgresAdmin.user
     FileUtils.mkdir(PostgresAdmin.data_directory) unless Dir.exist?(PostgresAdmin.data_directory)
-    FileUtils.chown_R(PostgresAdmin.user, PostgresAdmin.user, PostgresAdmin.data_directory)
+    FileUtils.chown_R(PostgresAdmin.user, PostgresAdmin.group, PostgresAdmin.data_directory)
     FileUtils.rm_rf(PostgresAdmin.data_directory.children.map(&:to_s))
   end
 
@@ -112,7 +116,7 @@ class PostgresAdmin
 
     tgz = Zlib::GzipReader.new(File.open(file, 'rb'))
     Archive::Tar::Minitar.unpack(tgz, data_directory.to_s)
-    FileUtils.chown_R(PostgresAdmin.user, PostgresAdmin.user, PostgresAdmin.data_directory)
+    FileUtils.chown_R(PostgresAdmin.user, PostgresAdmin.group, PostgresAdmin.data_directory)
 
     pg_service.start
     file

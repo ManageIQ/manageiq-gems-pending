@@ -246,6 +246,7 @@ class PostgresAdmin
     default_args[:dbname]   = opts[:dbname]   if opts[:dbname]
     default_args[:username] = opts[:username] if opts[:username]
     default_args[:host]     = opts[:hostname] if opts[:hostname]
+    default_args[:port]     = opts[:port]     if opts[:port]
     default_args.merge(args)
   end
 

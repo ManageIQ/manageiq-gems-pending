@@ -5,7 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
-## Hammer Beta-1
+## Hammer Beta-2
+
+### Added
+- Add stdin option to shell_exec [(#382)](https://github.com/ManageIQ/manageiq-gems-pending/pull/382)
+- DB Backups to Openstack Swift [(#371)](https://github.com/ManageIQ/manageiq-gems-pending/pull/371)
+- Be more lenient for locked down ftp servers [(#384)](https://github.com/ManageIQ/manageiq-gems-pending/pull/384)
+
+## Hammer Beta-1 - Released 2018-10-12
 
 ### Added
 - MiqFileStorage interface and subclassing (with file splitting) [(#361)](https://github.com/ManageIQ/manageiq-gems-pending/pull/361)

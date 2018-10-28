@@ -27,7 +27,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "aws-sdk",                 "~> 2.9.7"
   s.add_runtime_dependency "binary_struct",           "~> 2.1"
   s.add_runtime_dependency "bundler",                 ">= 1.8.4" # rails-assets requires bundler >= 1.8.4, see: https://rails-assets.org/
-  s.add_runtime_dependency "fog-openstack",           "~> 0.1.22"
+  s.add_runtime_dependency "fog-openstack",           "~> 0.3"
   s.add_runtime_dependency "linux_admin",             "~> 1.0"
   s.add_runtime_dependency "mime-types",              "~> 3.0"
   s.add_runtime_dependency "minitar",                 "~> 0.6"

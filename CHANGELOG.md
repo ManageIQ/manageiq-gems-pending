@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
+## Gaprindashvili-6
+
+### Fixed
+- Changes to MiqPassword.sanitize_string to support URL encoded password. [(#373)](https://github.com/ManageIQ/manageiq-gems-pending/pull/373)
+
 ## Gaprindashvili-3
 
 ### Fixed

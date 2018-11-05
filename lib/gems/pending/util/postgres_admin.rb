@@ -82,12 +82,14 @@ class PostgresAdmin
     FileUtils.rm_rf(PostgresAdmin.data_directory.children.map(&:to_s))
   end
 
+  PG_DUMP_MAGIC = "PGDMP".force_encoding(Encoding::BINARY).freeze
   def self.pg_dump_file?(file)
-    !!file_type(file).match("PostgreSQL custom database dump")
+    File.open(file, "rb") { |f| f.readpartial(5) } == PG_DUMP_MAGIC
   end
 
+  BASE_BACKUP_MAGIC = "\037\213".force_encoding(Encoding::BINARY).freeze # just the first 2 bits of gzip magic
   def self.base_backup_file?(file)
-    !!file_type(file).match("gzip compressed data")
+    File.open(file, "rb") { |f| f.readpartial(2) } == BASE_BACKUP_MAGIC
   end
 
   def self.backup(opts)
@@ -235,10 +237,6 @@ class PostgresAdmin
   def self.runcmd_with_logging(cmd_str, opts, params = {})
     $log.info("MIQ(#{name}.#{__method__}) Running command... #{AwesomeSpawn.build_command_line(cmd_str, params)}")
     AwesomeSpawn.run!(cmd_str, :params => params, :env => pg_env(opts)).output
-  end
-
-  private_class_method def self.file_type(file)
-    AwesomeSpawn.run!("file", :params => {:b => nil, nil => file}).output
   end
 
   private_class_method def self.combine_command_args(opts, args)

@@ -1,3 +1,4 @@
+require "fileutils"
 require "util/postgres_admin"
 
 describe PostgresAdmin do
@@ -12,8 +13,31 @@ describe PostgresAdmin do
 
       it "restores all of the tables to the new database name" do
         restore_opts = RestoreHelper.default_restore_dump_opts.dup
-        restore_opts[:dbname] = "pg_dump_restore_of_simple_db"
+        restore_opts[:dbname] = dbname
         PostgresAdmin.restore(restore_opts)
+
+        expect(author_count).to eq(2)
+        expect(book_count).to   eq(3)
+      end
+    end
+
+    context "with a pg_dump file from a pipe" do
+      let(:dbname)    { "pg_dump_restore_of_simple_db_from_pipe" }
+      let(:fifo_path) { Pathname.new(Dir::Tmpname.create("") {}) }
+
+      after { FileUtils.rm_rf(fifo_path) if File.exist?(fifo_path) }
+
+      it "restores all of the tables to the new database name" do
+        expect(PostgresAdmin).to receive(:pg_dump_file?).and_return(true)
+
+        File.mkfifo(fifo_path)
+        restore_opts = RestoreHelper.default_restore_dump_opts.dup
+        restore_opts[:dbname]     = dbname
+        restore_opts[:local_file] = fifo_path
+
+        thread = Thread.new { IO.copy_stream(RestoreHelper::PG_DUMPFILE, fifo_path) }
+        PostgresAdmin.restore(restore_opts)
+        thread.join
 
         expect(author_count).to eq(2)
         expect(book_count).to   eq(3)

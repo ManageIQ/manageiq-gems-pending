@@ -175,8 +175,23 @@ class PostgresAdmin
 
   def self.restore_pg_dump(opts)
     recreate_db(opts)
+    args = { :verbose => nil, :exit_on_error => nil }
 
-    runcmd("pg_restore", opts, :verbose => nil, :exit_on_error => nil, nil => opts[:local_file])
+    if File.pipe?(opts[:local_file])
+      cmd_args   = combine_command_args(opts, args)
+      cmd        = AwesomeSpawn.build_command_line("pg_restore", cmd_args)
+      error_path = Dir::Tmpname.create("") { |tmpname| tmpname }
+      spawn_args = { :err => error_path, :in => [opts[:local_file].to_s, "rb"] }
+
+      $log.info("MIQ(#{name}.#{__method__}) Running command... #{cmd}")
+      process_thread = Process.detach(Kernel.spawn(pg_env(opts), cmd, spawn_args))
+      process_status = process_thread.value
+
+      handle_error(cmd, process_status.exitstatus, error_path)
+    else
+      args[nil] = opts[:local_file]
+      runcmd("pg_restore", opts, args)
+    end
     opts[:local_file]
   end
 

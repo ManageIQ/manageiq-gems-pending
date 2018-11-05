@@ -1,6 +1,9 @@
 require "util/postgres_admin"
 
 describe PostgresAdmin do
+  let(:base_backup_file) { File.expand_path(File.join('data', 'pg_backup.tar.gz'), File.dirname(__FILE__)) }
+  let(:pg_dump_file)     { File.expand_path(File.join('data', 'pg_dump.gz'), File.dirname(__FILE__)) }
+
   describe ".restore", :if => RSpec.configuration.with_postgres_specs do
     include_context "Database Restore Validation Helpers"
 
@@ -31,6 +34,26 @@ describe PostgresAdmin do
         expect(author_count).to eq(2)
         expect(book_count).to   eq(3)
       end
+    end
+  end
+
+  describe ".base_backup_file?" do
+    it "properly identifies compressed backup dirs" do
+      expect(described_class.base_backup_file?(base_backup_file)).to be true
+    end
+
+    it "does not accept compressed pg_dump formats" do
+      expect(described_class.base_backup_file?(pg_dump_file)).to be false
+    end
+  end
+
+  describe ".pg_dump_file?" do
+    it "properly identifies compressed pg_dump formats" do
+      expect(described_class.pg_dump_file?(pg_dump_file)).to be true
+    end
+
+    it "does not accept compressed backup dirs" do
+      expect(described_class.pg_dump_file?(base_backup_file)).to be false
     end
   end
 

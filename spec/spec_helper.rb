@@ -31,4 +31,8 @@ RSpec.configure do |config|
   config.backtrace_exclusion_patterns -= [%r{/lib\d*/ruby/}, %r{/gems/}]
   config.backtrace_exclusion_patterns << %r{/lib\d*/ruby/[0-9]}
   config.backtrace_exclusion_patterns << %r{/gems/[0-9][^/]+/gems/}
+
+  unless config.respond_to?(:with_postgres_specs)
+    config.add_setting :with_postgres_specs, :default => false
+  end
 end

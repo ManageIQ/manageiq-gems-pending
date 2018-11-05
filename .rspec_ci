@@ -1,3 +1,4 @@
+--require ci_helper
 --require spec_helper
 --color
 --order random

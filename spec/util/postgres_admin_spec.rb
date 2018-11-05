@@ -1,6 +1,39 @@
 require "util/postgres_admin"
 
 describe PostgresAdmin do
+  describe ".restore", :if => RSpec.configuration.with_postgres_specs do
+    include_context "Database Restore Validation Helpers"
+
+    context "with a pg_dump file" do
+      let(:dbname) { "pg_dump_restore_of_simple_db" }
+
+      it "restores all of the tables to the new database name" do
+        restore_opts = RestoreHelper.default_restore_dump_opts.dup
+        restore_opts[:dbname] = "pg_dump_restore_of_simple_db"
+        PostgresAdmin.restore(restore_opts)
+
+        expect(author_count).to eq(2)
+        expect(book_count).to   eq(3)
+      end
+    end
+
+    context "with a pg_basebackup file" do
+      # can't change this name, since it is just a import of the tar directory
+      # that was made.  We want to change this above, however, so that we make
+      # sure the database is restored via the dump properly, incase the order
+      # of these specs is swapped.
+      let(:dbname) { "simple_db" }
+
+      it "restores all of the tables to the new database name" do
+        set_spec_env_for_postgres_admin_basebackup_restore
+        PostgresAdmin.restore(RestoreHelper.restore_backup_opts)
+
+        expect(author_count).to eq(2)
+        expect(book_count).to   eq(3)
+      end
+    end
+  end
+
   describe ".backup_pg_dump" do
     subject             { described_class }
 

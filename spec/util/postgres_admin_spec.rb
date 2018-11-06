@@ -59,6 +59,28 @@ describe PostgresAdmin do
         expect(book_count).to   eq(3)
       end
     end
+
+    # Note, we aren't actually prefetching the magic here, but this is mean to
+    # simulate that an override works as expected.  We are stubbing the the
+    # restore calls here, so just making sure the logic works.
+    context "'pre-fetching' magic number" do
+      let(:dummy_base_opts) { { :local_file => "foo" } }
+
+      before do
+        allow(PostgresAdmin).to receive(:pg_dump_file?).and_return(false)
+        allow(PostgresAdmin).to receive(:base_backup_file?).and_return(false)
+      end
+
+      it "calls `.restore_pg_dump` with :backup_type => :pgdump" do
+        expect(PostgresAdmin).to receive(:restore_pg_dump).with(dummy_base_opts)
+        PostgresAdmin.restore(dummy_base_opts.merge(:backup_type => :pgdump))
+      end
+
+      it "calls `.restore_pg_basebackup` with :backup_type => :basebackup" do
+        expect(PostgresAdmin).to receive(:restore_pg_basebackup).with("foo")
+        PostgresAdmin.restore(dummy_base_opts.merge(:backup_type => :basebackup))
+      end
+    end
   end
 
   describe ".base_backup_file?" do

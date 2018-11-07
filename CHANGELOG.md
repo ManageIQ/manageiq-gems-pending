@@ -5,13 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
+## Unreleased as of Sprint 98 ending 2018-11-05
+
+### Added
+- [MiqS3Storage] Support @byte_count in #download_single [(#399)](https://github.com/ManageIQ/manageiq-gems-pending/pull/399)
+- [MiqFtpStorage] Support @byte_count in #download_single [(#396)](https://github.com/ManageIQ/manageiq-gems-pending/pull/396)
+- [MiqGenericMountSession] Support @byte_count in #download_single [(#395)](https://github.com/ManageIQ/manageiq-gems-pending/pull/395)
+- Handle pipes for pg_restore [(#390)](https://github.com/ManageIQ/manageiq-gems-pending/pull/390)
+- Determine magic number without shellout [(#389)](https://github.com/ManageIQ/manageiq-gems-pending/pull/389)
+
+### Fixed
+- Fixes and cleanup for MiqSwiftStorage [(#398)](https://github.com/ManageIQ/manageiq-gems-pending/pull/398)
+- Fixes some bugs with MiqS3Storage#download_single [(#397)](https://github.com/ManageIQ/manageiq-gems-pending/pull/397)
+
+## Gaprindashvili-6 - Released 2018-11-02
+
+### Fixed
+- Changes to MiqPassword.sanitize_string to support URL encoded password. [(#373)](https://github.com/ManageIQ/manageiq-gems-pending/pull/373)
+
+## Hammer Beta-2 - Released 2018-10-29
+
+### Added
+- Add stdin option to shell_exec [(#382)](https://github.com/ManageIQ/manageiq-gems-pending/pull/382)
+- DB Backups to Openstack Swift [(#371)](https://github.com/ManageIQ/manageiq-gems-pending/pull/371)
+- Be more lenient for locked down ftp servers [(#384)](https://github.com/ManageIQ/manageiq-gems-pending/pull/384)
+
 ## Unreleased as of Sprint 97 ending 2018-10-22
 
 ### Added
-- Be more lenient for locked down ftp servers [(#384)](https://github.com/ManageIQ/manageiq-gems-pending/pull/384)
-- Add stdin option to shell_exec [(#382)](https://github.com/ManageIQ/manageiq-gems-pending/pull/382)
 - Leverage run_session for SFTP [(#381)](https://github.com/ManageIQ/manageiq-gems-pending/pull/381)
-- DB Backups to Openstack Swift [(#371)](https://github.com/ManageIQ/manageiq-gems-pending/pull/371)
 
 ## Hammer Beta-1 - Released 2018-10-12
 

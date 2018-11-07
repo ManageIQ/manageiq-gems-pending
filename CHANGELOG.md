@@ -5,40 +5,53 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
-## Unreleased as of Sprint 96 ending 2018-10-08
+## Unreleased as of Sprint 98 ending 2018-11-05
 
 ### Added
-- Add support to send data on standard input when executing a command [(#379)](https://github.com/ManageIQ/manageiq-gems-pending/pull/379)
-- Don't set empty ENV values for database dumps [(#378)](https://github.com/ManageIQ/manageiq-gems-pending/pull/378)
+- [MiqS3Storage] Support @byte_count in #download_single [(#399)](https://github.com/ManageIQ/manageiq-gems-pending/pull/399)
+- [MiqFtpStorage] Support @byte_count in #download_single [(#396)](https://github.com/ManageIQ/manageiq-gems-pending/pull/396)
+- [MiqGenericMountSession] Support @byte_count in #download_single [(#395)](https://github.com/ManageIQ/manageiq-gems-pending/pull/395)
+- Handle pipes for pg_restore [(#390)](https://github.com/ManageIQ/manageiq-gems-pending/pull/390)
+- Determine magic number without shellout [(#389)](https://github.com/ManageIQ/manageiq-gems-pending/pull/389)
+
+### Fixed
+- Fixes and cleanup for MiqSwiftStorage [(#398)](https://github.com/ManageIQ/manageiq-gems-pending/pull/398)
+- Fixes some bugs with MiqS3Storage#download_single [(#397)](https://github.com/ManageIQ/manageiq-gems-pending/pull/397)
+
+## Gaprindashvili-6 - Released 2018-11-02
 
 ### Fixed
 - Changes to MiqPassword.sanitize_string to support URL encoded password. [(#373)](https://github.com/ManageIQ/manageiq-gems-pending/pull/373)
 
-## Unreleased as of Sprint 95 ending 2018-09-24
+## Hammer Beta-2 - Released 2018-10-29
+
+### Added
+- Add stdin option to shell_exec [(#382)](https://github.com/ManageIQ/manageiq-gems-pending/pull/382)
+- DB Backups to Openstack Swift [(#371)](https://github.com/ManageIQ/manageiq-gems-pending/pull/371)
+- Be more lenient for locked down ftp servers [(#384)](https://github.com/ManageIQ/manageiq-gems-pending/pull/384)
+
+## Unreleased as of Sprint 97 ending 2018-10-22
+
+### Added
+- Leverage run_session for SFTP [(#381)](https://github.com/ManageIQ/manageiq-gems-pending/pull/381)
+
+## Hammer Beta-1 - Released 2018-10-12
 
 ### Added
 - MiqFileStorage interface and subclassing (with file splitting) [(#361)](https://github.com/ManageIQ/manageiq-gems-pending/pull/361)
-
-## Unreleased as of Sprint 94 ending 2018-09-10
-
-### Added
 - Adds MiqFtpLib [(#360)](https://github.com/ManageIQ/manageiq-gems-pending/pull/360)
+-  Enables downloading backup file from S3 prior to running restore command [(#357)](https://github.com/ManageIQ/manageiq-gems-pending/pull/357)
+- Add pg_dump support back to PostgresAdmin [(#351)](https://github.com/ManageIQ/manageiq-gems-pending/pull/351)
+- Use a constant mask for encrypted fields [(#377)](https://github.com/ManageIQ/manageiq-gems-pending/pull/377)
+- Don't set empty ENV values for database dumps [(#378)](https://github.com/ManageIQ/manageiq-gems-pending/pull/378)
+- Add support to send data on standard input when executing a command [(#379)](https://github.com/ManageIQ/manageiq-gems-pending/pull/379)
 
 ### Fixed
+- Changes to MiqPassword.sanitize_string to support URL encoded password. [(#373)](https://github.com/ManageIQ/manageiq-gems-pending/pull/373)
 - Use correct variable name for PostgresAdmin [(#370)](https://github.com/ManageIQ/manageiq-gems-pending/pull/370)
-
-## Unreleased as of Sprint 92 ending 2018-08-13
-
-### Added
--  Enables downloading backup file from S3 prior to running restore command [(#357)](https://github.com/ManageIQ/manageiq-gems-pending/pull/357)
 
 ### Removed
 - Remove Debug Messages [(#359)](https://github.com/ManageIQ/manageiq-gems-pending/pull/359)
-
-## Unreleased as of Sprint 87 ending 2018-06-04
-
-### Added
-- Add pg_dump support back to PostgresAdmin [(#351)](https://github.com/ManageIQ/manageiq-gems-pending/pull/351)
 
 ## Gaprindashvili-3 - Released 2018-05-15
 
@@ -73,19 +86,5 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - Add valid_encoding checking before inserting into xml object [(#318)](https://github.com/ManageIQ/manageiq-gems-pending/pull/318)
 - Truncating log messages when they are too large [(#315)](https://github.com/ManageIQ/manageiq-gems-pending/pull/315)
 - Fix require net/sftp for Users SSA [(#323)](https://github.com/ManageIQ/manageiq-gems-pending/pull/323)
-
-## Unreleased as of Sprint 73 ending 2017-11-13
-
-### Fixed
-- require net-ssh in MiqSshUtil [(#307)](https://github.com/ManageIQ/manageiq-gems-pending/pull/307)
-
-## Unreleased as of Sprint 72 ending 2017-10-30
-
-### Added
-- Log timings on exception in outermost block [(#255)](https://github.com/ManageIQ/manageiq-gems-pending/pull/255)
-
-### Fixed
-- Use pg_basebackup for database backups [(#302)](https://github.com/ManageIQ/manageiq-gems-pending/pull/302)
-- Allow ipv6 address as dns when setting static ipv4  [(#285)](https://github.com/ManageIQ/manageiq-gems-pending/pull/285)
 
 ## Initial changelog added

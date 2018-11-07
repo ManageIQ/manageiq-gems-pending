@@ -116,11 +116,17 @@ class PostgresAdmin
     pg_service.stop
     prep_data_directory
 
-    require 'zlib'
-    require 'archive/tar/minitar'
+    require 'rubygems/package'
 
-    tgz = Zlib::GzipReader.new(File.open(file, 'rb'))
-    Archive::Tar::Minitar.unpack(tgz, data_directory.to_s)
+    # Using a Gem::Package instance for the #extract_tar_gz method, so we don't
+    # have to re-write all of that logic.  Mostly making use of
+    # `Gem::Package::TarReader` + `Zlib::GzipReader` that is already part of
+    # rubygems/stdlib and integrated there.
+    unpacker = Gem::Package.new("obviously_not_a_gem")
+    File.open(file, IO::RDONLY | IO::NONBLOCK) do |backup_file|
+      unpacker.extract_tar_gz(backup_file, data_directory.to_s)
+    end
+
     FileUtils.chown_R(PostgresAdmin.user, PostgresAdmin.group, PostgresAdmin.data_directory)
 
     pg_service.start

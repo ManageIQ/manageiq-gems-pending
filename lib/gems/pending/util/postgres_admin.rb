@@ -99,10 +99,12 @@ class PostgresAdmin
   def self.restore(opts)
     file        = opts[:local_file]
     backup_type = opts.delete(:backup_type)
-    if backup_type == :pgdump || pg_dump_file?(file)
-      restore_pg_dump(opts)
-    elsif backup_type == :basebackup || base_backup_file?(file)
-      restore_pg_basebackup(file)
+
+    case
+    when backup_type == :pgdump     then restore_pg_dump(opts)
+    when backup_type == :basebackup then restore_pg_basebackup(file)
+    when pg_dump_file?(file)        then restore_pg_dump(opts)
+    when base_backup_file?(file)    then restore_pg_basebackup(file)
     else
       raise "#{file} is not a database backup"
     end

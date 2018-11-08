@@ -66,9 +66,12 @@ describe PostgresAdmin do
     context "'pre-fetching' magic number" do
       let(:dummy_base_opts) { { :local_file => "foo" } }
 
+      # Please note:  These `.expect` calls are VERY IMPORTANT validations
+      # happening, as we want to prioritize the `:backup_type` option over the
+      # calls the `.pg_dump_file?` and `.base_backup_file?` when possible.
       before do
-        allow(PostgresAdmin).to receive(:pg_dump_file?).and_return(false)
-        allow(PostgresAdmin).to receive(:base_backup_file?).and_return(false)
+        expect(PostgresAdmin).to receive(:pg_dump_file?).never
+        expect(PostgresAdmin).to receive(:base_backup_file?).never
       end
 
       it "calls `.restore_pg_dump` with :backup_type => :pgdump" do

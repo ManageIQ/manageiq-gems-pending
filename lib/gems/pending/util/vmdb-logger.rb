@@ -111,13 +111,13 @@ class VMDBLogger < Logger
 
   def self.log_hashes(logger, h, options = {})
     require 'yaml'
-    require 'manageiq/password'
+    require 'miq-password'
 
     level  = options[:log_level] || :info
     filter = Array(options[:filter]).flatten.compact.map(&:to_s) << "password"
     filter.uniq!
 
-    values = YAML.dump(h.to_hash).gsub(ManageIQ::Password::REGEXP, "[FILTERED]")
+    values = YAML.dump(h.to_hash).gsub(MiqPassword::REGEXP, "[FILTERED]")
     values = values.split("\n").map do |l|
       if (key = filter.detect { |f| l.include?(f) })
         l.gsub!(/#{key}.*: (.+)/) { |m| m.gsub!($1, "[FILTERED]") }

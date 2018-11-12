@@ -5,7 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
-## Hammer Beta-2
+## Hammer RC-1
+
+### Added
+- [MiqGenericMountSession] Support @byte_count in #download_single [(#395)](https://github.com/ManageIQ/manageiq-gems-pending/pull/395)
+- [MiqFtpStorage] Support @byte_count in #download_single [(#396)](https://github.com/ManageIQ/manageiq-gems-pending/pull/396)
+- Determine magic number without shellout [(#389)](https://github.com/ManageIQ/manageiq-gems-pending/pull/389)
+- Handle pipes for pg_restore [(#390)](https://github.com/ManageIQ/manageiq-gems-pending/pull/390)
+- [MiqS3Storage] Support @byte_count in #download_single [(#399)](https://github.com/ManageIQ/manageiq-gems-pending/pull/399)
+
+### Fixed
+- Fixes some bugs with MiqS3Storage#download_single [(#397)](https://github.com/ManageIQ/manageiq-gems-pending/pull/397)
+- Fixes and cleanup for MiqSwiftStorage [(#398)](https://github.com/ManageIQ/manageiq-gems-pending/pull/398)
+
+## Hammer Beta-2 - Released 2018-10-29
 
 ### Added
 - Add stdin option to shell_exec [(#382)](https://github.com/ManageIQ/manageiq-gems-pending/pull/382)

@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
+## Unreleased as of Sprint 99 ending 2018-11-19
+
+### Added
+- Fixes to swift storage [(#410)](https://github.com/ManageIQ/manageiq-gems-pending/pull/410)
+- Remove util/miq-password [(#407)](https://github.com/ManageIQ/manageiq-gems-pending/pull/407)
+- Use Gem::Package for tar pg restore unpacking via download streaming [(#406)](https://github.com/ManageIQ/manageiq-gems-pending/pull/406)
+- Add :backup_type option to PostgresAdmin.restore [(#402)](https://github.com/ManageIQ/manageiq-gems-pending/pull/402)
+- Add MiqSwiftStorage#download_single [(#400)](https://github.com/ManageIQ/manageiq-gems-pending/pull/400)
+
+### Fixed
+- [PostgresAdmin] Fix backup_type being ignored [(#405)](https://github.com/ManageIQ/manageiq-gems-pending/pull/405)
+
 ## Unreleased as of Sprint 98 ending 2018-11-05
 
 ### Added

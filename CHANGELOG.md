@@ -5,7 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
-## Hammer RC-1
+## Hammer RC-2
+
+### Added
+- Add :backup_type option to PostgresAdmin.restore [(#402)](https://github.com/ManageIQ/manageiq-gems-pending/pull/402)
+- Add MiqSwiftStorage#download_single [(#400)](https://github.com/ManageIQ/manageiq-gems-pending/pull/400)
+- [MiqFileStorage] Add #magic_number_for [(#401)](https://github.com/ManageIQ/manageiq-gems-pending/pull/401)
+- Fixes to swift storage [(#410)](https://github.com/ManageIQ/manageiq-gems-pending/pull/410)
+- Use Gem::Package for tar pg restore unpacking via download streaming [(#406)](https://github.com/ManageIQ/manageiq-gems-pending/pull/406)
+
+### Fixed
+- [PostgresAdmin] Fix backup_type being ignored [(#405)](https://github.com/ManageIQ/manageiq-gems-pending/pull/405)
+
+## Hammer RC-1 - Released 2018-11-16
 
 ### Added
 - [MiqGenericMountSession] Support @byte_count in #download_single [(#395)](https://github.com/ManageIQ/manageiq-gems-pending/pull/395)

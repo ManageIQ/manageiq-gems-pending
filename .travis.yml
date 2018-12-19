@@ -3,7 +3,7 @@ dist: trusty
 cache: bundler
 language: ruby
 rvm:
-- 2.4.4
+- 2.4.5
 - 2.3.8
 addons:
   postgresql: '9.5'

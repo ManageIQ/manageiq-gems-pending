@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
-## Hammer RC-2
+## Hammer-1
 
 ### Added
 - Add :backup_type option to PostgresAdmin.restore [(#402)](https://github.com/ManageIQ/manageiq-gems-pending/pull/402)
@@ -13,36 +13,17 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - [MiqFileStorage] Add #magic_number_for [(#401)](https://github.com/ManageIQ/manageiq-gems-pending/pull/401)
 - Fixes to swift storage [(#410)](https://github.com/ManageIQ/manageiq-gems-pending/pull/410)
 - Use Gem::Package for tar pg restore unpacking via download streaming [(#406)](https://github.com/ManageIQ/manageiq-gems-pending/pull/406)
-
-### Fixed
-- [PostgresAdmin] Fix backup_type being ignored [(#405)](https://github.com/ManageIQ/manageiq-gems-pending/pull/405)
-
-## Hammer RC-1 - Released 2018-11-16
-
-### Added
 - [MiqGenericMountSession] Support @byte_count in #download_single [(#395)](https://github.com/ManageIQ/manageiq-gems-pending/pull/395)
 - [MiqFtpStorage] Support @byte_count in #download_single [(#396)](https://github.com/ManageIQ/manageiq-gems-pending/pull/396)
 - Determine magic number without shellout [(#389)](https://github.com/ManageIQ/manageiq-gems-pending/pull/389)
 - Handle pipes for pg_restore [(#390)](https://github.com/ManageIQ/manageiq-gems-pending/pull/390)
 - [MiqS3Storage] Support @byte_count in #download_single [(#399)](https://github.com/ManageIQ/manageiq-gems-pending/pull/399)
-
-### Fixed
-- Fixes some bugs with MiqS3Storage#download_single [(#397)](https://github.com/ManageIQ/manageiq-gems-pending/pull/397)
-- Fixes and cleanup for MiqSwiftStorage [(#398)](https://github.com/ManageIQ/manageiq-gems-pending/pull/398)
-
-## Hammer Beta-2 - Released 2018-10-29
-
-### Added
 - Add stdin option to shell_exec [(#382)](https://github.com/ManageIQ/manageiq-gems-pending/pull/382)
 - DB Backups to Openstack Swift [(#371)](https://github.com/ManageIQ/manageiq-gems-pending/pull/371)
 - Be more lenient for locked down ftp servers [(#384)](https://github.com/ManageIQ/manageiq-gems-pending/pull/384)
-
-## Hammer Beta-1 - Released 2018-10-12
-
-### Added
 - MiqFileStorage interface and subclassing (with file splitting) [(#361)](https://github.com/ManageIQ/manageiq-gems-pending/pull/361)
 - Adds MiqFtpLib [(#360)](https://github.com/ManageIQ/manageiq-gems-pending/pull/360)
--  Enables downloading backup file from S3 prior to running restore command [(#357)](https://github.com/ManageIQ/manageiq-gems-pending/pull/357)
+- Enables downloading backup file from S3 prior to running restore command [(#357)](https://github.com/ManageIQ/manageiq-gems-pending/pull/357)
 - Add pg_dump support back to PostgresAdmin [(#351)](https://github.com/ManageIQ/manageiq-gems-pending/pull/351)
 - Log timings on exception in outermost block [(#255)](https://github.com/ManageIQ/manageiq-gems-pending/pull/255)
 - Use a constant mask for encrypted fields [(#377)](https://github.com/ManageIQ/manageiq-gems-pending/pull/377)
@@ -50,6 +31,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - Add support to send data on standard input when executing a command [(#379)](https://github.com/ManageIQ/manageiq-gems-pending/pull/379)
 
 ### Fixed
+- [PostgresAdmin] Fix backup_type being ignored [(#405)](https://github.com/ManageIQ/manageiq-gems-pending/pull/405)
+- Fixes some bugs with MiqS3Storage#download_single [(#397)](https://github.com/ManageIQ/manageiq-gems-pending/pull/397)
+- Fixes and cleanup for MiqSwiftStorage [(#398)](https://github.com/ManageIQ/manageiq-gems-pending/pull/398)
 - Changes to MiqPassword.sanitize_string to support URL encoded password. [(#373)](https://github.com/ManageIQ/manageiq-gems-pending/pull/373)
 - Use correct variable name for PostgresAdmin [(#370)](https://github.com/ManageIQ/manageiq-gems-pending/pull/370)
 - require net-ssh in MiqSshUtil [(#307)](https://github.com/ManageIQ/manageiq-gems-pending/pull/307)

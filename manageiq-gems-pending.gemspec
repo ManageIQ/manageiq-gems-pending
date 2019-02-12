@@ -20,9 +20,9 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = "> 2.2.2"
 
-  s.add_runtime_dependency "actionpack",              ">= 5.0", "< 5.2"
-  s.add_runtime_dependency "activerecord",            ">= 5.0", "< 5.2"
-  s.add_runtime_dependency "activesupport",           ">= 5.0", "< 5.2"
+  s.add_runtime_dependency "actionpack",              "< 5.3"
+  s.add_runtime_dependency "activerecord",            "< 5.3"
+  s.add_runtime_dependency "activesupport",           "< 5.3"
   s.add_runtime_dependency "awesome_spawn",           "~> 1.4"
   s.add_runtime_dependency "aws-sdk",                 "~> 2.9.7"
   s.add_runtime_dependency "binary_struct",           "~> 2.1"

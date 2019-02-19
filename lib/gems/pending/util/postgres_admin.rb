@@ -154,7 +154,7 @@ class PostgresAdmin
     FileUtils.mkdir_p(path.dirname)
 
     # Build commandline from AwesomeSpawn
-    args = {:z => nil, :format => "t", :xlog_method => "fetch", :pgdata => "-"}
+    args = {:z => nil, :format => "t", :wal_method => "fetch", :pgdata => "-"}
     cmd  = AwesomeSpawn.build_command_line("pg_basebackup", combine_command_args(opts, args))
     $log.info("MIQ(#{name}.#{__method__}) Running command... #{cmd}")
 

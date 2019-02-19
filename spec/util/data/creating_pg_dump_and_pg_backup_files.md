@@ -126,7 +126,7 @@ root privileges (not a comment), while `$` is just the login user.
   
   ```console
   # mkdir pg_backup
-  # pg_basebackup --no-password -z --format t --xlog-method fetch --pgdata pg_backup
+  # pg_basebackup --no-password -z --format t --wal-method fetch --pgdata pg_backup
   # cp pg_backup/base.tar.gz /home/YOUR_USER/pg_backup.tar.gz
   # chown YOUR_USER:YOUR_USER pg_backup.tar.gz
   ```

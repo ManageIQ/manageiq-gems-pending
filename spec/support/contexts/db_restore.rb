@@ -65,26 +65,27 @@ shared_context "Database Restore Validation Helpers" do
       allow(LinuxAdmin::Service).to receive(:new).with(PostgresAdmin.service_name)
                                                  .and_return(PostgresRunner)
     elsif ENV["CI"]
-      # Travis uses upstart for our current 'trusty' instance, so this will
+      # Travis uses systemd for our current 'xenial' instance, so this will
       # just be stubbed like the above, so the sevice name is just something
       # that we can recognize.  See:
       #
-      #   https://github.com/travis-ci/travis-build/blob/4f580b2/lib/travis/build/bash/travis_setup_postgresql.bash#L26-L27
-      #   https://github.com/travis-ci/travis-cookbooks/blob/46a8e7fd/cookbooks/travis_postgresql/templates/ubuntu/9.5/postgresql.conf.erb#L41-L45
+      #   https://github.com/travis-ci/travis-build/blob/271c219b/lib/travis/build/bash/travis_setup_postgresql.bash#L29-L30
+
+      #   https://github.com/travis-ci/travis-cookbooks/blob/46a8e7fd/cookbooks/travis_postgresql/templates/ubuntu/10/postgresql.conf.erb
       #
       # Unfortunately the plot thickens a bit since they do two things that is
       # different from our appliance installs:
       #
       #   - 'RAMFS' is used for their data directory, but is sync'd from
-      #     /var/lib/postgresql/9.5/main via their init scripts
+      #     /var/lib/postgresql/10/main via their init scripts
       #   - The configs and data are in separate dirs (/etc and /var/lib
       #     respectively)
       #
       # An example of the running `postgres` command can be found below
       #
-      #   $ /usr/lib/postgresql/9.5/bin/postgres                       \
-      #       -D /var/ramfs/postgresql/9.5/main                        \
-      #       -c config_file=/etc/postgresql/9.5/main/postgresql.conf
+      #   $ /usr/lib/postgresql/10/bin/postgres                       \
+      #       -D /var/ramfs/postgresql/10/main                        \
+      #       -c config_file=/etc/postgresql/10/main/postgresql.conf
       #
       # The other issue we run into is that we basically require `sudo` for
       # most of our actions in `PostgresAdmin`, and specs are run using the
@@ -94,7 +95,7 @@ shared_context "Database Restore Validation Helpers" do
       # subprocess with elevated privleges, instead of trying to stub
       # everything and correct it in a case by case basis.
       env = {
-        "APPLIANCE_PG_DATA"    => "/var/lib/postgresql/9.5/main",
+        "APPLIANCE_PG_DATA"    => "/var/lib/postgresql/10/main",
         "APPLIANCE_PG_SERVICE" => "ci_pg_instance"
       }
 

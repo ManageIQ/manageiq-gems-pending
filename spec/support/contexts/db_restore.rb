@@ -70,16 +70,9 @@ shared_context "Database Restore Validation Helpers" do
       # that we can recognize.  See:
       #
       #   https://github.com/travis-ci/travis-build/blob/271c219b/lib/travis/build/bash/travis_setup_postgresql.bash#L29-L30
-
       #   https://github.com/travis-ci/travis-cookbooks/blob/46a8e7fd/cookbooks/travis_postgresql/templates/ubuntu/10/postgresql.conf.erb
       #
-      # Unfortunately the plot thickens a bit since they do two things that is
-      # different from our appliance installs:
-      #
-      #   - 'RAMFS' is used for their data directory, but is sync'd from
-      #     /var/lib/postgresql/10/main via their init scripts
-      #   - The configs and data are in separate dirs (/etc and /var/lib
-      #     respectively)
+      # They also store the configs and data in separate dirs (/etc and /var/ramfs respectively)
       #
       # An example of the running `postgres` command can be found below
       #
@@ -95,7 +88,7 @@ shared_context "Database Restore Validation Helpers" do
       # subprocess with elevated privleges, instead of trying to stub
       # everything and correct it in a case by case basis.
       env = {
-        "APPLIANCE_PG_DATA"    => "/var/lib/postgresql/10/main",
+        "APPLIANCE_PG_DATA"    => "/var/ramfs/postgresql/10/main",
         "APPLIANCE_PG_SERVICE" => "ci_pg_instance"
       }
 

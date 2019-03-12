@@ -3,8 +3,8 @@ require "linux_admin"
 require_relative 'support/mixins/pg_environment_updater'
 
 class CiPostgresRunner
-  PGVER       = "9.5".freeze
-  PGDATADIR   = "/var/lib/postgresql/#{PGVER}/main".freeze
+  PGVER       = "10".freeze
+  PGDATADIR   = "/var/ramfs/postgresql/#{PGVER}/main".freeze
   PGCONFIGDIR = "/etc/postgresql/#{PGVER}/main".freeze
 
   def self.start
@@ -16,17 +16,14 @@ class CiPostgresRunner
 
     # Make sure directly in the postgresql.conf, the data_directory is set
     # (requirement for pg_wrapper I think...)
-    system("echo \"data_directory = '/var/ramfs/postgresql/9.5/main'\" >> #{PGCONFIGDIR}/postgresql.conf")
-
-    # Clear out the existing ramfs dir so it will be re-generated on boot
-    system("sudo rm -rf /var/ramfs/postgresql/9.5")
+    system("echo \"data_directory = '#{PGDATADIR}'\" >> #{PGCONFIGDIR}/postgresql.conf")
 
     # Finally, restart the postgres service
-    system("sudo service postgresql start 9.5", :out => File::NULL)
+    system("sudo systemctl start postgresql@10-main", :out => File::NULL)
   end
 
   def self.stop
-    system("sudo service postgresql stop 9.5", :out => File::NULL)
+    system("sudo systemctl stop postgresql", :out => File::NULL)
   end
 end
 

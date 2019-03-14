@@ -50,5 +50,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency "timecop",                   "~> 0.9.1"
   s.add_development_dependency "xml-simple",                "~> 1.1.0"
   s.add_development_dependency "ftpd",                      "~> 2.1.0"
-  s.add_development_dependency "pg",                        "~> 0.18.2"
+  s.add_development_dependency "pg"
 end

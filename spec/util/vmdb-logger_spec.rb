@@ -1,5 +1,4 @@
 require 'util/vmdb-logger'
-require 'util/miq-password'
 
 describe VMDBLogger do
   describe "#log_hashes" do

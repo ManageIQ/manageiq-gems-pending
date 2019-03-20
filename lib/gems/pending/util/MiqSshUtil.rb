@@ -40,9 +40,9 @@ class MiqSshUtil
 
   def get_file(from, to)
     run_session do |ssh|
-      $log.debug "MiqSshUtil::get_file - Copying file #{@host}:#{from} to #{to}." if $log
+      $log&.debug("MiqSshUtil::get_file - Copying file #{@host}:#{from} to #{to}.")
       data = ssh.sftp.download!(from, to)
-      $log.debug "MiqSshUtil::get_file - Copying of #{@host}:#{from} to #{to}, complete." if $log
+      $log&.debug("MiqSshUtil::get_file - Copying of #{@host}:#{from} to #{to}, complete.")
       return data
     end
   end
@@ -50,10 +50,10 @@ class MiqSshUtil
   def put_file(to, content = nil, path = nil)
     raise "Need to provide either content or path" if content.nil? && path.nil?
     run_session do |ssh|
-      content ||= File.open(path, 'rb') { |f| f.read }
-      $log.debug "MiqSshUtil::put_file - Copying file to #{@host}:#{to}." if $log
+      content ||= File.open(path, 'rb')(&:read)
+      $log&.debug("MiqSshUtil::put_file - Copying file to #{@host}:#{to}.")
       ssh.sftp.file.open(to, 'wb') { |f| f.puts(content) }
-      $log.debug "MiqSshUtil::get_file - Copying of file to #{@host}:#{to}, complete." if $log
+      $log&.debug("MiqSshUtil::get_file - Copying of file to #{@host}:#{to}, complete.")
     end
   end
 

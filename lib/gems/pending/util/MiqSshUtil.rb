@@ -306,7 +306,7 @@ class MiqSshUtil
   #
   # This method is functionally identical to the following code, except that it
   # yields itself (and nil) and re-raises certain Net::SSH exceptions as
-  # MiqException objects.
+  # ManageIQ exceptions.
   #
   #   MiqSshUtil.new(host, remote_user, remote_password, {:su_user => su_user, :su_password => su_password})
   #
@@ -320,6 +320,17 @@ class MiqSshUtil
     raise MiqException::MiqSshUtilHostKeyMismatch
   end
 
+  # Executes the provided +cmd+ using the exec or suexec method, depending on
+  # whether or not the :su_user option is set. The +doneStr+ and +stdin+
+  # arguments are passed along to the appropriate method as well.
+  #
+  # In the case of suexec, escape characters are automatically removed from
+  # the final output.
+  #
+  #--
+  # The _shell argument appears to be an artifact that has been retained
+  # over time for reasons that aren't immediately apparent.
+  #
   def shell_exec(cmd, doneStr = nil, _shell = nil, stdin = nil)
     return exec(cmd, doneStr, stdin) if @su_user.nil?
     ret = suexec(cmd, doneStr, stdin)
@@ -328,6 +339,12 @@ class MiqSshUtil
     ret
   end
 
+  # Copies the remote +file_path+ to a local temporary file, and then
+  # yields or returns a filehandle to the local temporary file.
+  #--
+  # Presumably this method was meant for use with the SCVMM provider
+  # given the hardcoded name of the temporary file.
+  #
   def fileOpen(file_path, perm = 'r')
     if block_given?
       Tempfile.open('miqscvmm') do |tf|
@@ -344,6 +361,8 @@ class MiqSshUtil
     end
   end
 
+  # Returns whether or not the remote +filename+ exists.
+  #
   def fileExists?(filename)
     shell_exec("test -f #{filename}") rescue return false
     true

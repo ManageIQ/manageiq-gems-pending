@@ -68,6 +68,9 @@ class MiqSshUtil
     end
   end # def initialize
 
+  # Download the contents of the remote +from+ file to the local +to+ file. Some
+  # messages will be written to the global ManageIQ log in debug mode.
+  #
   def get_file(from, to)
     run_session do |ssh|
       $log&.debug("MiqSshUtil::get_file - Copying file #{@host}:#{from} to #{to}.")
@@ -87,6 +90,20 @@ class MiqSshUtil
     end
   end
 
+  # Execute the remote +cmd+ via ssh. This is automatically handled via
+  # channels on the ssh session so that various states can be checked,
+  # stored and logged independently and asynchronously.
+  #
+  # If the :passwordless_sudo option was set to true in the constructor
+  # then the +cmd+ will automatically be prepended with "sudo".
+  #
+  # If specified, the data collection will stop the first time a +doneStr+
+  # argument is encountered at the end of a line. If practice you would
+  # typically specify a newline character.
+  #
+  # If present, the +stdin+ argument will be sent to the underlying
+  # command as input for those commands that expect it, e.g. tee.
+  #
   def exec(cmd, doneStr = nil, stdin = nil)
     errBuf = ""
     outBuf = ""
@@ -146,6 +163,15 @@ class MiqSshUtil
     end
   end # def exec
 
+  # Execute the remote +cmd+ via ssh. This is nearly identical to the exec
+  # method, and is used only if the :su_user and :su_password options are
+  # set in the constructor.
+  #
+  # The difference between this method and the exec method are primarily in
+  # the underlying handling of the sudo user and sudo password parameters, i.e
+  # creating a PTY session and dealing with prompts. From the perspective of
+  # an end user they are essentially identical.
+  #
   def suexec(cmd_str, doneStr = nil, stdin = nil)
     errBuf = ""
     outBuf = ""

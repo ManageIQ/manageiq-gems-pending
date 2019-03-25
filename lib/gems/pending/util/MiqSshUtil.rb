@@ -81,6 +81,12 @@ class MiqSshUtil
     end
   end
 
+  # Upload the contents of local file +to+ to remote location +path+. You may
+  # use the specified +content+ instead of the content of the local file.
+  #
+  # At least one of the +content+ or +path+ parameters must be specified or
+  # and error is raised.
+  #
   def put_file(to, content = nil, path = nil)
     raise "Need to provide either content or path" if content.nil? && path.nil?
     run_session do |ssh|
@@ -300,9 +306,9 @@ class MiqSshUtil
 
   # Shortcut method that creates and yields an MiqSshUtil object, with the +host+,
   # +remote_user+ and +remote_password+ options passed in as the first three
-  # params to the constructor, while the +su_user+ and +su_password+ parameters are
-  # automatically set the :su_user and :su_password options. Remaining options are
-  # are passed normally.
+  # params to the constructor, while the +su_user+ and +su_password+ parameters
+  # automatically set the corresponding :su_user and :su_password options. The
+  # remaining options are are passed normally.
   #
   # This method is functionally identical to the following code, except that it
   # yields itself (and nil) and re-raises certain Net::SSH exceptions as

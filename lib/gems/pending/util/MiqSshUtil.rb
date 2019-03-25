@@ -2,8 +2,38 @@ require 'net/ssh'
 require 'net/sftp'
 
 class MiqSshUtil
-  attr_reader :status, :host
+  # The exit status of the ssh command.
+  attr_reader :status
 
+  # The name of the host provided to the constructor.
+  attr_reader :host
+
+  # Create and return a MiqSshUtil object. A host, user and
+  # password must be specified.
+  #
+  # The +options+ param may contain options that are passed directly
+  # to the Net::SSH constructor. By default the :non_interactive option is
+  # set to true (meaning it will fail instead of prompting for a password),
+  # and the :verbose level is set to :warn.
+  #
+  # The following local options are also supported:
+  #
+  # :passwordless_sudo - If set to true, then it is assumed that the sudo
+  # command does not require a password, and 'sudo' will automatically be
+  # prepended to your command. For sudo that requires a password, set
+  # the :su_user and :su_password options instead.
+  #
+  # :remember_host - Setting this to true will cause a HostKeyMismatch
+  # error to be rescued and retried once after recording the host and
+  # key in the known hosts file. By default this is false.
+  #
+  # :su_user - If set, ssh commands for that object will be executed via sudo.
+  # Do not use if :passwordless_sudo is set to true.
+  #
+  # :su_password - When used in conjunction with :su_user, the password sent
+  # to the command prompt when asked for as the result of using the su command.
+  # Do not use if :passwordless_sudo is set to true.
+  #
   def initialize(host, user, password, options = {})
     @host     = host
     @user     = user
@@ -273,8 +303,10 @@ class MiqSshUtil
     true
   end
 
-  # This method runs the ssh session and can handle reseting the ssh fingerprint
-  # if it does not match and raises an error.
+  # This method creates and yields an ssh object. If the :remember_host option
+  # was set to true, it will record this host and key in the known hosts file
+  # and retry once.
+  #
   def run_session
     first_try = true
 

@@ -1,5 +1,6 @@
 require 'net/ssh'
 require 'net/sftp'
+require 'tempfile'
 
 class MiqSshUtil
   # The exit status of the ssh command.
@@ -303,12 +304,11 @@ class MiqSshUtil
   # automatically set the :su_user and :su_password options. Remaining options are
   # are passed normally.
   #
-  # This method is functionally identical to:
+  # This method is functionally identical to the following code, except that it
+  # yields itself (and nil) and re-raises certain Net::SSH exceptions as
+  # MiqException objects.
   #
   #   MiqSshUtil.new(host, remote_user, remote_password, {:su_user => su_user, :su_password => su_password})
-  #
-  # Except that it a yields a block and re-raises certain Net::SSH exceptions as
-  # MiqException objects.
   #
   def self.shell_with_su(host, remote_user, remote_password, su_user, su_password, options = {})
     options[:su_user], options[:su_password] = su_user, su_password
@@ -329,7 +329,6 @@ class MiqSshUtil
   end
 
   def fileOpen(file_path, perm = 'r')
-    require 'tempfile'
     if block_given?
       Tempfile.open('miqscvmm') do |tf|
         tf.close

@@ -85,7 +85,7 @@ class MiqSshUtil
   # use the specified +content+ instead of the content of the local file.
   #
   # At least one of the +content+ or +path+ parameters must be specified or
-  # and error is raised.
+  # an error is raised.
   #
   def put_file(to, content = nil, path = nil)
     raise "Need to provide either content or path" if content.nil? && path.nil?
@@ -105,7 +105,7 @@ class MiqSshUtil
   # then the +cmd+ will automatically be prepended with "sudo".
   #
   # If specified, the data collection will stop the first time a +doneStr+
-  # argument is encountered at the end of a line. If practice you would
+  # argument is encountered at the end of a line. In practice you would
   # typically specify a newline character.
   #
   # If present, the +stdin+ argument will be sent to the underlying
@@ -308,7 +308,7 @@ class MiqSshUtil
   # +remote_user+ and +remote_password+ options passed in as the first three
   # params to the constructor, while the +su_user+ and +su_password+ parameters
   # automatically set the corresponding :su_user and :su_password options. The
-  # remaining options are are passed normally.
+  # remaining options are passed normally.
   #
   # This method is functionally identical to the following code, except that it
   # yields itself (and nil) and re-raises certain Net::SSH exceptions as

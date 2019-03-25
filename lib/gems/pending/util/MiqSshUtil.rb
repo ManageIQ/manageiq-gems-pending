@@ -276,6 +276,14 @@ class MiqSshUtil
     end
   end # suexec
 
+  # Creates a local temporary file under /var/tmp with +cmd+ as its contents.
+  # The tempfile name is the name of the command with "miq-" prepended and ".sh"
+  # appended to the end.
+  #
+  # The end result is a string meant to be run via the suexec method. For example:
+  #
+  # "chmod 700 /var/tmp/miq-foo.sh; /var/tmp/miq-foo.sh; rm -f /var/tmp/miq-foo.sh
+  #
   def temp_cmd_file(cmd)
     temp_remote_script = Tempfile.new(["miq-", ".sh"], "/var/tmp")
     temp_file          = temp_remote_script.path
@@ -289,6 +297,19 @@ class MiqSshUtil
     end
   end
 
+  # Shortcut method that creates and yields an MiqSshUtil object, with the +host+,
+  # +remote_user+ and +remote_password+ options passed in as the first three
+  # params to the constructor, while the +su_user+ and +su_password+ parameters are
+  # automatically set the :su_user and :su_password options. Remaining options are
+  # are passed normally.
+  #
+  # This method is functionally identical to:
+  #
+  #   MiqSshUtil.new(host, remote_user, remote_password, {:su_user => su_user, :su_password => su_password})
+  #
+  # Except that it a yields a block and re-raises certain Net::SSH exceptions as
+  # MiqException objects.
+  #
   def self.shell_with_su(host, remote_user, remote_password, su_user, su_password, options = {})
     options[:su_user], options[:su_password] = su_user, su_password
     ssu = MiqSshUtil.new(host, remote_user, remote_password, options)

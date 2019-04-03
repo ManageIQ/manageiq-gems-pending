@@ -5,13 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
+## Unreleased as of Sprint 108 ending 2019-04-01
+
+### Added
+- Add put_file method [(#426)](https://github.com/ManageIQ/manageiq-gems-pending/pull/426)
+
 ## Unreleased as of Sprint 107 ending 2019-03-18
 
 ### Added
 - Remove PG gem dependency versioning [(#423)](https://github.com/ManageIQ/manageiq-gems-pending/pull/423)
 - Change pg_basebackup xlog-method option to wal-method [(#422)](https://github.com/ManageIQ/manageiq-gems-pending/pull/422)
 
-## Hammer-1
+## Hammer-1 - Released 2019-01-14
 
 ### Added
 - Add :backup_type option to PostgresAdmin.restore [(#402)](https://github.com/ManageIQ/manageiq-gems-pending/pull/402)

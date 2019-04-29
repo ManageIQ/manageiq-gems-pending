@@ -1,6 +1,6 @@
 require 'util/vmdb-logger'
 
-describe VMDBLogger do
+RSpec.describe VMDBLogger do
   describe "#log_hashes" do
     let(:buffer) { StringIO.new }
     let(:logger) { described_class.new(buffer) }
@@ -95,11 +95,9 @@ b:
   end
 
   context "long messages" do
-    let(:logger) { VMDBLogger.new(@log) }
-
     it "truncates long messages when max_message_size is set" do
       msg = "a" * 1_572_864 # 1.5 mb in bytes
-      _, message = logger.formatter.call(:error, Time.now.utc, "", msg).split("-- : ")
+      _, message = VMDBLogger::Formatter.new.call(:error, Time.now.utc, "", msg).split("-- : ")
       expect(message.strip.size).to eq(1.megabyte)
     end
   end

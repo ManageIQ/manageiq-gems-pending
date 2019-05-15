@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
-## Unreleased as of Sprint 108 ending 2019-04-01
+## Hammer-6
 
 ### Added
 - Add put_file method [(#426)](https://github.com/ManageIQ/manageiq-gems-pending/pull/426)

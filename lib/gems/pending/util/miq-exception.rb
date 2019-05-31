@@ -46,6 +46,9 @@ module MiqException
   # Exceptions during Provisioning
   class MiqProvisionError < Error; end
 
+  # Exceptions during Firmware Update
+  class MiqFirmwareUpdateError < Error; end
+
 
   class MaintenanceBundleInvalid < Error; end
   class MiqDeploymentError < Error; end

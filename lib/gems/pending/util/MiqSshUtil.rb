@@ -1,6 +1,7 @@
 require 'net/ssh'
 require 'net/sftp'
 require 'tempfile'
+require 'active_support/core_ext/object/blank'
 
 class MiqSshUtil
   # The exit status of the ssh command.
@@ -150,7 +151,7 @@ class MiqSshUtil
         $log.debug "MiqSshUtil::exec - Command: #{cmd} started." if $log
         channel.exec(cmd) do |chan, success|
           raise "MiqSshUtil::exec - Could not execute command #{cmd}" unless success
-          unless stdin.nil?
+          if stdin.present?
             chan.send_data(stdin)
             chan.eof!
           end

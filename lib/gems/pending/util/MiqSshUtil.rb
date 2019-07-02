@@ -113,6 +113,15 @@ class MiqSshUtil
 
     run_session do |ssh|
       ssh.open_channel do |channel|
+        $log.debug "MiqSshUtil::exec - Command: #{cmd} started." if $log
+        channel.exec(cmd) do |chan, success|
+          raise "MiqSshUtil::exec - Could not execute command #{cmd}" unless success
+          unless stdin.nil?
+            chan.send_data(stdin)
+            chan.eof!
+          end
+        end
+
         channel.on_data do |_channel, data|
           $log.debug "MiqSshUtil::exec - STDOUT: #{data}" if $log
           outBuf << data
@@ -130,7 +139,7 @@ class MiqSshUtil
         end
 
         channel.on_request('exit-signal') do |_channel, data|
-          signal = data.read_string
+          signal = data.read_string.strip
           $log.debug "MiqSshUtil::exec - SIGNAL: #{signal}" if $log
         end
 
@@ -140,21 +149,12 @@ class MiqSshUtil
 
         channel.on_close do |_channel|
           $log.debug "MiqSshUtil::exec - Command: #{cmd}, exit status: #{status}" if $log
-          if !signal.nil? || status.nonzero? || !errBuf.empty?
-            raise "MiqSshUtil::exec - Command '#{cmd}', exited with signal #{signal}" unless signal.nil?
+          if signal.present? || status.nonzero? || errBuf.present?
+            raise "MiqSshUtil::exec - Command '#{cmd}', exited with signal #{signal}" if signal.present?
             raise "MiqSshUtil::exec - Command '#{cmd}', exited with status #{status}" if errBuf.empty?
             raise "MiqSshUtil::exec - Command '#{cmd}' failed: #{errBuf.chomp}, status: #{status}"
           end
           return outBuf
-        end
-
-        $log.debug "MiqSshUtil::exec - Command: #{cmd} started." if $log
-        channel.exec(cmd) do |chan, success|
-          raise "MiqSshUtil::exec - Could not execute command #{cmd}" unless success
-          if stdin.present?
-            chan.send_data(stdin)
-            chan.eof!
-          end
         end
       end
       ssh.loop

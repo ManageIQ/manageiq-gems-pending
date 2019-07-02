@@ -1,5 +1,6 @@
 require 'net/ssh'
 require 'net/sftp'
+require 'active_support/core_ext/object/blank'
 
 class MiqSshUtil
   attr_reader :status, :host
@@ -15,10 +16,8 @@ class MiqSshUtil
       :remember_host   => false,
       :verbose         => :warn,
       :non_interactive => true,
+      :use_agent       => false
     }.merge(options)
-
-    # Seems like in 2.9.2, there needs to be blank :keys, when we are passing private key as string
-    @options[:keys] = [] if options[:key_data]
 
     # Pull the 'remember_host' key out of the hash because the SSH initializer will complain
     @remember_host     = @options.delete(:remember_host)
@@ -28,14 +27,6 @@ class MiqSshUtil
 
     # Obsolete, delete if passed in
     @options.delete(:authentication_prompt_delay)
-
-    # don't use the ssh-agent
-    @options[:use_agent] = false
-
-    # Set logging to use our default handle if it exists and one was not passed in
-    unless @options.key?(:logger)
-      #        @options[:logger] = $log if $log
-    end
   end # def initialize
 
   def get_file(from, to)
@@ -68,13 +59,22 @@ class MiqSshUtil
 
     run_session do |ssh|
       ssh.open_channel do |channel|
+        $log.debug "MiqSshUtil::exec - Command: #{cmd} started." if $log
+        channel.exec(cmd) do |chan, success|
+          raise "MiqSshUtil::exec - Could not execute command #{cmd}" unless success
+          unless stdin.nil?
+            chan.send_data(stdin)
+            chan.eof!
+          end
+        end
+
         channel.on_data do |_channel, data|
           $log.debug "MiqSshUtil::exec - STDOUT: #{data}" if $log
           outBuf << data
           data.each_line { |l| return outBuf if doneStr == l.chomp } unless doneStr.nil?
         end
 
-        channel.on_extended_data do |_channel, data|
+        channel.on_extended_data do |_channel, _type, data|
           $log.debug "MiqSshUtil::exec - STDERR: #{data}" if $log
           errBuf << data
         end
@@ -85,7 +85,7 @@ class MiqSshUtil
         end
 
         channel.on_request('exit-signal') do |_channel, data|
-          signal = data.read_string
+          signal = data.read_string.strip
           $log.debug "MiqSshUtil::exec - SIGNAL: #{signal}" if $log
         end
 
@@ -95,21 +95,12 @@ class MiqSshUtil
 
         channel.on_close do |_channel|
           $log.debug "MiqSshUtil::exec - Command: #{cmd}, exit status: #{status}" if $log
-          unless signal.nil? || status.zero?
-            raise "MiqSshUtil::exec - Command #{cmd}, exited with signal #{signal}" unless signal.nil?
-            raise "MiqSshUtil::exec - Command #{cmd}, exited with status #{status}" if errBuf.empty?
-            raise "MiqSshUtil::exec - Command #{cmd} failed: #{errBuf}, status: #{status}"
+          if signal.present? || status.nonzero? || errBuf.present?
+            raise "MiqSshUtil::exec - Command '#{cmd}', exited with signal #{signal}" if signal.present?
+            raise "MiqSshUtil::exec - Command '#{cmd}', exited with status #{status}" if errBuf.empty?
+            raise "MiqSshUtil::exec - Command '#{cmd}' failed: #{errBuf.chomp}, status: #{status}"
           end
           return outBuf
-        end
-
-        $log.debug "MiqSshUtil::exec - Command: #{cmd} started." if $log
-        channel.exec(cmd) do |chan, success|
-          raise "MiqSshUtil::exec - Could not execute command #{cmd}" unless success
-          if stdin.present?
-            chan.send_data(stdin)
-            chan.eof!
-          end
         end
       end
       ssh.loop

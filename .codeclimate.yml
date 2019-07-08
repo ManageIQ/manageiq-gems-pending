@@ -4,15 +4,13 @@ exclude_paths:
 - "**.xml"
 - "**.yaml"
 - "**.yml"
-- "spec/"
-- "test/"
-- "lib/gems/pending/*/test/"
+- spec/
+- test/
+- lib/gems/pending/*/test/
 engines:
   brakeman:
-    # very slow :sad_panda:
     enabled: false
   bundler-audit:
-    # requires Gemfile.lock
     enabled: false
   duplication:
     enabled: true
@@ -20,19 +18,18 @@ engines:
       languages:
       - ruby
   fixme:
-    # let's enable later
     enabled: false
   markdownlint:
-    # let's enable later
     enabled: false
   rubocop:
     enabled: true
-    config: '.rubocop_cc.yml'
+    config: ".rubocop_cc.yml"
+    channel: rubocop-0-69
 prepare:
   fetch:
-  - url: "https://raw.githubusercontent.com/ManageIQ/guides/master/.rubocop_base.yml"
+  - url: https://raw.githubusercontent.com/ManageIQ/guides/master/.rubocop_base.yml
     path: ".rubocop_base.yml"
-  - url: "https://raw.githubusercontent.com/ManageIQ/guides/master/.rubocop_cc_base.yml"
+  - url: https://raw.githubusercontent.com/ManageIQ/guides/master/.rubocop_cc_base.yml
     path: ".rubocop_cc_base.yml"
 ratings:
   paths:

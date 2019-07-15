@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
   s.executables   = s.files.grep(%r{^exe/}) { |f| File.basename(f) }
   s.require_paths = ["lib", "lib/gems/pending", "lib/gems/pending/util"]
 
-  s.required_ruby_version = "> 2.2.2"
+  s.required_ruby_version = "> 2.4"
 
   s.add_runtime_dependency "actionpack",              "< 5.3"
   s.add_runtime_dependency "activerecord",            "< 5.3"

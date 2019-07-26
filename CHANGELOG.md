@@ -5,26 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
-## Hammer-9
-
-### Fixed
-- MiqSshUtil updates [(#437)](https://github.com/ManageIQ/manageiq-gems-pending/pull/437)
-
-## Unreleased as of Sprint 113 ending 2019-06-10
+## Ivanchuk Beta1
 
 ### Added
 - Introduce FirmwareUpdateError [(#435)](https://github.com/ManageIQ/manageiq-gems-pending/pull/435)
+- Remove PG gem dependency versioning [(#423)](https://github.com/ManageIQ/manageiq-gems-pending/pull/423)
+- Change pg_basebackup xlog-method option to wal-method [(#422)](https://github.com/ManageIQ/manageiq-gems-pending/pull/422)
+
+## Hammer-9 - Released 2019-07-23
+
+### Fixed
+- MiqSshUtil updates [(#437)](https://github.com/ManageIQ/manageiq-gems-pending/pull/437)
 
 ## Hammer-6 - Released 2019-05-22
 
 ### Added
 - Add put_file method [(#426)](https://github.com/ManageIQ/manageiq-gems-pending/pull/426)
-
-## Unreleased as of Sprint 107 ending 2019-03-18
-
-### Added
-- Remove PG gem dependency versioning [(#423)](https://github.com/ManageIQ/manageiq-gems-pending/pull/423)
-- Change pg_basebackup xlog-method option to wal-method [(#422)](https://github.com/ManageIQ/manageiq-gems-pending/pull/422)
 
 ## Hammer-1 - Released 2019-01-14
 

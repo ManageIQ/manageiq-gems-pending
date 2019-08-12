@@ -37,8 +37,7 @@ class MiqHashStruct
   end
 
   def ==(other)
-    return false unless self.class == other.class
-    to_h == other.to_h
+    self.class == other.class && to_h == other.to_h
   end
 
   def method_missing(m, *args)

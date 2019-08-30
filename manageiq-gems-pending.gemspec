@@ -20,7 +20,6 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = "> 2.4"
 
-  s.add_runtime_dependency "actionpack",              "< 5.3"
   s.add_runtime_dependency "activerecord",            "< 5.3"
   s.add_runtime_dependency "activesupport",           "< 5.3"
   s.add_runtime_dependency "awesome_spawn",           "~> 1.4"

@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
-## Ivanchuk Beta1
+## Ivanchuk-1
 
 ### Added
 - Introduce FirmwareUpdateError [(#435)](https://github.com/ManageIQ/manageiq-gems-pending/pull/435)

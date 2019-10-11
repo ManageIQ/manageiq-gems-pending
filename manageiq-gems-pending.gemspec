@@ -23,7 +23,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "activerecord",            "< 5.3"
   s.add_runtime_dependency "activesupport",           "< 5.3"
   s.add_runtime_dependency "awesome_spawn",           "~> 1.4"
-  s.add_runtime_dependency "aws-sdk",                 "~> 3.0"
+  s.add_runtime_dependency "aws-sdk",                 "~> 3.0.1"
   s.add_runtime_dependency "binary_struct",           "~> 2.1"
   s.add_runtime_dependency "bundler",                 ">= 1.8.4" # rails-assets requires bundler >= 1.8.4, see: https://rails-assets.org/
   s.add_runtime_dependency "fog-openstack",           "~> 0.3"

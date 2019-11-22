@@ -23,14 +23,11 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "activerecord",            "< 5.3"
   s.add_runtime_dependency "activesupport",           "< 5.3"
   s.add_runtime_dependency "awesome_spawn",           "~> 1.4"
-  s.add_runtime_dependency "aws-sdk-s3",              "~> 1.0"
   s.add_runtime_dependency "binary_struct",           "~> 2.1"
   s.add_runtime_dependency "bundler",                 ">= 1.8.4" # rails-assets requires bundler >= 1.8.4, see: https://rails-assets.org/
   s.add_runtime_dependency "erubis",                  "= 2.7.0"
-  s.add_runtime_dependency "fog-openstack",           "~> 0.3"
   s.add_runtime_dependency "linux_admin",             "~> 2.0"
   s.add_runtime_dependency "manageiq-password",       "~> 0.3"
-  s.add_runtime_dependency "mime-types",              "~> 3.0"
   s.add_runtime_dependency "more_core_extensions",    "~> 3.7"
   s.add_runtime_dependency "net-scp",                 "~> 1.2.1"
   s.add_runtime_dependency "net-sftp",                "~> 2.1.2"
@@ -49,6 +46,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency "test-unit"
   s.add_development_dependency "timecop",                   "~> 0.9.1"
   s.add_development_dependency "xml-simple",                "~> 1.1.0"
-  s.add_development_dependency "ftpd",                      "~> 2.1.0"
   s.add_development_dependency "pg"
 end

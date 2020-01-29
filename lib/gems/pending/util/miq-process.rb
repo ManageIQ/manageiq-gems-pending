@@ -6,19 +6,11 @@ require 'util/runcmd'
 require 'util/miq-system'
 
 class MiqProcess
+  # Collect and return a list of PID's for all processes that match
+  # +process_name+ or +process_name.exe+.
+  #
   def self.get_active_process_by_name(process_name)
-    pids = []
-
-    case Sys::Platform::IMPL
-    when :mswin, :mingw
-      require 'util/win32/miq-wmi'
-      WMIHelper.connectServer.run_query("select Handle,Name from Win32_Process where Name = '#{process_name}.exe'") { |p| pids << p.Handle.to_i }
-    when :linux, :macosx
-      pids = `ps -e | grep #{process_name} | grep -v grep `.split("\n").collect(&:to_i)
-    else
-      raise "Method MiqProcess.get_active_process_by_name not implemented on this platform [#{Sys::Platform::IMPL}]"
-    end
-    pids
+    Sys::ProcTable.ps.select{ |process| [process_name, "#{process_name}.exe"].include?(process.name) }.map(&:pid)
   end
 
   def self.linux_process_stat(pid = nil)

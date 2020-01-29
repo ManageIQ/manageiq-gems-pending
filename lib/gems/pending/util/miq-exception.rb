@@ -72,9 +72,6 @@ module MiqException
   # Openstack connection error when service is not available
   class ServiceNotAvailable < Error; end
 
-  # MiqGenericMountSession Errors
-  class MiqLogFileNoSuchFileOrDirectory < Error; end
-
   class MiqDatabaseBackupInsufficientSpace < Error; end
 
   class RbacPrivilegeException < Error; end

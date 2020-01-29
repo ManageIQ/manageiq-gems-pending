@@ -119,21 +119,23 @@ class MiqProcess
     result
   end
 
+  # Return the command line string for the given +pid+. If the pid has already
+  # exited, or there is some sort of permissions issue that causes it to be set
+  # to nil, then return an empty string instead.
+  #
   def self.command_line(pid)
     # Already exited pids, or permission errors cause ps or ps.cmdline to be nil,
     # so the best we can do is return an empty string.
     Sys::ProcTable.ps(:pid => pid).try(:cmdline) || ""
   end
 
+  # Return whether or not the given +pid+ is running.
+  #
   def self.alive?(pid)
-    raise NotImplementedError, "Method MiqProcess.alive? not implemented on this platform [#{Sys::Platform::IMPL}]" unless Sys::Platform::OS == :unix
-
-    begin
-      Process.kill(0, pid)
-      true
-    rescue Errno::ESRCH
-      false
-    end
+    Process.kill(0, pid)
+    true
+  rescue Errno::ESRCH
+    false
   end
 
   def self.is_worker?(pid)

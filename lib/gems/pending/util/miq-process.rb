@@ -232,23 +232,25 @@ class MiqProcess
     (t[0].to_i * 3600) + (t[1].to_i * 60) + t[2].to_i
   end
 
-  # Suspend the process +pid+ using a SIGSTOP.
+  # Suspend the process +pid+ using a SIGSTOP. If the process isn't running
+  # then this is no-op.
   #
   def self.suspend_process(pid)
     case Sys::Platform::OS
     when :unix
-      Process.kill('STOP', pid)
+      Process.kill('STOP', pid) if alive?(pid)
     else
       raise "Method MiqProcess.suspend_process not implemented on this platform [#{Sys::Platform::IMPL}]"
     end
   end
 
-  # Resume the process +pid+ using a SIGCONT.
+  # Resume the process +pid+ using a SIGCONT. If the process isn't running
+  # then this is a no-op.
   #
   def self.resume_process(pid)
     case Sys::Platform::OS
     when :unix
-      Process.kill('CONT', pid)
+      Process.kill('CONT', pid) if alive?(pid)
     else
       raise "Method MiqProcess.resume_process not implemented on this platform [#{Sys::Platform::IMPL}]"
     end

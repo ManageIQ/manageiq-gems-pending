@@ -10,7 +10,8 @@ class MiqProcess
   # +process_name+ or +process_name.exe+.
   #
   def self.get_active_process_by_name(process_name)
-    Sys::ProcTable.ps.select{ |process| [process_name, "#{process_name}.exe"].include?(process.name) }.map(&:pid)
+    procs = Sys::ProcTable.ps(:smaps => false, :cgroup => false)
+    procs.select { |process| [process_name, "#{process_name}.exe"].include?(process.name) }.map(&:pid)
   end
 
   def self.linux_process_stat(pid = nil)

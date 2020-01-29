@@ -74,7 +74,6 @@ module MiqException
 
   # MiqGenericMountSession Errors
   class MountPointAlreadyExists < Error; end
-  class MiqLogFileMountPointMissing < Error; end
   class MiqLogFileNoSuchFileOrDirectory < Error; end
 
   class MiqDatabaseBackupInsufficientSpace < Error; end

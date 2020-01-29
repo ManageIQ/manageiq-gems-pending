@@ -231,17 +231,23 @@ class MiqProcess
     (t[0].to_i * 3600) + (t[1].to_i * 60) + t[2].to_i
   end
 
+  # Suspend the process +pid+ using a SIGSTOP.
+  #
   def self.suspend_process(pid)
     case Sys::Platform::OS
-    when :windows then Process.process_thread_list[pid].each { |tid| Process.suspend_resume_thread(tid, false) }
+    when :unix
+      Process.kill('STOP', pid)
     else
       raise "Method MiqProcess.suspend_process not implemented on this platform [#{Sys::Platform::IMPL}]"
     end
   end
 
+  # Resume the process +pid+ using a SIGCONT.
+  #
   def self.resume_process(pid)
     case Sys::Platform::OS
-    when :windows then Process.process_thread_list[pid].each { |tid| Process.suspend_resume_thread(tid, true) }
+    when :unix
+      Process.kill('CONT', pid)
     else
       raise "Method MiqProcess.resume_process not implemented on this platform [#{Sys::Platform::IMPL}]"
     end
@@ -252,10 +258,3 @@ class MiqProcess
     (number * mult).round.to_f / mult
   end
 end
-
-# Examples:
-# puts MiqProcess.processInfo().inspect
-# puts MiqProcess.process_list_all().inspect
-# MiqProcess.process_list_all().each_pair do |k,v|
-#  puts v.inspect
-# end

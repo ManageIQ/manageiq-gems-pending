@@ -96,13 +96,13 @@ class MiqProcess
       result[:memory_usage]          = x[:rss] * 4096
       result[:memory_size]           = x[:vsize]
       percent_memory                 = (1.0 * result[:memory_usage]) / MiqSystem.total_memory
-      result[:percent_memory]        = round_to(percent_memory * 100.0, 2)
+      result[:percent_memory]        = percent_memory.round(2)
       result[:cpu_time]              = x[:stime] + x[:utime]
       cpu_status                     = MiqSystem.status[:cpu]
       cpu_total                      = (0..3).inject(0) { |sum, x| sum + cpu_status[x].to_i }
       cpu_total                     /= MiqSystem.num_cpus
       percent_cpu                    = (1.0 * result[:cpu_time]) / cpu_total
-      result[:percent_cpu]           = round_to(percent_cpu * 100.0, 2)
+      result[:percent_cpu]           = percent_cpu.round(2)
 
       smaps = Sys::ProcTable.ps(:pid => pid).smaps
       result[:proportional_set_size] = smaps.pss
@@ -254,10 +254,5 @@ class MiqProcess
     else
       raise "Method MiqProcess.resume_process not implemented on this platform [#{Sys::Platform::IMPL}]"
     end
-  end
-
-  def self.round_to(number, precision)
-    mult = 10**precision
-    (number * mult).round.to_f / mult
   end
 end

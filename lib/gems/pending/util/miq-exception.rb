@@ -73,7 +73,6 @@ module MiqException
   class ServiceNotAvailable < Error; end
 
   # MiqGenericMountSession Errors
-  class MountPointAlreadyExists < Error; end
   class MiqLogFileNoSuchFileOrDirectory < Error; end
 
   class MiqDatabaseBackupInsufficientSpace < Error; end

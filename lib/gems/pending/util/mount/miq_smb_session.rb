@@ -44,14 +44,15 @@ class MiqSmbSession < MiqGenericMountSession
       raise "Expected 'domain/username' or 'domain\\username' format, received: '#{@settings[:username]}'"
     end
 
-    mount = "mount"
-    mount << " -r" if settings_read_only?
+    mount_args      = {:t => "cifs"}
+    mount_args[:r]  = nil if settings_read_only?
+    mount_args[nil] = %W[//#{File.join(@host, @mount_path)} #{@mnt_point}]
+    mount_args[:o]  = "rw,username=#{user},password=#{@settings[:password]},domain=#{domain}"
 
     logger.info("#{log_header} Connecting to host: [#{@host}], share: [#{@mount_path}], domain: [#{domain}], user: [#{user}], using mount point: [#{@mnt_point}]...")
     # mount -t cifs //192.168.252.140/temp /media/windows_share/ -o rw,username=jrafaniello,password=blah,domain=manageiq.com
 
-    # Quote the hostname and share and username since they have spaces in it
-    runcmd("#{mount} -t cifs '//#{File.join(@host, @mount_path)}' #{@mnt_point} -o rw,username='#{user}',password='#{@settings[:password]}',domain='#{domain}'")
+    runcmd("mount", :params => mount_args)
     logger.info("#{log_header} Connecting to host: [#{@host}], share: [#{@mount_path}]...Complete")
   end
 end

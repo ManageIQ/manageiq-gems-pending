@@ -49,7 +49,8 @@ EOF
       "Power Button Disabled" => "false"
     }
 
-    expect(MiqUtil).to receive(:runcmd).with("ipmitool -I lanplus -H  -U  -E chassis status").twice.and_return(response)
+    expected_args = {:I => "lanplus", :H => nil,  :U => nil,  :E => "chassis status"}
+    expect(MiqUtil).to receive(:runcmd).with("ipmitool", :params => expected_args).twice.and_return(response)
     expect(subject.chassis_status).to eq(result)
   end
 
@@ -62,7 +63,7 @@ EOF
     end
 
     it "#run_command" do
-      expect(MiqUtil).to receive(:runcmd).with(a_string_including "-I lan")
+      expect(MiqUtil).to receive(:runcmd).with("ipmitool", :params => a_hash_including(:I => "lan"))
       subject.run_command("chassis power status")
     end
   end
@@ -75,17 +76,20 @@ EOF
       it { expect(subject).to be_connected }
 
       it "#power_state" do
-        allow(MiqUtil).to receive(:runcmd).with("ipmitool -I lanplus -H  -U  -E chassis power status").and_return("Chassis Power is off")
+        expected_args = {:I => "lanplus", :H => nil, :U => nil, :E => "chassis power status"}
+        allow(MiqUtil).to receive(:runcmd).with("ipmitool", :params => expected_args).and_return("Chassis Power is off")
         expect(subject.power_state).to eq("off")
       end
 
       it "#power_on" do
-        allow(MiqUtil).to receive(:runcmd).with("ipmitool -I lanplus -H  -U  -E chassis power on").and_return("Chassis Power Control: Up/On")
+        expected_args = {:I => "lanplus", :H => nil, :U => nil, :E => "chassis power on"}
+        allow(MiqUtil).to receive(:runcmd).with("ipmitool", :params => expected_args).and_return("Chassis Power Control: Up/On")
         expect(subject.power_on).to eq("Chassis Power Control: Up/On")
       end
 
       it "#power_off" do
-        allow(MiqUtil).to receive(:runcmd).with("ipmitool -I lanplus -H  -U  -E chassis power off").and_return("Chassis Power Control: Down/Off")
+        expected_args = {:I => "lanplus", :H => nil, :U => nil, :E => "chassis power off"}
+        allow(MiqUtil).to receive(:runcmd).with("ipmitool", :params => expected_args).and_return("Chassis Power Control: Down/Off")
         expect(subject.power_off).to eq("Chassis Power Control: Down/Off")
       end
 
@@ -134,7 +138,8 @@ EOR
       end
 
       it "#mc_info" do
-        allow(MiqUtil).to receive(:runcmd).with("ipmitool -I lanplus -H  -U  -E mc info").and_return(mc_info_response)
+        expected_args = {:I => "lanplus", :H => nil, :U => nil, :E => "mc info"}
+        allow(MiqUtil).to receive(:runcmd).with("ipmitool", :params => expected_args).and_return(mc_info_response)
         expect(subject.mc_info).to eq(
           "Device Available"     => "yes",
           "Device ID"            => "32",
@@ -150,7 +155,8 @@ EOR
       end
 
       it "#manufacturer" do
-        allow(MiqUtil).to receive(:runcmd).with("ipmitool -I lanplus -H  -U  -E mc info").and_return(mc_info_response)
+        expected_args = {:I => "lanplus", :H => nil, :U => nil, :E => "mc info"}
+        allow(MiqUtil).to receive(:runcmd).with("ipmitool", :params => expected_args).and_return(mc_info_response)
         expect(subject.manufacturer).to eq("DELL Inc")
       end
     end
@@ -160,7 +166,7 @@ EOR
     end
 
     it "#run_command" do
-      expect(MiqUtil).to receive(:runcmd).with(a_string_including "-I lanplus")
+      expect(MiqUtil).to receive(:runcmd).with("ipmitool", :params => a_hash_including(:I => "lanplus"))
       subject.run_command("chassis power status")
     end
   end

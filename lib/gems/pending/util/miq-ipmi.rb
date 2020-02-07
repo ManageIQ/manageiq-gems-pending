@@ -178,10 +178,10 @@ class MiqIPMI
   def run_command(ipmi_cmd, continue_on_error = false)
     # -E: The remote server password is specified by the environment variable IPMI_PASSWORD.
     ENV['IPMI_PASSWORD'] = @password
-    command_line = "ipmitool -I #{interface_mode} -H #{@server} -U #{@username} -E #{ipmi_cmd}"
+    command_args = { :I => interface_mode, :H => @server, :U => @username, :E => ipmi_cmd }
 
     begin
-      return MiqUtil.runcmd(command_line)
+      return MiqUtil.runcmd("ipmitool", :params => command_args)
     rescue => err
       return err.to_s if continue_on_error == true && $?.exitstatus == 1
       raise "Command:<#{command_line}> exited with status:<#{$?.exitstatus}>\nCommand output:\n#{err}"
@@ -216,9 +216,9 @@ class MiqIPMI
 
   def self.is_available_check(ip_address, version = nil)
     if version.nil?
-      MiqUtil.runcmd("ipmiping #{ip_address} -c 1")
+      MiqUtil.runcmd("ipmiping", [[ip_address], [:c, 1]])
     else
-      MiqUtil.runcmd("ipmiping #{ip_address} -r #{version} -c 1")
+      MiqUtil.runcmd("ipmiping", [[ip_address], [:r, version] [:c, 1]])
     end
   rescue
     false

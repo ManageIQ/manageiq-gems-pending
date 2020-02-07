@@ -23,7 +23,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "actionpack",              ">= 5.0", "< 5.2"
   s.add_runtime_dependency "activerecord",            ">= 5.0", "< 5.2"
   s.add_runtime_dependency "activesupport",           ">= 5.0", "< 5.2"
-  s.add_runtime_dependency "awesome_spawn",           "~> 1.4"
+  s.add_runtime_dependency "awesome_spawn",           "~> 1.5"
   s.add_runtime_dependency "aws-sdk",                 "~> 2.9.7"
   s.add_runtime_dependency "binary_struct",           "~> 2.1"
   s.add_runtime_dependency "bundler",                 ">= 1.8.4" # rails-assets requires bundler >= 1.8.4, see: https://rails-assets.org/

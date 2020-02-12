@@ -111,7 +111,7 @@ class MiqProcess
       percent_cpu                    = (1.0 * result[:cpu_time]) / cpu_total
       result[:percent_cpu]           = round_to(percent_cpu * 100.0, 2)
 
-      smaps = Sys::ProcTable.ps(pid).smaps
+      smaps = Sys::ProcTable.ps(:pid => pid).smaps
       result[:proportional_set_size] = smaps.pss
       result[:unique_set_size]       = smaps.uss
     when :macosx
@@ -130,7 +130,7 @@ class MiqProcess
   def self.command_line(pid)
     # Already exited pids, or permission errors cause ps or ps.cmdline to be nil,
     # so the best we can do is return an empty string.
-    Sys::ProcTable.ps(pid).try(:cmdline) || ""
+    Sys::ProcTable.ps(:pid => pid).try(:cmdline) || ""
   end
 
   def self.alive?(pid)

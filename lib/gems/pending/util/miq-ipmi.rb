@@ -23,16 +23,16 @@ class MiqIPMI
   end
 
   def power_state
-    result = run_command(["chassis", "power", "status"])
+    result = run_command("chassis", "power", "status")
     result.split(" ").last
   end
 
   def power_on
-    run_command(["chassis", "power", "on"])
+    run_command("chassis", "power", "on")
   end
 
   def power_off
-    run_command(["chassis", "power", "off"])
+    run_command("chassis", "power", "off")
   end
 
   def power_reset
@@ -45,7 +45,7 @@ class MiqIPMI
 
   def power_state_change(new_state)
     # status, on, off, cycle, reset, diag, soft
-    run_command(["chassis", "power", "#{new_state}"])
+    run_command("chassis", "power", "#{new_state}")
   end
 
   def chassis_status
@@ -143,8 +143,9 @@ class MiqIPMI
     macs
   end
 
-  def parse_key_value(ipmi_cmd, continue_on_error = false)
-    parse_output(run_command(ipmi_cmd, continue_on_error))
+  def parse_key_value(ipmi_cmd_and_args, continue_on_error = false)
+    run_command_args = ipmi_cmd_and_args[1..-1] << continue_on_error
+    parse_output(run_command(ipmi_cmd_and_args.first, *run_command_args))
   end
 
   def parse_output(cmd_text)
@@ -175,10 +176,13 @@ class MiqIPMI
     end
   end
 
-  def run_command(ipmi_cmd, continue_on_error = false)
+  def run_command(ipmi_cmd, *args)
     # -E: The remote server password is specified by the environment variable IPMI_PASSWORD.
+    continue_on_error    = args.pop if [true, false, nil].any? { |type| args.last == type }
+    continue_on_error  ||= false
     ENV['IPMI_PASSWORD'] = @password
-    command_args = { :I => interface_mode, :H => @server, :U => @username, :E => ipmi_cmd }
+    command_args         = { :I => interface_mode, :H => @server, :U => @username, :E => ipmi_cmd }
+    command_args[nil]    = args unless args.empty?
 
     begin
       return MiqUtil.runcmd("ipmitool", :params => command_args)

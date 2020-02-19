@@ -23,16 +23,16 @@ class MiqIPMI
   end
 
   def power_state
-    result = run_command("chassis power status")
+    result = run_command(["chassis", "power", "status"])
     result.split(" ").last
   end
 
   def power_on
-    run_command("chassis power on")
+    run_command(["chassis", "power", "on"])
   end
 
   def power_off
-    run_command("chassis power off")
+    run_command(["chassis", "power", "off"])
   end
 
   def power_reset
@@ -45,19 +45,19 @@ class MiqIPMI
 
   def power_state_change(new_state)
     # status, on, off, cycle, reset, diag, soft
-    run_command("chassis power #{new_state}")
+    run_command(["chassis", "power", "#{new_state}"])
   end
 
   def chassis_status
-    parse_key_value("chassis status")
+    parse_key_value(["chassis", "status"])
   end
 
   def lan_info
-    parse_key_value("lan print")
+    parse_key_value(["lan", "print"])
   end
 
   def mc_info
-    parse_key_value("mc info")
+    parse_key_value(["mc", "info"])
   end
 
   def manufacturer
@@ -79,7 +79,7 @@ class MiqIPMI
     dev_id = nil
     dev_descript = nil
     dev_lines = nil
-    cmd_output = run_command("fru print", true)
+    cmd_output = run_command(["fru", "print"], true)
     cmd_output.each_line do |line|
       if line =~ /^FRU Device Description : (.*) \(ID (\d+)\)/i
         @devices << fru_process_info(dev_id, dev_descript, dev_lines) unless dev_lines.nil?
@@ -128,7 +128,7 @@ class MiqIPMI
   #
   def dell_mac_addresses
     macs = []
-    result = run_command("delloem mac")
+    result = run_command(["delloem", "mac"])
     result.each_line do |line|
       data = line.split(' ')
       if data[0].to_i.to_s == data[0].to_s

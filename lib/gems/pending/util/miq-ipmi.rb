@@ -216,9 +216,9 @@ class MiqIPMI
 
   def self.is_available_check(ip_address, version = nil)
     if version.nil?
-      MiqUtil.runcmd("ipmiping", [[ip_address], [:c, 1]])
+      MiqUtil.runcmd("ipmiping", :params => [[ip_address], [:c, 1]])
     else
-      MiqUtil.runcmd("ipmiping", [[ip_address], [:r, version] [:c, 1]])
+      MiqUtil.runcmd("ipmiping", :params => [[ip_address], [:r, version], [:c, 1]])
     end
   rescue
     false

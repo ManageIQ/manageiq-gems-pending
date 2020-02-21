@@ -6,19 +6,12 @@ require 'util/runcmd'
 require 'util/miq-system'
 
 class MiqProcess
+  # Collect and return a list of PID's for all processes that match
+  # +process_name+ or +process_name.exe+.
+  #
   def self.get_active_process_by_name(process_name)
-    pids = []
-
-    case Sys::Platform::IMPL
-    when :mswin, :mingw
-      require 'util/win32/miq-wmi'
-      WMIHelper.connectServer.run_query("select Handle,Name from Win32_Process where Name = '#{process_name}.exe'") { |p| pids << p.Handle.to_i }
-    when :linux, :macosx
-      pids = `ps -e | grep #{process_name} | grep -v grep `.split("\n").collect(&:to_i)
-    else
-      raise "Method MiqProcess.get_active_process_by_name not implemented on this platform [#{Sys::Platform::IMPL}]"
-    end
-    pids
+    procs = Sys::ProcTable.ps(:smaps => false, :cgroup => false)
+    procs.select { |process| [process_name, "#{process_name}.exe"].include?(process.name) }.map(&:pid)
   end
 
   def self.linux_process_stat(pid = nil)
@@ -103,13 +96,13 @@ class MiqProcess
       result[:memory_usage]          = x[:rss] * 4096
       result[:memory_size]           = x[:vsize]
       percent_memory                 = (1.0 * result[:memory_usage]) / MiqSystem.total_memory
-      result[:percent_memory]        = round_to(percent_memory * 100.0, 2)
+      result[:percent_memory]        = percent_memory.round(2)
       result[:cpu_time]              = x[:stime] + x[:utime]
       cpu_status                     = MiqSystem.status[:cpu]
       cpu_total                      = (0..3).inject(0) { |sum, x| sum + cpu_status[x].to_i }
       cpu_total                     /= MiqSystem.num_cpus
       percent_cpu                    = (1.0 * result[:cpu_time]) / cpu_total
-      result[:percent_cpu]           = round_to(percent_cpu * 100.0, 2)
+      result[:percent_cpu]           = percent_cpu.round(2)
 
       smaps = Sys::ProcTable.ps(:pid => pid).smaps
       result[:proportional_set_size] = smaps.pss
@@ -127,21 +120,14 @@ class MiqProcess
     result
   end
 
+  # Return the command line string for the given +pid+. If the pid has already
+  # exited, or there is some sort of permissions issue that causes it to be set
+  # to nil, then return an empty string instead.
+  #
   def self.command_line(pid)
     # Already exited pids, or permission errors cause ps or ps.cmdline to be nil,
     # so the best we can do is return an empty string.
     Sys::ProcTable.ps(:pid => pid).try(:cmdline) || ""
-  end
-
-  def self.alive?(pid)
-    raise NotImplementedError, "Method MiqProcess.alive? not implemented on this platform [#{Sys::Platform::IMPL}]" unless Sys::Platform::OS == :unix
-
-    begin
-      Process.kill(0, pid)
-      true
-    rescue Errno::ESRCH
-      false
-    end
   end
 
   def self.is_worker?(pid)
@@ -236,32 +222,4 @@ class MiqProcess
     t = time_str.split(':')
     (t[0].to_i * 3600) + (t[1].to_i * 60) + t[2].to_i
   end
-
-  def self.suspend_process(pid)
-    case Sys::Platform::OS
-    when :windows then Process.process_thread_list[pid].each { |tid| Process.suspend_resume_thread(tid, false) }
-    else
-      raise "Method MiqProcess.suspend_process not implemented on this platform [#{Sys::Platform::IMPL}]"
-    end
-  end
-
-  def self.resume_process(pid)
-    case Sys::Platform::OS
-    when :windows then Process.process_thread_list[pid].each { |tid| Process.suspend_resume_thread(tid, true) }
-    else
-      raise "Method MiqProcess.resume_process not implemented on this platform [#{Sys::Platform::IMPL}]"
-    end
-  end
-
-  def self.round_to(number, precision)
-    mult = 10**precision
-    (number * mult).round.to_f / mult
-  end
 end
-
-# Examples:
-# puts MiqProcess.processInfo().inspect
-# puts MiqProcess.process_list_all().inspect
-# MiqProcess.process_list_all().each_pair do |k,v|
-#  puts v.inspect
-# end

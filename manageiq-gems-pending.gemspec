@@ -37,7 +37,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "net-sftp",                "~> 2.1.2"
   s.add_runtime_dependency "net-ssh",                 "~> 4.2.0"
   s.add_runtime_dependency "nokogiri",                "~> 1.10.8"
-  s.add_runtime_dependency "rake",                    ">= 11.0"
+  s.add_runtime_dependency "rake",                    ">= 12.3.3"
   s.add_runtime_dependency "sys-proctable",           "~> 1.2.2"
   s.add_runtime_dependency "sys-uname",               "~> 1.0.1"
   s.add_runtime_dependency "uuidtools",               "~> 2.1.3"

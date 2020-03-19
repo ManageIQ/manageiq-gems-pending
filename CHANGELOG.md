@@ -5,7 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
-## Ivanchuk-1
+# Ivanchuk-3
+
+- Bump linux_admin to version 2.0.0[(#455)](https://github.com/ManageIQ/manageiq-gems-pending/pull/455)
+
+# Ivanchuk-2
+
+### Added
+- Require 'erubis' [(#452)](https://github.com/ManageIQ/manageiq-gems-pending/pull/452)
+
+### Fixed
+- [MiqGenericMountSession] Fix .source_for_log [(#447)](https://github.com/ManageIQ/manageiq-gems-pending/pull/447)
+
+# Ivanchuk-1
 
 ### Added
 - Introduce FirmwareUpdateError [(#435)](https://github.com/ManageIQ/manageiq-gems-pending/pull/435)

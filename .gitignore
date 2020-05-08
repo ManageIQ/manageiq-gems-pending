@@ -9,5 +9,8 @@
 /spec/reports/
 /tmp/
 
+# ignore included plugins in bundler.d
+bundler.d/*
+
 # ruby version management
 .ruby-version

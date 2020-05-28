@@ -46,9 +46,8 @@ class MiqSystem
   end
 
   def self.num_cpus
-    return unless Sys::Platform::IMPL == :linux
-    require 'linux_admin'
-    @num_cpus ||= LinuxAdmin::Hardware.new.total_cores
+    require 'etc'
+    Etc.nprocessors
   end
 
   def self.memory

@@ -45,9 +45,12 @@ class MiqSystem
     nil
   end
 
+  # Returns the number of logical processors on the system.
+  #
   def self.num_cpus
     require 'etc'
-    Etc.nprocessors
+    # cache it since it won't change during a process lifetime
+    @num_cpus ||= Etc.nprocessors
   end
 
   def self.memory

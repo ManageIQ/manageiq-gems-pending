@@ -45,10 +45,12 @@ class MiqSystem
     nil
   end
 
+  # Returns the number of logical processors on the system.
+  #
   def self.num_cpus
-    return unless Sys::Platform::IMPL == :linux
-    require 'linux_admin'
-    @num_cpus ||= LinuxAdmin::Hardware.new.total_cores
+    require 'etc'
+    # cache it since it won't change during a process lifetime
+    @num_cpus ||= Etc.nprocessors
   end
 
   def self.memory

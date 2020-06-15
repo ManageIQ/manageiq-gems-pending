@@ -1,6 +1,6 @@
 require 'enumerator'
 require 'rexml/document'
-require 'util/xml/xml_utils'
+require 'active_support/core_ext/hash/keys'
 
 module XmlHash
   class Element < Hash
@@ -163,7 +163,7 @@ module XmlHash
       hash = {} if hash.nil?
 
       each do |c|
-        e = (hash[options[:symbols] == false ? c.name.to_s : c.name] ||= []) << (options[:symbols] == false ? XmlHelpers.stringify_keys(c.attributes) : c.attributes)
+        e = (hash[options[:symbols] == false ? c.name.to_s : c.name] ||= []) << (options[:symbols] == false ? c.attributes&.stringify_keys : c.attributes)
         e.last[options[:symbols] == false ? 'content' : :content] = c.text if c.text
         c.to_h_simple(options, e.last)
       end

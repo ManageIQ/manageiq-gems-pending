@@ -1,6 +1,5 @@
 require 'enumerator'
 require 'rexml/document'
-require 'util/xml/xml_utils'
 
 module XmlHash
   class Element < Hash

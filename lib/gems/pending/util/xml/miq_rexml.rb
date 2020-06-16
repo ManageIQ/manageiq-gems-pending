@@ -277,9 +277,9 @@ module REXML
       end.join
     end
 
-    def validate_attrs(h)
+    def validate_attrs(hash)
       return nil if h.nil?
-      h.each_with_object({}) { |(k, v), h| h[k.to_s] = remove_invalid_chars(v.to_s.encode('UTF-8', :undef => :replace, :invalid => :replace, :replace => '')) }
+      hash.each_with_object({}) { |(k, v), h| h[k.to_s] = remove_invalid_chars(v.to_s.encode('UTF-8', :undef => :replace, :invalid => :replace, :replace => '')) }
     end
   end
 

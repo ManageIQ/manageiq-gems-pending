@@ -2,7 +2,6 @@ require 'time'
 require 'rexml/document'
 require 'util/miq-encode'
 require 'util/xml/xml_hash'
-require 'util/xml/xml_utils'
 require 'util/xml/xml_diff'
 require 'util/xml/xml_patch'
 
@@ -223,13 +222,15 @@ module REXML
     def add_element(element, attrs = nil)
       return add_element_orig(element) if element.kind_of?(REXML::Element)
       attrs.delete_if { |_k, v| v.nil? } unless attrs.nil?
-      add_element_orig(element.to_s, XmlHelpers.validate_attrs(attrs))
+      add_element_orig(element.to_s, validate_attrs(attrs))
     end
 
     alias_method :add_attribute_orig, :add_attribute
     def add_attribute(key, value)
-      value_utf8 = value.to_s.dup.force_encoding('UTF-8').encode('UTF-8', :invalid => :replace, :undef => :replace, :replace => '') unless value.nil?
-      add_attribute_orig(key.to_s, value_utf8) unless value_utf8.nil?
+      if value
+        value_utf8 = value.to_s.dup.force_encoding('UTF-8').encode('UTF-8', :invalid => :replace, :undef => :replace, :replace => '')
+        add_attribute_orig(key.to_s, value_utf8) if value_utf8
+      end
     end
 
     alias_method :add_attributes_orig, :add_attributes
@@ -262,6 +263,23 @@ module REXML
                     REXML::Formatters::Default.new(ie_hack)
                   end
       formatter.write(self, output)
+    end
+
+    private
+
+    def remove_invalid_chars(str)
+      str.chars.reject do |c|
+        case c.ord
+        when *REXML::Text::VALID_CHAR
+        else
+          ''
+        end
+      end.join
+    end
+
+    def validate_attrs(h)
+      return nil if h.nil?
+      h.each_with_object({}) { |(k, v), h| h[k.to_s] = remove_invalid_chars(v.to_s.encode('UTF-8', :undef => :replace, :invalid => :replace, :replace => '')) }
     end
   end
 

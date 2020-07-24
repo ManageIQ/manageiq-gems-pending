@@ -1,15 +1,18 @@
 require 'more_core_extensions/core_ext/array'
 require 'active_support/core_ext/array/wrap'
+require 'active_support/deprecation'
 
 class Object #:nodoc:
   def to_miq_a
+    ActiveSupport::Deprecation.warn("Object#to_miq_a should be replaced by Array.wrap", caller.drop(0))
     Array.wrap(self)
   end
 end
 
 class String
   def to_miq_a
-    lines.to_a
+    ActiveSupport::Deprecation.warn("String#to_miq_a should be replaced by String#lines", caller.drop(0))
+    lines
   end
 end
 

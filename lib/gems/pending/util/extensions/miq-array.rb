@@ -11,8 +11,8 @@ end
 
 class String
   def to_miq_a
-    ActiveSupport::Deprecation.warn("String#to_miq_a should be replaced by String#lines.to_a", caller.drop(0))
-    lines.to_a
+    ActiveSupport::Deprecation.warn("String#to_miq_a should be replaced by String#lines", caller.drop(0))
+    lines
   end
 end
 

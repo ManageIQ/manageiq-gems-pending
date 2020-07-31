@@ -32,7 +32,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "linux_admin",             "~> 2.0"
   s.add_runtime_dependency "manageiq-password",       "~> 0.3"
   s.add_runtime_dependency "mime-types",              "~> 3.0"
-  s.add_runtime_dependency "more_core_extensions",    "~> 4.0"
+  s.add_runtime_dependency "more_core_extensions",    "~> 4.2"
   s.add_runtime_dependency "net-scp",                 "~> 1.2.1"
   s.add_runtime_dependency "net-sftp",                "~> 2.1.2"
   s.add_runtime_dependency "net-ssh",                 "~> 4.2.0"

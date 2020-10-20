@@ -1,6 +1,4 @@
 ---
-sudo: required
-dist: xenial
 cache: bundler
 language: ruby
 rvm:

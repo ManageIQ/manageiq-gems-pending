@@ -3,7 +3,6 @@ require 'util/runcmd'
 require 'io/wait'
 require 'open-uri'
 require 'util/miq-encode'
-require 'util/miq-unicode'
 require 'win32/registry' if Sys::Platform::OS == :windows
 
 module MiqPowerShell
@@ -94,7 +93,8 @@ module MiqPowerShell
   end
 
   def self.run_script(script)
-    encoded_command = MIQEncode.encode(script.AsciiToUtf8.Utf8ToUnicode, false)
+    string = script.dup.force_encoding("ISO-8859-1").encode("UTF-16LE")
+    encoded_command = MIQEncode.encode(string, false)
     ps_command = "-EncodedCommand #{encoded_command}"
     execute(ps_command)
   end

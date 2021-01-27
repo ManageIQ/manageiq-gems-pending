@@ -52,7 +52,7 @@ class MiqSmbSession < MiqGenericMountSession
     logger.info("#{log_header} Connecting to host: [#{@host}], share: [#{@mount_path}], domain: [#{domain}], user: [#{user}], using mount point: [#{@mnt_point}]...")
     # mount -t cifs //192.168.252.140/temp /media/windows_share/ -o rw,username=jrafaniello,password=blah,domain=manageiq.com
 
-    runcmd("mount", :params => mount_args)
+    mount(mount_args)
     logger.info("#{log_header} Connecting to host: [#{@host}], share: [#{@mount_path}]...Complete")
   end
 end

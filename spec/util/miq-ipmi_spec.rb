@@ -3,6 +3,10 @@ require "util/miq-ipmi"
 describe MiqIPMI do
   subject { described_class.new }
 
+  def command_result(output = "")
+    double(AwesomeSpawn::CommandResult, :output => output)
+  end
+
   it "#chassis_status" do
     allow(described_class).to receive(:is_2_0_available?).and_return(true)
     response = <<-EOF
@@ -50,7 +54,7 @@ EOF
     }
 
     expected_args = {:I => "lanplus", :H => nil,  :U => nil,  :E => "chassis", nil => ["status"]}
-    expect(MiqUtil).to receive(:runcmd).with("ipmitool", :params => expected_args).twice.and_return(response)
+    expect(AwesomeSpawn).to receive(:run!).with("ipmitool", a_hash_including(:params => expected_args)).twice.and_return(command_result(response))
     expect(subject.chassis_status).to eq(result)
   end
 
@@ -63,7 +67,7 @@ EOF
     end
 
     it "#run_command" do
-      expect(MiqUtil).to receive(:runcmd).with("ipmitool", :params => a_hash_including(:I => "lan"))
+      expect(AwesomeSpawn).to receive(:run!).with("ipmitool", a_hash_including(:params => a_hash_including(:I => "lan"))).and_return(command_result)
       subject.run_command("chassis power status")
     end
   end
@@ -77,19 +81,19 @@ EOF
 
       it "#power_state" do
         expected_args = {:I => "lanplus", :H => nil, :U => nil, :E => "chassis", nil => ["power", "status"]}
-        allow(MiqUtil).to receive(:runcmd).with("ipmitool", :params => expected_args).and_return("Chassis Power is off")
+        allow(AwesomeSpawn).to receive(:run!).with("ipmitool", a_hash_including(:params => expected_args)).and_return(command_result("Chassis Power is off"))
         expect(subject.power_state).to eq("off")
       end
 
       it "#power_on" do
         expected_args = {:I => "lanplus", :H => nil, :U => nil, :E => "chassis", nil => ["power", "on"]}
-        allow(MiqUtil).to receive(:runcmd).with("ipmitool", :params => expected_args).and_return("Chassis Power Control: Up/On")
+        allow(AwesomeSpawn).to receive(:run!).with("ipmitool", a_hash_including(:params => expected_args)).and_return(command_result("Chassis Power Control: Up/On"))
         expect(subject.power_on).to eq("Chassis Power Control: Up/On")
       end
 
       it "#power_off" do
         expected_args = {:I => "lanplus", :H => nil, :U => nil, :E => "chassis", nil => ["power", "off"]}
-        allow(MiqUtil).to receive(:runcmd).with("ipmitool", :params => expected_args).and_return("Chassis Power Control: Down/Off")
+        allow(AwesomeSpawn).to receive(:run!).with("ipmitool", a_hash_including(:params => expected_args)).and_return(command_result("Chassis Power Control: Down/Off"))
         expect(subject.power_off).to eq("Chassis Power Control: Down/Off")
       end
 
@@ -139,7 +143,7 @@ EOR
 
       it "#mc_info" do
         expected_args = {:I => "lanplus", :H => nil, :U => nil, :E => "mc", nil => ["info"]}
-        allow(MiqUtil).to receive(:runcmd).with("ipmitool", :params => expected_args).and_return(mc_info_response)
+        allow(AwesomeSpawn).to receive(:run!).with("ipmitool", a_hash_including(:params => expected_args)).and_return(command_result(mc_info_response))
         expect(subject.mc_info).to eq(
           "Device Available"     => "yes",
           "Device ID"            => "32",
@@ -156,7 +160,7 @@ EOR
 
       it "#manufacturer" do
         expected_args = {:I => "lanplus", :H => nil, :U => nil, :E => "mc", nil => ["info"]}
-        allow(MiqUtil).to receive(:runcmd).with("ipmitool", :params => expected_args).and_return(mc_info_response)
+        allow(AwesomeSpawn).to receive(:run!).with("ipmitool", a_hash_including(:params => expected_args)).and_return(command_result(mc_info_response))
         expect(subject.manufacturer).to eq("DELL Inc")
       end
     end
@@ -166,7 +170,7 @@ EOR
     end
 
     it "#run_command" do
-      expect(MiqUtil).to receive(:runcmd).with("ipmitool", :params => a_hash_including(:I => "lanplus"))
+      expect(AwesomeSpawn).to receive(:run!).with("ipmitool", a_hash_including(:params => a_hash_including(:I => "lanplus"))).and_return(command_result)
       subject.run_command("chassis power status")
     end
   end

@@ -1,8 +1,8 @@
 # encoding: US-ASCII
 
+require 'awesome_spawn'
 require 'sys-uname'
 require 'sys/proctable'
-require 'util/runcmd'
 require 'util/miq-system'
 
 class MiqProcess
@@ -180,7 +180,7 @@ class MiqProcess
 
   def self.process_list_linux(cmd_str, skip_header = false)
     pl, i = {}, 0
-    rc = MiqUtil.runcmd(cmd_str)
+    rc = AwesomeSpawn.run!(cmd_str, :combined_output => true).output
     rc.each_line do |ps_str|
       i += 1
       next if i == 1 && skip_header == true

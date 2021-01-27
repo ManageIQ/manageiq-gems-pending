@@ -6,7 +6,7 @@
 #   OpenIPMI-tools.x86_64
 #   freeipmi.x86_64
 
-require 'util/runcmd'
+require 'awesome_spawn'
 require 'util/miq-extensions'
 
 class MiqIPMI
@@ -185,10 +185,12 @@ class MiqIPMI
     command_args[nil]    = args unless args.empty?
 
     begin
-      return MiqUtil.runcmd("ipmitool", :params => command_args)
-    rescue => err
-      return err.to_s if continue_on_error == true && $?.exitstatus == 1
-      raise "Command:<#{command_line}> exited with status:<#{$?.exitstatus}>\nCommand output:\n#{err}"
+      AwesomeSpawn.run!("ipmitool", :params => command_args, :combined_output => true).output
+    rescue AwesomeSpawn::CommandResultError => err
+      result = err.result
+      return err.to_s if continue_on_error == true && result.exit_status == 1
+
+      raise "Command:<#{result.command_line}> exited with status:<#{result.exit_status}>\nCommand output:\n#{err}"
     end
   end
 
@@ -219,12 +221,13 @@ class MiqIPMI
   end
 
   def self.is_available_check(ip_address, version = nil)
-    if version.nil?
-      MiqUtil.runcmd("ipmiping", :params => [[ip_address], [:c, 1]])
-    else
-      MiqUtil.runcmd("ipmiping", :params => [[ip_address], [:r, version], [:c, 1]])
-    end
-  rescue
-    false
+    params =
+      if version.nil?
+        [[ip_address], [:c, 1]]
+      else
+        [[ip_address], [:r, version], [:c, 1]]
+      end
+
+    AwesomeSpawn.run("ipmiping", :params => params).success?
   end
 end

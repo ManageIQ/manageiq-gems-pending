@@ -1,5 +1,5 @@
+require 'awesome_spawn'
 require 'util/miq-xml'
-require 'util/runcmd'
 require 'io/wait'
 require 'open-uri'
 require 'util/miq-encode'
@@ -28,7 +28,7 @@ module MiqPowerShell
     ps_exec = exepath
     command = "start /wait cmd /c #{ps_exec} #{ps_command}"
     $log.debug "PowerShell: Running command: [#{command}]" if $log
-    ret = MiqUtil.runcmd(command).chomp
+    ret = AwesomeSpawn.run!(command, :combined_output => true).output.chomp
     $log.debug "PowerShell: Return from command: [#{ret}]" if $log
     ret
   end
@@ -47,7 +47,7 @@ module MiqPowerShell
   def self.kill_process(pid)
     command = "taskkill /PID #{pid} /F"
     $log.debug "PowerShell: kill_process: [#{command}]" if $log
-    ret = MiqUtil.runcmd(command).chomp
+    ret = AwesomeSpawn.run!(command, :combined_output => true).output.chomp
     $log.debug "PowerShell: Return from command: [#{ret}]" if $log
     ret
   end

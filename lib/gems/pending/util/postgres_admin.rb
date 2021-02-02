@@ -71,7 +71,7 @@ class PostgresAdmin
   end
 
   def self.database_size(opts)
-    result = runcmd("psql", opts, :command => "SELECT pg_database_size('#{opts[:dbname]}');")
+    result = run_command("psql", opts, :command => "SELECT pg_database_size('#{opts[:dbname]}');")
     result.match(/^\s+([0-9]+)\n/)[1].to_i
   end
 
@@ -140,7 +140,7 @@ class PostgresAdmin
     args = combine_command_args(opts, :format => "c", :file => opts[:local_file], nil => dbname)
     args = handle_multi_value_pg_dump_args!(opts, args)
 
-    runcmd_with_logging("pg_dump", opts, args)
+    run_command_with_logging("pg_dump", opts, args)
     opts[:local_file]
   end
 
@@ -177,9 +177,8 @@ class PostgresAdmin
   def self.recreate_db(opts)
     dbname = opts[:dbname]
     opts = opts.merge(:dbname => 'postgres')
-    runcmd("psql", opts, :command => "DROP DATABASE IF EXISTS #{dbname}")
-    runcmd("psql", opts,
-           :command => "CREATE DATABASE #{dbname} WITH OWNER = #{opts[:username] || 'root'} ENCODING = 'UTF8'")
+    run_command("psql", opts, :command => "DROP DATABASE IF EXISTS #{dbname}")
+    run_command("psql", opts, :command => "CREATE DATABASE #{dbname} WITH OWNER = #{opts[:username] || 'root'} ENCODING = 'UTF8'")
   end
 
   def self.restore_pg_dump(opts)
@@ -199,7 +198,7 @@ class PostgresAdmin
       handle_error(cmd, process_status.exitstatus, error_path)
     else
       args[nil] = opts[:local_file]
-      runcmd("pg_restore", opts, args)
+      run_command("pg_restore", opts, args)
     end
     opts[:local_file]
   end
@@ -245,22 +244,27 @@ class PostgresAdmin
     args[:full]    = nil if opts[:full]
     args[:verbose] = nil if opts[:verbose]
     args[:table]   = opts[:table] if opts[:table]
-    runcmd("vacuumdb", opts, args)
+    run_command("vacuumdb", opts, args)
   end
 
   def self.reindex(opts)
     args = {}
     args[:table] = opts[:table] if opts[:table]
-    runcmd("reindexdb", opts, args)
+    run_command("reindexdb", opts, args)
   end
 
-  def self.runcmd(cmd_str, opts, args)
-    runcmd_with_logging(cmd_str, opts, combine_command_args(opts, args))
+  def self.run_command(cmd_str, opts, args)
+    run_command_with_logging(cmd_str, opts, combine_command_args(opts, args))
   end
 
-  def self.runcmd_with_logging(cmd_str, opts, params = {})
+  def self.run_command_with_logging(cmd_str, opts, params = {})
     $log.info("MIQ(#{name}.#{__method__}) Running command... #{AwesomeSpawn.build_command_line(cmd_str, params)}")
     AwesomeSpawn.run!(cmd_str, :params => params, :env => pg_env(opts)).output
+  end
+
+  class << self
+    # Temporary alias due to manageiq core stubbing this method
+    alias runcmd_with_logging run_command_with_logging
   end
 
   private_class_method def self.combine_command_args(opts, args)

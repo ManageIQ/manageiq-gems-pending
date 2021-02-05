@@ -1,4 +1,3 @@
-require 'enumerator'
 require 'rexml/document'
 require 'active_support/core_ext/hash/keys'
 

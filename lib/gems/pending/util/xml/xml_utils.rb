@@ -1,6 +1,5 @@
 require 'util/miq-xml'
 require 'util/xml/xml_hash'
-require 'enumerator'
 
 class XmlFind
   def self.decode(data, format)

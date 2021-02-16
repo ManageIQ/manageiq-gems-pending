@@ -16,7 +16,7 @@ class MiqSwiftStorage < MiqObjectStorage
     @bucket_name = URI(@settings[:uri]).host
 
     raise "username and password are required values!" if @settings[:username].nil? || @settings[:password].nil?
-    _scheme, _userinfo, @host, @port, _registry, path, _opaque, query, _fragment = URI.split(URI.encode(@settings[:uri]))
+    _scheme, _userinfo, @host, @port, _registry, path, _opaque, query, _fragment = URI.split(URI::DEFAULT_PARSER.escape(@settings[:uri]))
     query_params(query) if query
     @swift          = nil
     @username       = @settings[:username]
@@ -30,7 +30,7 @@ class MiqSwiftStorage < MiqObjectStorage
   def uri_to_object_path(remote_file)
     # Strip off the leading "swift://" and the container name from the URI"
     # Also remove the leading delimiter.
-    object_file_with_bucket = URI.split(URI.encode(remote_file))[5]
+    object_file_with_bucket = URI.split(URI::DEFAULT_PARSER.escape(remote_file))[5]
     object_file_with_bucket.split(File::Separator)[2..-1].join(File::Separator)
   end
 

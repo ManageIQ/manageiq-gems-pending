@@ -96,9 +96,9 @@ b:
 
   context "long messages" do
     it "truncates long messages when max_message_size is set" do
-      msg = "a" * 1_572_864 # 1.5 mb in bytes
+      msg = "a" * 10.kilobytes
       _, message = VMDBLogger::Formatter.new.call(:error, Time.now.utc, "", msg).split("-- : ")
-      expect(message.strip.size).to eq(1.megabyte)
+      expect(message.strip.size).to eq(8.kilobytes)
     end
   end
 

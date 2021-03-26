@@ -5,7 +5,7 @@ require 'active_support/core_ext/string'
 require 'English'
 
 class VMDBLogger < Logger
-  MAX_LOG_LINE_LENGTH = 1.megabyte
+  MAX_LOG_LINE_LENGTH = 8.kilobytes
 
   def initialize(*args)
     super

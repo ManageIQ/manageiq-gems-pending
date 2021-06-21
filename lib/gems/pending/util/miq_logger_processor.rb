@@ -127,7 +127,7 @@ class MiqLoggerLine < String
   alias_method :to_a,  :parts
   alias_method :split, :parts
 
-  PARTS = %w(time pid tid level q_task_id fq_method message).freeze
+  PARTS = %w(time pid tid level progname q_task_id fq_method message).freeze
   PARTS.each_with_index do |m, i|
     define_method(m) { parts[i] }
   end
@@ -148,9 +148,16 @@ class MiqLoggerLine < String
     pidtid = line[39...bracket_index]
     pid, tid = pidtid.split(':')
 
-    level = line[bracket_index + 2, 5].strip
+    level_index = bracket_index + 2
+    level = line[level_index, 5].strip
 
-    message = line[bracket_index + 13..-1]
+    progname_index = level_index + 9 # 5 for the level + 4 for the " -- "
+    message_index = line.index(": ", progname_index) + 2 # Find up to the ": " separator for the message
+
+    progname = line[progname_index...message_index].strip[0..-2]
+    progname = nil if progname.empty?
+
+    message = line[message_index..-1]
     if message[0, 9] == "Q-task_id"
       q_bracket_index = message.index(']', 11)
       q_task_id = message[11...q_bracket_index]
@@ -161,8 +168,8 @@ class MiqLoggerLine < String
     fq_method = message[/^MIQ\(([\d\w\:\.\#\_\-]*)\)/, 1] if message && message.start_with?("MIQ(")
     message.chomp!
 
-    return time, pid, tid, level, q_task_id, fq_method, message
+    return time, pid, tid, level, progname, q_task_id, fq_method, message
   rescue
-    return nil, nil, nil, nil, nil, line
+    return nil, nil, nil, nil, nil, nil, line
   end
 end

@@ -28,7 +28,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "fog-openstack",           "~> 0.3"
   s.add_runtime_dependency "handsoap",                "=  0.2.5.5"
   s.add_runtime_dependency "linux_admin",             "~> 2.0"
-  s.add_runtime_dependency "manageiq-password",       "~> 0.3"
+  s.add_runtime_dependency "manageiq-password",       "< 2"
   s.add_runtime_dependency "mime-types",              "~> 3.0"
   s.add_runtime_dependency "more_core_extensions",    "~> 4.3"
   s.add_runtime_dependency "net-scp",                 "~> 1.2.1"

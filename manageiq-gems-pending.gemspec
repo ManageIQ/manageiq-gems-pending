@@ -25,7 +25,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "aws-sdk-s3",              "~> 1.0"
   s.add_runtime_dependency "bundler",                 "~> 2.1", ">= 2.1.4", "!= 2.2.10"
   s.add_runtime_dependency "erubis",                  "= 2.7.0" # For winrm-elevated; can be removed when we upgrade to winrm-elevated >= 1.1.2
-  s.add_runtime_dependency "fog-openstack",           "~> 0.3"
+  s.add_runtime_dependency "fog-openstack",           "~> 1.0"
   s.add_runtime_dependency "more_core_extensions",    "~> 4.4"
   s.add_runtime_dependency "nokogiri",                "~> 1.13", ">= 1.13.6"
   s.add_runtime_dependency "sys-proctable",           "~> 1.2.5"

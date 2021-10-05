@@ -7,7 +7,7 @@ require 'English'
 class VMDBLogger < Logger
   MAX_LOG_LINE_LENGTH = 8.kilobytes
 
-  def initialize(*args)
+  def initialize(*args, **kwargs)
     super
     self.level = INFO
 

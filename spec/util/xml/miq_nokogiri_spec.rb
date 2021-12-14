@@ -1,20 +1,7 @@
-require 'minitest/unit'
 require 'util/miq-xml'
 require 'nokogiri'
 
-class NokogiriXmlMethods < Minitest::Test
-  #  require_relative 'xml_base_parser_tests'
-  #  include XmlBaseParserTests
-
-  def setup
-    @xml_klass = Nokogiri::XML
-    @xml_string ||= default_test_xml
-    @xml = MiqXml.load(@xml_string, :nokogiri)
-  end
-
-  def teardown
-  end
-
+describe "miq_nokogiri" do
   def default_test_xml
     xml_string = <<-EOL
       <?xml version='1.0' encoding='UTF-8'?>
@@ -99,105 +86,110 @@ class NokogiriXmlMethods < Minitest::Test
     xml_string.strip!
   end
 
-  def test_create_document
-    xml = @xml
-    assert_kind_of(@xml_klass::Document, xml)
-
-    #    @xml_klass.load(@xml_string)
-    #    assert_kind_of(@xml_klass::Document, xml)
+  before do
+    @xml_klass = Nokogiri::XML
+    @xml_string ||= default_test_xml
+    @xml = MiqXml.load(@xml_string, :nokogiri)
   end
 
-  def test_create_new_doc
+  it "create document" do
+    xml = @xml
+    expect(xml).to be_kind_of(@xml_klass::Document)
+
+    #    @xml_klass.load(@xml_string)
+    #    expect(xml).to be_kind_of(@xml_klass::Document)
+  end
+
+  it "create new doc" do
     xml_new = MiqXml.newDoc(@xml_klass)
-    assert_nil(xml_new.root)
+    expect(xml_new.root).to be_nil
     xml_new.add_element('root')
-    refute_nil(xml_new.root)
-    assert_equal("root", xml_new.root.name.to_s)
+    expect(xml_new.root).to_not be_nil
+    expect(xml_new.root.name.to_s).to eq("root")
 
     new_node = xml_new.root.add_element("node1", "enabled" => true, "disabled" => false, "nothing" => nil)
 
-    assert_equal(true, MiqXml.isXmlElement?(new_node))
-    assert_equal(false, MiqXml.isXmlElement?(nil))
+    expect(MiqXml.isXmlElement?(new_node)).to be true
+    expect(MiqXml.isXmlElement?(nil)).to be false
 
     attrs = new_node.attributes
-    assert_equal("true", attrs["enabled"].to_s)
-    assert_equal("false", attrs["disabled"].to_s)
-    assert_nil(attrs["nothing"])
+    expect(attrs["enabled"].to_s).to eq("true")
+    expect(attrs["disabled"].to_s).to eq("false")
+    expect(attrs["nothing"]).to be_nil
     new_node.add_attributes("nothing" => "something")
-    assert_equal("something", new_node.attributes["nothing"].to_s)
+    expect(new_node.attributes["nothing"].to_s).to eq("something")
 
-    assert_kind_of(@xml_klass::Document, xml_new.document)
-    assert_kind_of(@xml_klass::Document, xml_new.doc)
-    refute_equal(@xml_klass::Document, xml_new.root.class)
-    assert_kind_of(@xml_klass::Document, xml_new.root.doc)
-    assert_equal(xml_new.document, xml_new.doc)
-    assert_kind_of(@xml_klass::Document, xml_new.root.doc)
-    refute_equal(@xml_klass::Document, xml_new.root.root.class)
+    expect(xml_new.document).to be_kind_of(@xml_klass::Document)
+    expect(xml_new.doc).to be_kind_of(@xml_klass::Document)
+    expect(xml_new.root.class).to_not eq(@xml_klass::Document)
+    expect(xml_new.root.doc).to be_kind_of(@xml_klass::Document)
+    expect(xml_new.document).to eq(xml_new.doc)
+    expect(xml_new.root.doc).to be_kind_of(@xml_klass::Document)
+    expect(xml_new.root.root.class).to_not eq(@xml_klass::Document)
 
     # Create an empty document with the utf-8 encoding
     # During assert allow for single quotes and new line char.
     xml_new = MiqXml.createDoc(nil, nil, nil, @xml_klass)
-    assert_equal("<?xml version='1.0' encoding='UTF-8'?>", xml_new.to_xml.to_s.tr("\"", "'").chomp)
+    expect(xml_new.to_xml.to_s.tr("\"", "'").chomp).to eq("<?xml version='1.0' encoding='UTF-8'?>")
   end
 
-  def test_xml_encoding
+  it "xml encoding" do
     xml_new = @xml
     encoded_xml = MIQEncode.encode(xml_new.to_s)
-    assert_instance_of(String, encoded_xml)
+    expect(encoded_xml).to be_instance_of(String)
     xml_unencoded = MiqXml.decode(encoded_xml, @xml_klass)
-    assert_equal(xml_new.to_s, xml_unencoded.to_s)
+    expect(xml_unencoded.to_s).to eq(xml_new.to_s)
   end
 
-  def test_find_each
+  it "#find_each" do
     xml = @xml
     row_order = %w(8 7 6 4 5)
     xml.find_each("//row") do |e|
-      assert_equal(e.attributes["id"].to_s, row_order.delete_at(0))
+      expect(e.attributes["id"].to_s).to eq(row_order.delete_at(0))
     end
-    assert_equal(0, row_order.length)
+    expect(row_order.length).to eq(0)
   end
 
-  def test_find_first
+  it "#find_first" do
     xml = @xml
     x = xml.find_first("//row")
-    refute_nil(x)
-    assert_equal("8", x.attributes["id"].to_s)
+    expect(x).to_not be_nil
+    expect(x.attributes["id"].to_s).to eq("8")
   end
 
-  def test_find_match
+  it "#find_match" do
     xml = @xml
     x = xml.find_match("//row")
-    refute_nil(x)
-    assert_equal(5, x.length)
-    assert_equal("8", x[0].attributes["id"].to_s)
-    assert_equal("4", x[3].attributes["id"].to_s)
+    expect(x).to_not be_nil
+    expect(x.length).to eq(5)
+    expect(x[0].attributes["id"].to_s).to eq("8")
+    expect(x[3].attributes["id"].to_s).to eq("4")
   end
 
-  def test_add_frozen_text
+  it "add frozen text" do
     xml = @xml
-    assert_kind_of(@xml_klass::Document, xml)
+    expect(xml).to be_kind_of(@xml_klass::Document)
 
-    "A&P".freeze
     # frozen_text = "A&P".freeze
-    # assert_nothing_raised {xml.root.text = frozen_text}
+    # xml.root.text = frozen_text # Expect to not raise
     # TODO: Fix decoding of special characters
-    # assert_equal("A&P", xml.root.text)
+    # expect(xml.root.text).to eq("A&P")
   end
 
-  def test_root_text
+  it "root text" do
     node = @xml.root
-    assert_equal("", node.node_text.to_s.rstrip)
+    expect(node.node_text.to_s.rstrip).to eq("")
     node.text = "Hello World"
-    assert_equal("Hello World", node.node_text.to_s.rstrip)
+    expect(node.node_text.to_s.rstrip).to eq("Hello World")
 
     # Make sure adding text does not destroy child elements
-    assert_equal(true, node.has_elements?)
+    expect(node.has_elements?).to eq(true)
     count = 0
     @xml.root.each_element { |_e| count += 1 }
-    assert_equal(6, count)
+    expect(count).to eq(6)
   end
 
-  def test_cdata
+  it "cdata" do
     xml = MiqXml.newDoc(@xml_klass)
     xml.add_element('root')
 
@@ -205,7 +197,7 @@ class NokogiriXmlMethods < Minitest::Test
     html_text = "<b>#{time}</b>"
     xml.root.add_cdata(html_text.gsub(",", "\\,"))
 
-    assert(xml.to_s.include?("![CDATA[<b>#{time}</b>]]"))
-    assert_equal("<b>#{time}</b>", xml.root.text)
+    expect(xml.to_s).to include("![CDATA[<b>#{time}</b>]]")
+    expect(xml.root.text).to eq("<b>#{time}</b>")
   end
 end

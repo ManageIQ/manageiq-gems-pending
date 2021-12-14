@@ -7,8 +7,6 @@ require 'manageiq-gems-pending'
 # Initialize the global logger that might be expected
 require 'logger'
 $log ||= Logger.new("/dev/null")
-# $log ||= Logger.new(STDOUT)
-# $log.level = Logger::DEBUG
 
 # Requires supporting files with custom matchers and macros, etc,
 # in ./support/ and its subdirectories.

@@ -19,6 +19,8 @@ jobs:
         bundler-cache: true
     - name: Run tests
       run: bundle exec rake
+      env:
+        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
     - if: ${{ github.ref == 'refs/heads/master' && matrix.ruby-version == '2.7' }}
       name: Report code coverage
       continue-on-error: true

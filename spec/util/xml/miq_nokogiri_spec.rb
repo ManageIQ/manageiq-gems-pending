@@ -3,7 +3,7 @@ require 'nokogiri'
 
 describe "miq_nokogiri" do
   def default_test_xml
-    xml_string = <<-EOL
+    xml_string = <<-XML
       <?xml version='1.0' encoding='UTF-8'?>
       <rows>
         <head>
@@ -82,7 +82,7 @@ describe "miq_nokogiri" do
           <cell></cell>
         </row>
       </rows>
-    EOL
+    XML
     xml_string.strip!
   end
 

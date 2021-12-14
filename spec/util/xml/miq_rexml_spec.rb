@@ -13,13 +13,13 @@ describe MIQRexml do
 
     it "#find_each" do
       xml = @xml
-      row_order = %w(8 7 6 4 5)
+      row_order = %w[8 7 6 4 5]
       REXML::XPath.each(xml, "//row") do |e|
         expect(e.attributes["id"]).to eq(row_order.delete_at(0))
       end
       expect(row_order.length).to eq(0)
 
-      row_order = %w(8 7 6 4 5)
+      row_order = %w[8 7 6 4 5]
       xml.find_each("//row") do |e|
         expect(e.attributes["id"]).to eq(row_order.delete_at(0))
       end
@@ -87,7 +87,7 @@ describe MIQRexml do
       expect(count).to eq(3)
 
       count = 0
-      node.attributes.to_h.each do|k, v|
+      node.attributes.to_h.each do |k, v|
         expect(k).to_not be_nil
         expect(k).to be_instance_of(Symbol)
         expect(v).to_not be_nil
@@ -95,15 +95,15 @@ describe MIQRexml do
       end
       expect(count).to eq(3)
 
-      node.attributes.to_h.each do|k, _v|
+      node.attributes.to_h.each do |k, _v|
         expect(k).to be_instance_of(Symbol)
       end
 
-      node.attributes.to_h(true).each do|k, _v|
+      node.attributes.to_h(true).each do |k, _v|
         expect(k).to be_instance_of(Symbol)
       end
 
-      node.attributes.to_h(false).each do|k, _v|
+      node.attributes.to_h(false).each do |k, _v|
         expect(k).to be_instance_of(String)
       end
 
@@ -183,9 +183,9 @@ describe MIQRexml do
     end
   end
 
-  def check_element(e, value, encoded_value)
-    expect(e.attributes["test_attr_str"]).to eq(value)
-    x = e.attributes.get_attribute("test_attr_str")
+  def check_element(element, value, encoded_value)
+    expect(element.attributes["test_attr_str"]).to eq(value)
+    x = element.attributes.get_attribute("test_attr_str")
     expect(x.to_s).to eq(encoded_value)
     expect(x.value).to eq(value)
   end

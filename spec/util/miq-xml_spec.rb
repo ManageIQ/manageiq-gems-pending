@@ -20,7 +20,7 @@ describe MiqXml do
   end
 
   it "add_element with control characters" do
-    attr_hash = { "attr1" => "test\u000Fst\u001Fring" }
+    attr_hash = {"attr1" => "test\u000Fst\u001Fring"}
     doc = MiqXml.createDoc(nil)
     doc.add_element('element_1', attr_hash)
     expect(doc.elements[1].attributes['attr1']).to eq("teststring")

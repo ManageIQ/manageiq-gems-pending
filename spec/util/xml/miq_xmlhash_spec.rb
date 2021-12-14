@@ -114,29 +114,29 @@ describe XmlHash do
     end
 
     it "XmlSimple" do
-      simple_xml_text = <<-EOL
-      <MiqAeDatastore>
-        <MiqAeClass name="AUTOMATE" namespace="EVM">
-          <MiqAeSchema>
-            <MiqAeField name="discover" aetype="relation" default_value="" display_name="Discovery Relationships"/>
-          </MiqAeSchema>
-          <MiqAeInstance name="aevent">
-            <MiqAeField name="discover">//evm/discover/${//workspace/aevent/type}</MiqAeField>
-          </MiqAeInstance>
-        </MiqAeClass>
-        <MiqAeClass name="DISCOVER" namespace="EVM">
-          <MiqAeSchema>
-            <MiqAeField name="os" aetype="attribute" default_value=""/>
-          </MiqAeSchema>
-          <MiqAeInstance name="vm">
-            <MiqAeField name="os">this should be a method to get the OS if it is not in the inbound object</MiqAeField>
-          </MiqAeInstance>
-          <MiqAeInstance name="host">
-            <MiqAeField name="os" value="sometimes"/>
-          </MiqAeInstance>
-        </MiqAeClass>
-      </MiqAeDatastore>
-      EOL
+      simple_xml_text = <<-XML
+        <MiqAeDatastore>
+          <MiqAeClass name="AUTOMATE" namespace="EVM">
+            <MiqAeSchema>
+              <MiqAeField name="discover" aetype="relation" default_value="" display_name="Discovery Relationships"/>
+            </MiqAeSchema>
+            <MiqAeInstance name="aevent">
+              <MiqAeField name="discover">//evm/discover/${//workspace/aevent/type}</MiqAeField>
+            </MiqAeInstance>
+          </MiqAeClass>
+          <MiqAeClass name="DISCOVER" namespace="EVM">
+            <MiqAeSchema>
+              <MiqAeField name="os" aetype="attribute" default_value=""/>
+            </MiqAeSchema>
+            <MiqAeInstance name="vm">
+              <MiqAeField name="os">this should be a method to get the OS if it is not in the inbound object</MiqAeField>
+            </MiqAeInstance>
+            <MiqAeInstance name="host">
+              <MiqAeField name="os" value="sometimes"/>
+            </MiqAeInstance>
+          </MiqAeClass>
+        </MiqAeDatastore>
+      XML
 
       h = XmlSimple.xml_in(simple_xml_text)
       h2 = XmlHash.load(simple_xml_text).to_h(:symbols => false)

@@ -8,8 +8,8 @@ jobs:
     strategy:
       matrix:
         ruby-version:
-        - 2.6
-        - 2.7
+        - '2.6'
+        - '2.7'
     steps:
     - uses: actions/checkout@v2
     - name: Set up Ruby
@@ -19,3 +19,9 @@ jobs:
         bundler-cache: true
     - name: Run tests
       run: bundle exec rake
+    - if: ${{ github.ref == 'refs/heads/master' && matrix.ruby-version == '2.7' }}
+      name: Report code coverage
+      continue-on-error: true
+      uses: paambaati/codeclimate-action@v3.0.0
+      env:
+        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}

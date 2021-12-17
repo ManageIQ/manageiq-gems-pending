@@ -32,6 +32,4 @@ exclude_patterns:
 - "**.yaml"
 - "**.yml"
 - spec/
-- test/
-- lib/gems/pending/*/test/
 version: '2'

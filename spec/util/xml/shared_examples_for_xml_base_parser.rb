@@ -1,6 +1,6 @@
-module XmlBaseParserTests
+shared_examples_for "xml base parser" do
   def default_test_xml
-    xml_string = <<-EOL
+    xml_string = <<-XML
       <?xml version='1.0' encoding='UTF-8'?>
       <rows>
         <head>
@@ -79,59 +79,59 @@ module XmlBaseParserTests
           <cell></cell>
         </row>
       </rows>
-    EOL
+    XML
     xml_string.strip!
   end
 
-  def test_create_document
+  it "create document" do
     xml = @xml
-    assert_kind_of(@xml_klass::Document, xml)
+    expect(xml).to be_kind_of(@xml_klass::Document)
 
     #    @xml_klass.load(@xml_string)
-    #    assert_kind_of(@xml_klass::Document, xml)
+    #    expect(xml).to be_kind_of(@xml_klass::Document)
   end
 
-  def test_each_element
+  it "#each_element" do
     xml = @xml
 
     count = 0
     xml.each_element { |_e| count += 1 }
-    assert_equal(1, count)
+    expect(count).to eq(1)
 
     # Test each method with and without xpaths
     count = 0
     xml.root.each_element { |_e| count += 1 }
-    assert_equal(6, count)
+    expect(count).to eq(6)
 
     count = 0
     xml.root.each_element("head") { |_e| count += 1 }
-    assert_equal(1, count)
+    expect(count).to eq(1)
 
     count = 0
     xml.root.each_element("row") { |_e| count += 1 }
-    assert_equal(5, count)
+    expect(count).to eq(5)
 
     count = 0
     xml.root.elements.each { |_e| count += 1 }
-    assert_equal(6, count)
+    expect(count).to eq(6)
   end
 
-  def test_has_children
+  it "#has_elements?" do
     node = @xml.root
-    assert_equal('rows', node.name.to_s)
-    assert_equal(true, node.has_elements?)
+    expect(node.name.to_s).to eq('rows')
+    expect(node.has_elements?).to be true
 
     node = node.elements[1]
-    assert_equal('head', node.name.to_s)
-    assert_equal(true, node.has_elements?)
+    expect(node.name.to_s).to eq('head')
+    expect(node.has_elements?).to be true
 
     node = node.elements[1]
-    assert_equal('column', node.name.to_s)
-    assert_equal(false, node.has_elements?)
+    expect(node.name.to_s).to eq('column')
+    expect(node.has_elements?).to be false
   end
 
   # Moving xml nodes between documents is a feature required for differencing
-  def test_move_node
+  it "move node" do
     xml_full = MiqXml.load(@xml_string, @xml_klass)
     xml_part = MiqXml.load("<root/>", @xml_klass)
     xml_part.root << xml_full.root.elements[2]
@@ -139,119 +139,119 @@ module XmlBaseParserTests
     count = 0
     full_ids = []
     xml_full.root.each_element { |e| count += 1; full_ids << e.attributes["id"] }
-    assert_equal(5, count)
+    expect(count).to eq(5)
 
     count = 0
     xml_part.root.each_element { |_e| count += 1 }
-    assert_equal(1, count)
+    expect(count).to eq(1)
 
-    assert_equal("8", xml_part.root.elements[1].attributes["id"])
-    assert(!full_ids.include?("8"))
+    expect(xml_part.root.elements[1].attributes["id"]).to eq("8")
+    expect(full_ids).to_not include("8")
 
     # Re-assign root document value
     doc = MiqXml.load(@xml_string, @xml_klass)
     doc.root = doc.root.elements[1].elements[1]
 
-    assert_equal("column", doc.root.name.to_s)
-    assert_equal("link", doc.root.attributes[:type])
+    expect(doc.root.name.to_s).to eq("column")
+    expect(doc.root.attributes[:type]).to eq("link")
   end
 
-  def test_doc_root_reassignment
+  it "doc root reassignment" do
     # Re-assign root document value
     doc = MiqXml.load(@xml_string, @xml_klass)
     doc.root = doc.root.elements[1].elements[1]
     GC.start  # Required by libxml to avoid core dump
 
-    assert_equal("column", doc.root.name.to_s)
-    assert_equal("link", doc.root.attributes["type"].to_s)
+    expect(doc.root.name.to_s).to eq("column")
+    expect(doc.root.attributes["type"].to_s).to eq("link")
   end
 
-  def test_root_text
+  it "root text" do
     node = @xml.root
-    assert_equal("", node.text.to_s.rstrip)
+    expect(node.text.to_s.rstrip).to eq("")
     node.text = "Hello World"
-    assert_equal("Hello World", node.text.to_s.rstrip)
+    expect(node.text.to_s.rstrip).to eq("Hello World")
 
     # Make sure adding text does not destroy child elements
-    assert_equal(true, node.has_elements?)
+    expect(node.has_elements?).to be true
     count = 0
     @xml.root.each_element { |_e| count += 1 }
-    assert_equal(6, count)
+    expect(count).to eq(6)
   end
 
-  def test_diff
+  it "diff" do
     xml = MiqXml.newDoc(@xml_klass)
-    assert_respond_to(xml, :xmlDiff)
-    assert_respond_to(xml, :xmlPatch)
+    expect(xml).to respond_to(:xmlDiff)
+    expect(xml).to respond_to(:xmlPatch)
 
     stats = {}
 
     xml_old = MiqXml.load(@xml_string, @xml_klass)
     xml_new = MiqXml.load(@xml_string, @xml_klass)
     xml_diff = xml_new.xmlDiff(xml_old, stats)
-    assert_equal(0, stats[:adds])
-    assert_equal(0, stats[:deletes])
-    assert_equal(0, stats[:updates])
+    expect(stats[:adds]).to eq(0)
+    expect(stats[:deletes]).to eq(0)
+    expect(stats[:updates]).to eq(0)
 
     # Reload document and simulate a deleted node
     xml_old = MiqXml.load(@xml_string, @xml_klass)
     xml_new = MiqXml.load(@xml_string, @xml_klass)
     node = xml_new.root.elements[3]
-    assert_equal("7", node.attributes[:id])
+    expect(node.attributes[:id]).to eq("7")
     node.remove!
     xml_diff = xml_new.xmlDiff(xml_old, stats)
 
-    assert_equal(0, stats[:adds])
-    assert_equal(1, stats[:deletes])
-    assert_equal(0, stats[:updates])
+    expect(stats[:adds]).to eq(0)
+    expect(stats[:deletes]).to eq(1)
+    expect(stats[:updates]).to eq(0)
 
     # Reload document and simulate an added node
     xml_old = MiqXml.load(@xml_string, @xml_klass)
     xml_new = MiqXml.load(@xml_string, @xml_klass)
     node = xml_new.root.add_element("added_test_element", :id => 10)
     xml_diff = xml_new.xmlDiff(xml_old, stats)
-    assert_equal(1, stats[:adds])
-    assert_equal(0, stats[:deletes])
-    assert_equal(0, stats[:updates])
+    expect(stats[:adds]).to eq(1)
+    expect(stats[:deletes]).to eq(0)
+    expect(stats[:updates]).to eq(0)
 
     # Reload document and simulate an update to a node with a changed attribute value
     xml_old = MiqXml.load(@xml_string, @xml_klass)
     xml_new = MiqXml.load(@xml_string, @xml_klass)
     node = xml_new.root.elements[1].elements[1]
-    assert_equal("link", node.attributes[:type])
+    expect(node.attributes[:type]).to eq("link")
     node.add_attribute(:width, "11")
     xml_diff = xml_new.xmlDiff(xml_old, stats)
-    assert_equal(0, stats[:adds])
-    assert_equal(0, stats[:deletes])
-    assert_equal(1, stats[:updates])
+    expect(stats[:adds]).to eq(0)
+    expect(stats[:deletes]).to eq(0)
+    expect(stats[:updates]).to eq(1)
 
     # Reload document and simulate an update to a node with a new attribute
     xml_old = MiqXml.load(@xml_string, @xml_klass)
     xml_new = MiqXml.load(@xml_string, @xml_klass)
     node = xml_new.root.elements[1].elements[1]
-    assert_equal("link", node.attributes[:type])
+    expect(node.attributes[:type]).to eq("link")
     node.add_attribute(:test_attr, "hello there")
     xml_diff = xml_new.xmlDiff(xml_old, stats)
-    assert_equal(0, stats[:adds])
-    assert_equal(0, stats[:deletes])
-    assert_equal(1, stats[:updates])
+    expect(stats[:adds]).to eq(0)
+    expect(stats[:deletes]).to eq(0)
+    expect(stats[:updates]).to eq(1)
 
     # Reload document and simulate an update to a node with a deleted attribute
     xml_old = MiqXml.load(@xml_string, @xml_klass)
     xml_new = MiqXml.load(@xml_string, @xml_klass)
     node = xml_new.root.elements[1].elements[1]
-    assert_equal("link", node.attributes[:type])
+    expect(node.attributes[:type]).to eq("link")
     node.attributes.delete(:sort)
     node.attributes.delete("sort")
     xml_diff = xml_new.xmlDiff(xml_old, stats)
-    assert_equal(0, stats[:adds])
-    assert_equal(0, stats[:deletes])
-    assert_equal(1, stats[:updates])
+    expect(stats[:adds]).to eq(0)
+    expect(stats[:deletes]).to eq(0)
+    expect(stats[:updates]).to eq(1)
   end
 
-  def test_patch
-    assert_respond_to(@xml, :xmlDiff)
-    assert_respond_to(@xml, :xmlPatch)
+  it "patch" do
+    expect(@xml).to respond_to(:xmlDiff)
+    expect(@xml).to respond_to(:xmlPatch)
 
     stats = {}
 
@@ -259,335 +259,163 @@ module XmlBaseParserTests
     xml_old = MiqXml.load(@xml_string, @xml_klass)
     xml_new = MiqXml.load(@xml_string, @xml_klass)
     node = xml_new.root.elements[3]
-    assert_equal("7", node.attributes[:id])
+    expect(node.attributes[:id]).to eq("7")
     node.remove!
     xml_diff = xml_new.xmlDiff(xml_old, stats)
-    assert_equal(0, stats[:adds])
-    assert_equal(1, stats[:deletes])
-    assert_equal(0, stats[:updates])
+    expect(stats[:adds]).to eq(0)
+    expect(stats[:deletes]).to eq(1)
+    expect(stats[:updates]).to eq(0)
 
     xml_old = MiqXml.load(@xml_string, @xml_klass)
     xml_new = MiqXml.load(@xml_string, @xml_klass)
     node = xml_new.root.elements[3]
-    assert_equal("7", node.attributes[:id])
+    expect(node.attributes[:id]).to eq("7")
     node.remove!
     patch_ret = xml_old.xmlPatch(xml_diff)
-    assert_equal(0, patch_ret[:errors])
+    expect(patch_ret[:errors]).to eq(0)
 
     xml_diff = xml_new.xmlDiff(xml_old, stats)
-    assert_equal(0, stats[:adds])
-    assert_equal(0, stats[:deletes])
-    assert_equal(0, stats[:updates])
+    expect(stats[:adds]).to eq(0)
+    expect(stats[:deletes]).to eq(0)
+    expect(stats[:updates]).to eq(0)
 
     # Reload document and simulate an added node
     xml_old = MiqXml.load(@xml_string, @xml_klass)
     xml_new = MiqXml.load(@xml_string, @xml_klass)
     node = xml_new.root.elements[3]
-    assert_equal("7", node.attributes[:id])
+    expect(node.attributes[:id]).to eq("7")
     node.add_element("new_test_node", "attr1" => "one")
     xml_diff = xml_new.xmlDiff(xml_old, stats)
-    assert_equal(1, stats[:adds])
-    assert_equal(0, stats[:deletes])
-    assert_equal(0, stats[:updates])
+    expect(stats[:adds]).to eq(1)
+    expect(stats[:deletes]).to eq(0)
+    expect(stats[:updates]).to eq(0)
 
     xml_old = MiqXml.load(@xml_string, @xml_klass)
     xml_new = MiqXml.load(@xml_string, @xml_klass)
     node = xml_new.root.elements[3]
-    assert_equal("7", node.attributes[:id])
+    expect(node.attributes[:id]).to eq("7")
     node.add_element("new_test_node", "attr1" => "one")
     patch_ret = xml_old.xmlPatch(xml_diff)
-    assert_equal(0, patch_ret[:errors])
+    expect(patch_ret[:errors]).to eq(0)
 
     xml_diff = xml_new.xmlDiff(xml_old, stats)
-    assert_equal(0, stats[:adds])
-    assert_equal(0, stats[:deletes])
-    assert_equal(0, stats[:updates])
+    expect(stats[:adds]).to eq(0)
+    expect(stats[:deletes]).to eq(0)
+    expect(stats[:updates]).to eq(0)
 
     # Reload document and simulate an updated node
     xml_old = MiqXml.load(@xml_string, @xml_klass)
     xml_new = MiqXml.load(@xml_string, @xml_klass)
     node = xml_new.root.elements[3]
-    assert_equal("7", node.attributes[:id])
+    expect(node.attributes[:id]).to eq("7")
     node.add_attribute("new_test_node", "attr1" => "one")
     xml_diff = xml_new.xmlDiff(xml_old, stats)
-    assert_equal(0, stats[:adds])
-    assert_equal(0, stats[:deletes])
-    assert_equal(1, stats[:updates])
+    expect(stats[:adds]).to eq(0)
+    expect(stats[:deletes]).to eq(0)
+    expect(stats[:updates]).to eq(1)
 
     xml_old = MiqXml.load(@xml_string, @xml_klass)
     xml_new = MiqXml.load(@xml_string, @xml_klass)
     node = xml_old.root.elements[3]
-    assert_equal("7", node.attributes[:id])
+    expect(node.attributes[:id]).to eq("7")
     node.add_attribute("new_test_node", "attr1" => "one")
     patch_ret = xml_old.xmlPatch(xml_diff, -1)
-    assert_equal(0, patch_ret[:errors])
+    expect(patch_ret[:errors]).to eq(0)
 
     xml_diff = xml_new.xmlDiff(xml_old, stats)
-    assert_equal(0, stats[:adds])
-    assert_equal(0, stats[:deletes])
-    assert_equal(0, stats[:updates])
+    expect(stats[:adds]).to eq(0)
+    expect(stats[:deletes]).to eq(0)
+    expect(stats[:updates]).to eq(0)
   end
 
-  #  def test_load_file
+  #  it "load file" do
   #    # TODO: Load file test
   #  end
 
-  def test_root_pointer
+  it "root pointer" do
     xml = MiqXml.load(@xml_string, @xml_klass)
     node = xml.elements[1].elements[1].elements[11].elements[1]
     while node
       if node.parent
         if @xml_klass == Nokogiri::XML
-          assert_kind_of(@xml_klass::Node, node)
+          expect(node).to be_kind_of(@xml_klass::Node)
         else
-          assert_kind_of(@xml_klass::Element, node)
+          expect(node).to be_kind_of(@xml_klass::Element)
         end
       else
-        assert_kind_of(@xml_klass::Document, node)
+        expect(node).to be_kind_of(@xml_klass::Document)
       end
       node = node.parent
     end
   end
 
-  def test_attribute
-    xml = @xml
-    assert_kind_of(@xml_klass::Document, xml)
-
-    node = xml.find_first("//column")
-    assert_equal(true, node.attributes.key?("type"))
-
-    attrs = xml.root.attributes.to_h
-    assert_kind_of(Hash, attrs)
-    assert_equal(0, attrs.length)
-
-    attrs = node.attributes.to_h
-    assert_kind_of(Hash, attrs)
-    assert_equal(3, attrs.length)
-
-    count = 0
-    node.attributes.each_attrib do |k, v|
-      refute_nil(k)
-      assert_instance_of(String, k)
-      refute_nil(v)
-      assert_instance_of(String, v)
-      count += 1
-    end
-    assert_equal(3, count)
-
-    count = 0
-    node.attributes.to_h.each do|k, v|
-      refute_nil(k)
-      assert_instance_of(Symbol, k)
-      refute_nil(v)
-      count += 1
-    end
-    assert_equal(3, count)
-
-    node.attributes.to_h.each do|k, _v|
-      assert_instance_of(Symbol, k)
-    end
-
-    node.attributes.to_h(true).each do|k, _v|
-      assert_instance_of(Symbol, k)
-    end
-
-    node.attributes.to_h(false).each do|k, _v|
-      assert_instance_of(String, k)
-    end
-
-    e1 = e2 = node
-    e1.attributes.each_pair do |k, v|
-      assert_equal(false, v.to_s != e2.attributes[k])
-    end
-
-    e1.attributes.each_key do |k|
-      assert_instance_of(String, k)
-    end
-  end
-
-  def test_missing_attribute
+  it "missing attribute" do
     # Validate that nil is return for attributes that do not exist
     e = @xml.root.elements[2]
-    assert_equal(e.attributes['id'], '8')
-    assert_nil(e.attributes['none'])
-    puts
+    expect(e.attributes['id']).to eq('8')
+    expect(e.attributes['none']).to be_nil
   end
 
-  def test_get_element
+  it "get element" do
     xml = @xml
     node = xml.elements[1]
-    assert_equal("rows", node.name.to_s)
+    expect(node.name.to_s).to eq("rows")
 
     node = xml.elements[1].elements[1]
-    assert_equal("head", node.name.to_s)
+    expect(node.name.to_s).to eq("head")
 
     node = xml.elements[1].elements[1].elements[11].elements[1]
-    assert_equal("colwidth", node.name.to_s)
+    expect(node.name.to_s).to eq("colwidth")
 
     # Test getting individual sub-elements
     node = xml.root.elements[1]
-    assert_nil(node.attributes["id"])
+    expect(node.attributes["id"]).to be_nil
 
     node = xml.root.elements[1]
-    assert_nil(node.attributes["id"])
+    expect(node.attributes["id"]).to be_nil
 
     node = xml.root.elements[3]
-    assert_equal("7", node.attributes["id"].to_s)
+    expect(node.attributes["id"].to_s).to eq("7")
 
     node = xml.root.elements[6]
-    assert_equal("5", node.attributes["id"].to_s)
+    expect(node.attributes["id"].to_s).to eq("5")
 
-    assert_raises(RuntimeError) { xml.root.elements[0] }
+    expect { xml.root.elements[0] }.to raise_error(RuntimeError)
 
-    assert_nil(xml.root.elements[7])
+    expect(xml.root.elements[7]).to be_nil
 
     head = xml.root.elements[1]
-    assert_equal("head", head.name.to_s)
+    expect(head.name.to_s).to eq("head")
 
     count = 0
     head.each_element { |_e| count += 1 }
-    assert_equal(11, count)
+    expect(count).to eq(11)
 
     count = 0
     head.each_element("settings") { |_e| count += 1 }
-    assert_equal(1, count)
+    expect(count).to eq(1)
 
     node = xml.root.elements[3]
     node2 = xml.root.elements[4]
     copied_node = node.elements << node2
-    assert_equal("7", copied_node.parent.attributes["id"].to_s)
+    expect(copied_node.parent.attributes["id"].to_s).to eq("7")
 
     # Test that node (id=6) is now inside of node id=7
     node = xml.root.elements[3]
-    assert_equal("7", node.attributes["id"].to_s)
+    expect(node.attributes["id"].to_s).to eq("7")
     node2 = node.elements[11]
-    assert_equal("6", node2.attributes["id"].to_s)
+    expect(node2.attributes["id"].to_s).to eq("6")
   end
 
-  def test_create_new_doc
-    xml_new = MiqXml.newDoc(@xml_klass)
-    assert_nil(xml_new.root)
-    xml_new.add_element('root')
-    refute_nil(xml_new.root)
-    assert_equal("root", xml_new.root.name.to_s)
-
-    new_node = xml_new.root.add_element("node1", "enabled" => true, "disabled" => false, "nothing" => nil)
-
-    assert_equal(true, MiqXml.isXmlElement?(new_node))
-    assert_equal(false, MiqXml.isXmlElement?(nil))
-
-    attrs = new_node.attributes
-    assert_equal("true", attrs["enabled"].to_s)
-    assert_equal("false", attrs["disabled"].to_s)
-    assert_nil(attrs["nothing"])
-    new_node.add_attributes("nothing" => "something")
-    assert_equal("something", new_node.attributes["nothing"].to_s)
-
-    assert_kind_of(@xml_klass::Document, xml_new.document)
-    assert_kind_of(@xml_klass::Document, xml_new.doc)
-    refute_equal(@xml_klass::Document, xml_new.root.class)
-    assert_kind_of(@xml_klass::Document, xml_new.root.doc)
-    assert_equal(xml_new.document, xml_new.doc)
-    assert_kind_of(@xml_klass::Document, xml_new.root.doc)
-    refute_equal(@xml_klass::Document, xml_new.root.root.class)
-
-    # Create an empty document with the utf-8 encoding
-    # During assert allow for single quotes and new line char.
-    xml_new = MiqXml.createDoc(nil, nil, nil, @xml_klass)
-    assert_equal("<?xml version='1.0' encoding='UTF-8'?>", xml_new.to_xml.to_s.tr("\"", "'").chomp)
-  end
-
-  def test_create_new_node
-    node = MiqXml.newNode("scan_item", @xml_klass)
-    assert_equal("<scan_item/>", node.to_xml.to_s)
-    node = MiqXml.newNode(nil, @xml_klass)
-    assert_equal("</>", node.to_xml.to_s)
-  end
-
-  def test_xml_encoding
+  it "xml encoding" do
     xml_new = @xml
     encoded_xml = MIQEncode.encode(xml_new.to_s)
-    assert_instance_of(String, encoded_xml)
+    expect(encoded_xml).to be_instance_of(String)
     xml_unencoded = MiqXml.decode(encoded_xml, @xml_klass)
-    assert_equal(xml_new.to_xml.to_s, xml_unencoded.to_xml.to_s)
+    expect(xml_unencoded.to_xml.to_s).to eq(xml_new.to_xml.to_s)
   end
 
-  def test_find_each
-    xml = @xml
-    row_order = %w(8 7 6 4 5)
-    REXML::XPath.each(xml, "//row") do |e|
-      assert_equal(e.attributes["id"], row_order.delete_at(0))
-    end
-    assert_equal(0, row_order.length)
-
-    row_order = %w(8 7 6 4 5)
-    xml.find_each("//row") do |e|
-      assert_equal(e.attributes["id"], row_order.delete_at(0))
-    end
-    assert_equal(0, row_order.length)
-  end
-
-  def test_find_first
-    xml = @xml
-    x = REXML::XPath.first(xml, "//row")
-    refute_nil(x)
-    assert_equal("8", x.attributes["id"])
-
-    x = xml.find_first("//row")
-    refute_nil(x)
-    assert_equal("8", x.attributes["id"])
-  end
-
-  def test_find_match
-    xml = @xml
-    x = REXML::XPath.match(xml, "//row")
-    refute_nil(x)
-    assert_equal(5, x.length)
-    assert_equal("8", x[0].attributes["id"])
-    assert_equal("4", x[3].attributes["id"])
-
-    x = xml.find_match("//row")
-    refute_nil(x)
-    assert_equal(5, x.length)
-    assert_equal("8", x[0].attributes["id"])
-    assert_equal("4", x[3].attributes["id"])
-  end
-
-  def test_deep_clone
-    xml = @xml
-    xml2 = xml.deep_clone
-    refute_equal(xml.object_id, xml2.object_id)
-    xml.write(xml_str1 = '')
-    xml2.write(xml_str2 = '')
-    assert_equal(xml_str1, xml_str2)
-  end
-
-  def test_node_loop_and_move
-    xml_full = @xml
-    xml_part = MiqXml.load("<root/>", @xml_klass)
-
-    count = 0
-    xml_full.root.each_element do |e|
-      xml_part.root << e
-      count += 1
-    end
-
-    assert_equal(6, count)
-  end
-
-  def test_cdata
-    xml = MiqXml.newDoc(@xml_klass)
-    xml.add_element('root')
-
-    time = Time.now
-    html_text = "<b>#{time}</b>"
-    xml.root.add_cdata(html_text.gsub(",", "\\,"))
-
-    assert(xml.to_s.include?("![CDATA[<b>#{time}</b>]]"))
-    assert_equal("<b>#{time}</b>", xml.root.text)
-  end
-
-  def test_delete_node
+  it "delete node" do
     delete_node_helper(@xml_klass) do |node, _root|
       node.remove!
     end
@@ -599,11 +427,11 @@ module XmlBaseParserTests
 
   def delete_node_helper(xml_klass)
     xml = MiqXml.load(@xml_string, @xml_klass)
-    assert_kind_of(xml_klass::Document, xml)
+    expect(xml).to be_kind_of(xml_klass::Document)
 
     attr_ids = []
     xml.root.elements.each { |e| attr_ids << e.attributes[:id] }
-    assert_equal(6, attr_ids.length)
+    expect(attr_ids.length).to eq(6)
 
     # Delete each element attached to the root node until all are removed.
     while attr_ids.length > 0
@@ -614,34 +442,34 @@ module XmlBaseParserTests
       yield(del_node, xml.root)
 
       removed_id = attr_ids.delete_at(0)
-      assert_equal(removed_id, del_node.attributes[:id])
+      expect(del_node.attributes[:id]).to eq(removed_id)
 
       count = 0
       xml.root.elements.each { |_e| count += 1 }
-      assert_equal(attr_ids.length, count)
+      expect(attr_ids.length).to eq(count)
     end
   end
 
-  def test_add_frozen_text
+  it "add frozen text" do
     xml = @xml
-    assert_kind_of(@xml_klass::Document, xml)
+    expect(xml).to be_kind_of(@xml_klass::Document)
 
     frozen_text = "A&P".freeze
     xml.root.text = frozen_text
-    assert_equal("A&P", xml.root.text)
+    expect(xml.root.text).to eq("A&P")
   end
 
-  def test_write_method
+  it "#write" do
     # Test writing from the document
     @xml.write(test_string = "")
-    refute_equal("", test_string)
+    expect(test_string).to_not eq("")
     test_string = @xml.to_s
-    refute_equal("", test_string)
+    expect(test_string).to_not eq("")
 
     # Test writing from an element
     @xml.root.write(test_string = "")
-    refute_equal("", test_string)
+    expect(test_string).to_not eq("")
     test_string = @xml.root.to_s
-    refute_equal("", test_string)
+    expect(test_string).to_not eq("")
   end
 end

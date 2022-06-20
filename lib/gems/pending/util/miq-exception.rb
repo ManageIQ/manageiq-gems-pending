@@ -117,6 +117,7 @@ module MiqException
   class MiqVolumeDeleteError < Error; end
   class MiqVolumeAttachError < Error; end
   class MiqVolumeDetachError < Error; end
+  class MiqVolumeCloneError < Error; end
 
   class MiqCloudSubnetValidationError < Error; end
   class MiqCloudSubnetCreateError < Error; end

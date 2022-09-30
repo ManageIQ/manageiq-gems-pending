@@ -36,6 +36,7 @@ module MiqException
   class MiqUnreachableError < Error; end
   class MiqVmError < Error; end
   class MiqVmSnapshotError < MiqVmError; end
+  class MiqVmResizeError < MiqVmError; end
   class MiqVmNotConnectedError < MiqVmError; end
   class MiqVmMountError < MiqVmError; end
 

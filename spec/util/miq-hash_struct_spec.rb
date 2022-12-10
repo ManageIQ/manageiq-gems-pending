@@ -1,4 +1,3 @@
-require 'util/miq-hash_struct'
 require 'yaml'
 
 describe MiqHashStruct do

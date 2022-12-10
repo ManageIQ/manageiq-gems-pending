@@ -1,5 +1,3 @@
-require 'util/miq-system'
-
 describe MiqSystem do
   context ".normalize_df_file_argument" do
     it "nil" do

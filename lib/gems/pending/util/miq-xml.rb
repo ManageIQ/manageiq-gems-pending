@@ -1,9 +1,5 @@
 require 'time'
-require 'util/xml/miq_rexml'
-require 'util/xml/xml_hash'
-require 'util/miq-encode'
-require 'util/xml/xml_diff'
-require 'util/xml/xml_patch'
+require 'util/xml/miq_rexml' # we must monkey patch rexml early
 
 class MiqXml
   MIQ_XML_VERSION = 2.1 # Refactor Nokogiri handling

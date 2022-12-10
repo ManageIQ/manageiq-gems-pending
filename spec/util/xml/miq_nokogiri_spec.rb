@@ -1,4 +1,3 @@
-require 'util/miq-xml'
 require 'nokogiri'
 
 describe "miq_nokogiri" do

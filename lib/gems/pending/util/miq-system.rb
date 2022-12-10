@@ -1,9 +1,6 @@
 require 'active_support/core_ext/object/blank'
 require 'awesome_spawn'
 require 'sys-uname'
-if Sys::Platform::OS == :windows
-  require 'util/win32/miq-wmi'
-end
 
 class MiqSystem
   @@cpu_usage_vmstat_output_mtime = nil

@@ -1,4 +1,3 @@
-require 'util/miq-xml'
 require_relative "./shared_examples_for_xml_base_parser"
 
 describe MIQRexml do

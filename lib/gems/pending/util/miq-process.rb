@@ -3,7 +3,6 @@
 require 'awesome_spawn'
 require 'sys-uname'
 require 'sys/proctable'
-require 'util/miq-system'
 
 class MiqProcess
   # Collect and return a list of PID's for all processes that match
@@ -81,7 +80,6 @@ class MiqProcess
 
     case Sys::Platform::IMPL
     when :mswin, :mingw
-      require 'util/win32/miq-wmi'
       # WorkingSetSize: The amount of memory in bytes that a process needs to execute efficiently, for an operating system that uses
       #                 page-based memory management. If an insufficient amount of memory is available (< working set size), thrashing will occur.
       # KernelModeTime: Time in kernel mode, in 100 nanoseconds
@@ -151,7 +149,6 @@ class MiqProcess
   end
 
   def self.process_list_wmi(wmi = nil, pid = nil)
-    require 'util/win32/miq-wmi'
     pl = {}
     wmi = WMIHelper.connectServer if wmi.nil?
     os_data = wmi.get_instance('select TotalVisibleMemorySize from Win32_OperatingSystem')

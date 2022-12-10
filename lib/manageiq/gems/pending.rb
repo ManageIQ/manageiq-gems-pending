@@ -1,3 +1,6 @@
+# In case this is required directly
+require 'manageiq-gems-pending'
+
 require "manageiq/gems/pending/version"
 
 module ManageIQ

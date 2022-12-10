@@ -14,6 +14,8 @@
 # implementation where necessary.  Connection will be handled separately by the
 # subclasses, but they must conform to the top level interface.
 #
+require 'active_support/core_ext/numeric'
+
 class MiqFileStorage
   class InvalidSchemeError < ArgumentError
     def initialize(bad_scheme = nil)

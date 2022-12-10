@@ -42,7 +42,7 @@ class MiqXml
       when :xmlhash
         XmlHash::Document
       when :nokogiri
-        require 'util/xml/miq_nokogiri'
+        require_relative 'xml/miq_nokogiri'
         @nokogiri = true
         Nokogiri::XML::Document
       else

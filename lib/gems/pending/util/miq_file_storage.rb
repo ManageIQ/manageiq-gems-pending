@@ -14,7 +14,6 @@
 # implementation where necessary.  Connection will be handled separately by the
 # subclasses, but they must conform to the top level interface.
 #
-require 'active_support/core_ext/numeric'
 
 class MiqFileStorage
   class InvalidSchemeError < ArgumentError
@@ -55,9 +54,9 @@ class MiqFileStorage
   class Interface
     BYTE_HASH_MATCH = /^(?<BYTE_NUM>\d+(\.\d+)?)\s*(?<BYTE_QUALIFIER>K|M|G)?$/i
     BYTE_HASH       = {
-      "k" => 1.kilobyte,
-      "m" => 1.megabyte,
-      "g" => 1.gigabyte
+      "k" => 1_024,
+      "m" => 1_048_576,
+      "g" => 1_073_741_824
     }.freeze
 
     attr_reader :remote_file_path, :byte_count, :source_input, :input_writer

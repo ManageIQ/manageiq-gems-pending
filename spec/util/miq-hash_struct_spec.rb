@@ -1,4 +1,5 @@
 require 'util/miq-hash_struct'
+require 'yaml'
 
 describe MiqHashStruct do
   it ".new" do
@@ -146,6 +147,6 @@ describe MiqHashStruct do
     let (:orig) { described_class.new("a" => 1, "b" => 2) }
 
     it("Marshal") { expect(Marshal.load(Marshal.dump(orig))).to eq(orig) }
-    it("YAML")    { expect(YAML.load(YAML.dump(orig))).to       eq(orig) }
+    it("YAML")    { expect(YAML.load(YAML.dump(orig))).to eq(orig) }
   end
 end

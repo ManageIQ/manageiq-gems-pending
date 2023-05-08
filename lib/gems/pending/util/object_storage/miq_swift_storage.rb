@@ -95,7 +95,7 @@ class MiqSwiftStorage < MiqObjectStorage
   end
 
   #
-  # Some calls to Fog::Storage::OpenStack::Directories#get will
+  # Some calls to Fog::OpenStack::Storage::Directories#get will
   # return 'nil', and not return an error.  This would cause errors down the
   # line in '#upload' or '#download'.
   #
@@ -109,9 +109,10 @@ class MiqSwiftStorage < MiqObjectStorage
     @container ||= begin
                      container = swift.directories.get(container_name)
                      logger.debug("Swift container [#{container}] found") if container
-                     raise Fog::Storage::OpenStack::NotFound unless container
+                     raise Fog::OpenStack::Storage::NotFound unless container
+
                      container
-                   rescue Fog::Storage::OpenStack::NotFound
+                   rescue Fog::OpenStack::Storage::NotFound
                      if create_if_missing
                        logger.debug("Swift container #{container_name} does not exist.  Creating.")
                        create_container
@@ -152,7 +153,7 @@ class MiqSwiftStorage < MiqObjectStorage
       :connection_options          => { :debug_request => true }
     }
 
-    @swift = Fog::Storage::OpenStack.new(connection_params)
+    @swift = Fog::OpenStack::Storage.new(connection_params)
   end
 
   def create_container

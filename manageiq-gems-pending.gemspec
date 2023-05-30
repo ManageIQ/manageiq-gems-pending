@@ -24,14 +24,12 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "awesome_spawn",           "~> 1.5"
   s.add_runtime_dependency "aws-sdk-s3",              "~> 1.0"
   s.add_runtime_dependency "bundler",                 "~> 2.1", ">= 2.1.4", "!= 2.2.10"
-  s.add_runtime_dependency "erubis",                  "= 2.7.0" # For winrm-elevated; can be removed when we upgrade to winrm-elevated >= 1.1.2
-  s.add_runtime_dependency "fog-openstack",           "~> 0.3"
+  s.add_runtime_dependency "fog-openstack",           "~> 1.0"
   s.add_runtime_dependency "more_core_extensions",    "~> 4.4"
   s.add_runtime_dependency "nokogiri",                "~> 1.14", ">= 1.14.3"
   s.add_runtime_dependency "sys-proctable",           "~> 1.2.5"
   s.add_runtime_dependency "sys-uname",               "~> 1.2.1"
-  s.add_runtime_dependency "winrm",                   "~> 2.1"
-  s.add_runtime_dependency "winrm-elevated",          "~> 1.0.1"
+  s.add_runtime_dependency "win32ole",                "~> 1.8.8" # this gem was extracted in ruby 3 - required if we use wmi on windows
 
   s.add_development_dependency "ftpd",                      "~> 2.1.0"
   s.add_development_dependency "manageiq-style"

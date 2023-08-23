@@ -1,4 +1,3 @@
-require 'util/miq-hash_struct'
 require 'open3'
 require 'awesome_spawn'
 

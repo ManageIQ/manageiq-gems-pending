@@ -1,5 +1,3 @@
-require 'util/miq_object_storage'
-
 class MiqS3Storage < MiqObjectStorage
   attr_reader :bucket_name
 

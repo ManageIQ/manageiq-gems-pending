@@ -1,5 +1,3 @@
-require 'util/miq-xml'
-
 describe MiqXml do
   it "handles loaded document encoding" do
     attr_string = "string \xC2\xAE"

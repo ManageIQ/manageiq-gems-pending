@@ -1,6 +1,3 @@
-require 'util/miq-xml'
-require 'util/xml/xml_hash'
-
 class XmlFind
   def self.decode(data, format)
     method = data.kind_of?(Hash) ? :findNamedElement_hash : :findNamedElement

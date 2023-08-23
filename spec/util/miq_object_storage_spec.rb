@@ -1,6 +1,4 @@
 require "fileutils"
-require "util/mount/miq_generic_mount_session"
-require "util/miq_object_storage"
 
 class MockLocalFileStorage < MiqObjectStorage
   def initialize(source_path = nil, byte_count = 2.megabytes)

@@ -1,5 +1,3 @@
-require "util/object_storage/miq_swift_storage"
-
 describe MiqSwiftStorage do
   let(:object_storage) { described_class.new(:uri => uri, :username => 'user', :password => 'pass') }
 

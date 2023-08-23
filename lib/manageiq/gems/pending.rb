@@ -1,4 +1,5 @@
 require "manageiq/gems/pending/version"
+require 'manageiq/gems/pending/zeitwerk'
 
 module ManageIQ
   module Gems

@@ -1,5 +1,3 @@
-require 'util/miq_ftp_lib'
-require 'util/miq_object_storage'
 require 'logger'
 
 class MiqFtpStorage < MiqObjectStorage

@@ -303,9 +303,6 @@ module XmlHash
 
   # There is no difference between a document and an element here
   class Document < Hash
-    require 'util/xml/xml_diff'
-    require 'util/xml/xml_patch'
-
     include MiqXmlDiff
     include MiqXmlPatch
 

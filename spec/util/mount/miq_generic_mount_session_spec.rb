@@ -1,4 +1,3 @@
-require "util/mount/miq_generic_mount_session"
 require "awesome_spawn/spec_helper"
 
 describe MiqGenericMountSession do

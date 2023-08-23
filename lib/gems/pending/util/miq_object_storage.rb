@@ -1,11 +1,6 @@
 require 'net/protocol'
-require 'util/miq_file_storage'
 
 class MiqObjectStorage < MiqFileStorage::Interface
-  require 'util/object_storage/miq_s3_storage'
-  require 'util/object_storage/miq_ftp_storage'
-  require 'util/object_storage/miq_swift_storage'
-
   attr_accessor :settings
   attr_writer   :logger
 

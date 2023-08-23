@@ -1,5 +1,3 @@
-require 'util/miq-process'
-
 describe MiqProcess do
   context ".command_line" do
     it "exited process" do

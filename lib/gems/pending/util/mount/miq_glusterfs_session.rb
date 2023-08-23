@@ -1,5 +1,3 @@
-require 'util/mount/miq_generic_mount_session'
-
 class MiqGlusterfsSession < MiqGenericMountSession
   PORTS = [2049, 111].freeze
 

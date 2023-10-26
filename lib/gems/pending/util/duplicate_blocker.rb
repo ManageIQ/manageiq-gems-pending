@@ -125,6 +125,3 @@ module DuplicateBlocker
     end
   end
 end
-
-require 'util/duplicate_blocker/dedup_handler'
-require 'util/duplicate_blocker/duplicate_found_exception'

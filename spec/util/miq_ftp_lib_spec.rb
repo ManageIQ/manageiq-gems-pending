@@ -1,4 +1,3 @@
-require 'util/miq_ftp_lib'
 require 'logger' # probably loaded elsewhere, but for the below classes
 
 class FTPKlass

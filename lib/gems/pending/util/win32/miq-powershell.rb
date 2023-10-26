@@ -1,8 +1,8 @@
 require 'awesome_spawn'
-require 'util/miq-xml'
 require 'io/wait'
 require 'open-uri'
-require 'util/miq-encode'
+
+# Not to be confused with our own win32 directory, this is in stdlib on windows
 require 'win32/registry' if Sys::Platform::OS == :windows
 
 module MiqPowerShell

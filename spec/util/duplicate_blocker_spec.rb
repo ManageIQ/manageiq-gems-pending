@@ -1,5 +1,4 @@
 require "logger"
-require "util/duplicate_blocker"
 require "timecop"
 
 describe DuplicateBlocker do

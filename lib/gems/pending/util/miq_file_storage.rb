@@ -46,6 +46,13 @@ class MiqFileStorage
   private_class_method :fetch_interface_class
 
   def self.storage_interface_classes
+    # TODO: this method expects these classes to be eager loaded.
+    # Once we eager load, we can remove these.
+    ::MiqGlusterfsSession
+    ::MiqLocalMountSession
+    ::MiqNfsSession
+    ::MiqSmbSession
+
     @storage_interface_classes ||= Interface.descendants.each_with_object({}) do |klass, memo|
       memo[klass.uri_scheme] = klass if klass.uri_scheme
     end

@@ -1,4 +1,3 @@
-require 'util/miq-hash_struct'
 require 'yaml'
 
 describe MiqHashStruct do
@@ -147,6 +146,13 @@ describe MiqHashStruct do
     let (:orig) { described_class.new("a" => 1, "b" => 2) }
 
     it("Marshal") { expect(Marshal.load(Marshal.dump(orig))).to eq(orig) }
-    it("YAML")    { expect(YAML.load(YAML.dump(orig))).to eq(orig) }
+    it("YAML") do
+      dump = YAML.dump(orig)
+      # Ruby 3.1 via psych 4.0 changed to default YAML.load to safe_load.
+      # Ruby 2.7 doesn't accept permitted_classes on load and doesn't respond to unsafe_load.
+      # Once 2.7 is dropped, we can safely use unsafe_load or load with a list of permitted_classes.
+      loaded = YAML.respond_to?(:unsafe_load) ? YAML.unsafe_load(dump) : YAML.load(dump)
+      expect(loaded).to eq(orig)
+    end
   end
 end

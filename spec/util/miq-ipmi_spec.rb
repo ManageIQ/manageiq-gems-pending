@@ -1,5 +1,3 @@
-require "util/miq-ipmi"
-
 describe MiqIPMI do
   subject { described_class.new }
 

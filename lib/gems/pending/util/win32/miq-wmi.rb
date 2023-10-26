@@ -4,10 +4,11 @@ class WMIHelper
   WMI_ROOT_NAMESPACE = "root\\cimv2" unless defined?(WMI_ROOT_NAMESPACE)
 
   platform = Sys::Platform::IMPL
-  unless platform == :macosx
-    platform = :mswin if platform == :mingw
-    require "util/win32/miq-wmi-#{platform}"
-    include Kernel.const_get("Wmi#{platform.to_s.capitalize}")
+  case platform
+  when :linux
+    include WmiLinux
+  when :mswin
+    include WmiMswin
   end
 
   def initialize(server = nil, username = nil, password = nil, namespace = WMI_ROOT_NAMESPACE)

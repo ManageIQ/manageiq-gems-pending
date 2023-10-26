@@ -1,5 +1,3 @@
-require "util/object_storage/miq_s3_storage"
-
 describe MiqS3Storage do
   before(:each) do
     @uri = "s3://tmp/abc/def"

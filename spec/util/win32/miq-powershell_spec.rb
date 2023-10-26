@@ -1,4 +1,3 @@
-require 'util/win32/miq-powershell'
 require 'time'
 
 describe MiqPowerShell do

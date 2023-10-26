@@ -1,5 +1,3 @@
-require 'util/miq_logger_processor'
-
 describe MiqLoggerProcessor do
   MLP_DATA_DIR = File.expand_path(File.join(File.dirname(__FILE__), 'data'))
 

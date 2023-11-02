@@ -206,8 +206,10 @@ EOF
       ]
 
       stub_const("Sys::Platform::IMPL", :macosx)
-      expect(AwesomeSpawn).to receive(:launch).and_return([mac_df_output, "", 0])
-
+      expect(AwesomeSpawn)
+        .to receive(:run)
+        .with("df", {:params => ["-ki", "-l"]})
+        .and_return(AwesomeSpawn::CommandResult.new("abcd", mac_df_output, "", 123, 0))
       expect(described_class.disk_usage).to eq(expected)
     end
   end

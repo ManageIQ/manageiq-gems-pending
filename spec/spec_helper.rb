@@ -20,6 +20,10 @@ RSpec.configure do |config|
     Module.clear_all_cache_with_timeout if Module.respond_to?(:clear_all_cache_with_timeout)
   end
 
+  require "awesome_spawn/spec_helper"
+  config.include AwesomeSpawn::SpecHelper, :uses_awesome_spawn => true
+  config.before(:each, :uses_awesome_spawn) { disable_spawning }
+
   if ENV["CI"]
     config.after(:suite) do
       require_relative "coverage_helper"

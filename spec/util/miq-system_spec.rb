@@ -42,7 +42,7 @@ describe MiqSystem do
     end
   end
 
-  context ".disk_usage" do
+  context ".disk_usage", :uses_awesome_spawn => true do
     it "linux" do
       linux_df_output_bytes = <<EOF
 Filesystem              Type     1024-blocks    Used Available Capacity Mounted on
@@ -135,13 +135,8 @@ EOF
       ]
 
       stub_const("Sys::Platform::IMPL", :linux)
-      expect(AwesomeSpawn).to receive(:run!)
-        .with("df", :params => ["-T", "-P", "-l"])
-        .and_return(double(:output => linux_df_output_bytes))
-      expect(AwesomeSpawn).to receive(:run!)
-        .with("df", :params => ["-T", "-P", "-i", "-l"])
-        .and_return(double(:output => linux_df_output_inodes))
-
+      stub_good_run!("df", :params => ["-T", "-P", "-l"], :output => linux_df_output_bytes)
+      stub_good_run!("df", :params => ["-T", "-P", "-i", "-l"], :output => linux_df_output_inodes)
       expect(described_class.disk_usage).to eq(expected)
     end
 
@@ -206,10 +201,7 @@ EOF
       ]
 
       stub_const("Sys::Platform::IMPL", :macosx)
-      expect(AwesomeSpawn)
-        .to receive(:run)
-        .with("df", {:params => ["-ki", "-l"]})
-        .and_return(AwesomeSpawn::CommandResult.new("abcd", mac_df_output, "", 123, 0))
+      stub_good_run!("df", :params => ["-ki", "-l"], :output => mac_df_output)
       expect(described_class.disk_usage).to eq(expected)
     end
   end

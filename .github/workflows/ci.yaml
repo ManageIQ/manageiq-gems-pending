@@ -13,6 +13,9 @@ jobs:
       matrix:
         ruby-version:
         - '3.0'
+        rails-version:
+        - '6.1'
+        - '7.0'
     env:
       CC_TEST_REPORTER_ID: "${{ secrets.CC_TEST_REPORTER_ID }}"
     steps:
@@ -26,6 +29,6 @@ jobs:
     - name: Run tests
       run: bundle exec rake
     - name: Report code coverage
-      if: "${{ github.ref == 'refs/heads/master' && matrix.ruby-version == '3.0' }}"
+      if: "${{ github.ref == 'refs/heads/master' && matrix.ruby-version == '3.0' && matrix.rails-version == '6.1' }}"
       continue-on-error: true
       uses: paambaati/codeclimate-action@v5

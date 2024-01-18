@@ -34,3 +34,7 @@ RSpec.configure do |config|
   config.backtrace_exclusion_patterns << %r{/lib\d*/ruby/[0-9]}
   config.backtrace_exclusion_patterns << %r{/gems/[0-9][^/]+/gems/}
 end
+
+require "active_support"
+puts
+puts "\e[93mUsing ActiveSupport #{ActiveSupport.version}\e[0m"

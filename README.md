@@ -1,11 +1,11 @@
 # ManageIQ::Gems::Pending
 
 [![Gem Version](https://badge.fury.io/rb/manageiq-gems-pending.svg)](http://badge.fury.io/rb/manageiq-gems-pending)
-[![CI](https://github.com/ManageIQ/manageiq-gems-pending/actions/workflows/ci.yaml/badge.svg)](https://github.com/ManageIQ/manageiq-gems-pending/actions/workflows/ci.yaml)
+[![CI](https://github.com/ManageIQ/manageiq-gems-pending/actions/workflows/ci.yaml/badge.svg?branch=radjabov)](https://github.com/ManageIQ/manageiq-gems-pending/actions/workflows/ci.yaml)
 [![Code Climate](https://codeclimate.com/github/ManageIQ/manageiq-gems-pending.svg)](https://codeclimate.com/github/ManageIQ/manageiq-gems-pending)
 [![Test Coverage](https://codeclimate.com/github/ManageIQ/manageiq-gems-pending/badges/coverage.svg)](https://codeclimate.com/github/ManageIQ/manageiq-gems-pending/coverage)
 
-[![Build history for master branch](https://buildstats.info/github/chart/ManageIQ/manageiq-gems-pending?branch=master&buildCount=50&includeBuildsFromPullRequest=false&showstats=false)](https://github.com/ManageIQ/manageiq-gems-pending/actions?query=branch%3Amaster)
+[![Build history for radjabov branch](https://buildstats.info/github/chart/ManageIQ/manageiq-gems-pending?branch=radjabov&buildCount=50&includeBuildsFromPullRequest=false&showstats=false)](https://github.com/ManageIQ/manageiq-gems-pending/actions?query=branch%3Amaster)
 
 Code extracted from ManageIQ/manageiq gems/pending directory in an effort to reduce complexity of ManageIQ/manageiq repository.
 

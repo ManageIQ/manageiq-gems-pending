@@ -10,6 +10,8 @@ $req_log.sync = true
 
 $req_depth = 0
 
+require 'sys-proctable'
+
 module Kernel
   private
 
@@ -24,9 +26,20 @@ module Kernel
   }
   REQ_LOG_TREE = "| "
 
-  def log_require(path, mode, timing = nil)
+  def require_with_metrics
+    initial_memory = Sys::ProcTable.ps(:pid => Process.pid).rss
+    initial_loaded = $LOADED_FEATURES.length
+
+    result = yield
+
+    memory_after = Sys::ProcTable.ps(:pid => Process.pid).rss
+    loaded_after = $LOADED_FEATURES.length
+    return result, (memory_after - initial_memory) / 1000, (loaded_after - initial_loaded)
+  end
+
+  def log_require(path, mode, timing = nil, memory_consumed = nil, features_loaded = nil)
     $req_depth -= 1 if mode == true || mode == false || mode == :fail
-    $req_log.puts "#{$req_depth.to_s.rjust(3)}  #{REQ_LOG_OPERS[mode]}  #{REQ_LOG_TREE * $req_depth}#{path.inspect[1..-2]}#{timing.nil? ? '' : " (#{"%.6f" % timing})"}"
+    $req_log.puts "#{$req_depth.to_s.rjust(3)}  #{REQ_LOG_OPERS[mode]}  #{REQ_LOG_TREE * $req_depth}#{path.inspect[1..-2]}#{timing.nil? ? '' : " (#{"%.6f seconds" % timing})"}#{memory_consumed.nil? ? '' : " (#{memory_consumed} KB)"}#{features_loaded.nil? ? '' : " (#{features_loaded} features loaded)"}"
     $req_depth += 1 if mode == :enter || mode == :reenter
   end
 
@@ -34,12 +47,12 @@ module Kernel
     log_require(path, mode)
     t = Time.now
     begin
-      ret = yield
+      ret, memory_consumed, features_loaded = require_with_metrics { yield }
     rescue Exception
-      log_require(path, :fail, Time.now - t) rescue nil
+      log_require(path, :fail, Time.now - t, memory_consumed, features_loaded) rescue nil
       raise
     end
-    log_require(path, ret, Time.now - t)
+    log_require(path, ret, Time.now - t, memory_consumed, features_loaded)
     ret
   end
 

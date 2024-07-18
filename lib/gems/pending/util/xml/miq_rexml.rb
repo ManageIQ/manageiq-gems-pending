@@ -279,15 +279,6 @@ module REXML
 
     def self.load(data)
       REXML::Document.new(data)
-    rescue => err
-      if err.class == ::Encoding::CompatibilityError
-        data_utf8 = data.dup.force_encoding('UTF-8')
-        # Check for UTF-8 BOM and remove
-        data_utf8 = data_utf8[3..-1] if data_utf8[0, 3] == "\xC3\xAF\xC2\xBB\xC2\xBF".force_encoding("UTF-8")
-        REXML::Document.new(data_utf8)
-      else
-        raise
-      end
     end
 
     def self.loadFile(filename)

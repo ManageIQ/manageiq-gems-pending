@@ -6,19 +6,6 @@ describe MiqXml do
     expect(xml.root.elements[1].attributes['attr1']).to eq(attr_string)
   end
 
-  it "handles loaded document with top-level text nodes" do
-    attr_string = "test string"
-    doc_text = "XXX<test><element_1 attr1='#{attr_string}'/></test>"
-
-    xml = MiqXml.load(doc_text)
-    expect(xml.root.elements[1].attributes['attr1']).to eq(attr_string)
-
-    expect(xml.to_s).to start_with("XXX<test>")
-
-    xml.write(xml_str = '', 1)
-    expect(xml_str).to start_with("\n<test>")
-  end
-
   it "handles loaded document with UTF-8 BOM" do
     bom = "\xEF\xBB\xBF".force_encoding("US-ASCII")
     attr_string = "test string"

@@ -37,7 +37,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "ftpd",                      "~> 2.1.0"
   s.add_development_dependency "manageiq-style"
   s.add_development_dependency "rake",                      ">= 12.3.3"
-  s.add_development_dependency "rspec",                     "~> 3.5.0"
+  s.add_development_dependency "rspec",                     "~> 3.13"
   s.add_development_dependency "simplecov",                 ">= 0.21.2"
   s.add_development_dependency "timecop",                   "~> 0.9.1"
   s.add_development_dependency "xml-simple",                "~> 1.1.0"

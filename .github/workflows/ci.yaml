@@ -14,8 +14,9 @@ jobs:
         ruby-version:
         - '3.1'
         rails-version:
-        - '6.1'
         - '7.0'
+        - '7.1'
+        - '7.2'
     env:
       CC_TEST_REPORTER_ID: "${{ secrets.CC_TEST_REPORTER_ID }}"
     steps:

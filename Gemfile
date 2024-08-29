@@ -10,8 +10,10 @@ minimum_version =
   case ENV['TEST_RAILS_VERSION']
   when "7.0"
     "~>7.0.8"
-  else
-    "~>6.1.4"
+  when "7.1"
+    "~>7.1.4"
+  when "7.2"
+    "~>7.2.1"
   end
 
 gem "activesupport", minimum_version

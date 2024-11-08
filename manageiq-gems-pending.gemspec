@@ -31,6 +31,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "rexml",                   ">= 3.3.6"
   s.add_runtime_dependency "sys-proctable",           "~> 1.2.5"
   s.add_runtime_dependency "sys-uname",               "~> 1.2.1"
+  s.add_runtime_dependency "uri",                     "~> 1.0.0", ">= 1.0.1"
   s.add_runtime_dependency "win32ole",                "~> 1.8.8" # this gem was extracted in ruby 3 - required if we use wmi on windows
   s.add_runtime_dependency "zeitwerk",                "~> 2.6", ">= 2.6.8"
 

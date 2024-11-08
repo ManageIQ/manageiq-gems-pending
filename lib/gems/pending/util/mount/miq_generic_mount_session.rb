@@ -72,7 +72,7 @@ class MiqGenericMountSession < MiqFileStorage::Interface
 
   def self.uri_scheme_to_class(uri)
     require 'uri'
-    scheme, userinfo, host, port, registry, share, opaque, query, fragment = URI.split(URI::DEFAULT_PARSER.escape(uri))
+    scheme, userinfo, host, port, registry, share, opaque, query, fragment = URI.split(URI::RFC2396_PARSER.escape(uri))
     case scheme
     when 'smb'
       MiqSmbSession
@@ -321,8 +321,8 @@ class MiqGenericMountSession < MiqFileStorage::Interface
     # Only remove the log file if the current depot @settings are based on the same base URI as the log_uri to be removed
     return false if log_uri.nil? || @settings[:uri].nil?
 
-    scheme, userinfo, host, port, registry, share, opaque, query, fragment = URI.split(URI::DEFAULT_PARSER.escape(@settings[:uri]))
-    scheme_log, userinfo_log, host_log, port_log, registry_log, share_log, opaque_log, query_log, fragment_log = URI.split(URI::DEFAULT_PARSER.escape(log_uri))
+    scheme, userinfo, host, port, registry, share, opaque, query, fragment = URI.split(URI::RFC2396_PARSER.escape(@settings[:uri]))
+    scheme_log, userinfo_log, host_log, port_log, registry_log, share_log, opaque_log, query_log, fragment_log = URI.split(URI::RFC2396_PARSER.escape(log_uri))
 
     return false if scheme != scheme_log
     return false if host != host_log
@@ -451,7 +451,7 @@ class MiqGenericMountSession < MiqFileStorage::Interface
   def relative_to_mount(uri)
     log_header = "MIQ(#{self.class.name}-relative_to_mount)"
     logger.info("#{log_header} mount point [#{@mount_path}], uri: [#{uri}]...")
-    scheme, userinfo, host, port, registry, path, opaque, query, fragment = URI.split(URI::DEFAULT_PARSER.escape(uri))
+    scheme, userinfo, host, port, registry, path, opaque, query, fragment = URI.split(URI::RFC2396_PARSER.escape(uri))
 
     # Replace any encoded spaces back into spaces since the mount commands accepts quoted spaces
     path.gsub!('%20', ' ')

@@ -36,7 +36,7 @@ class MiqFileStorage
     return nil unless opts[:uri]
 
     require 'uri'
-    scheme, _ = URI.split(URI::DEFAULT_PARSER.escape(opts[:uri]))
+    scheme, _ = URI.split(URI::RFC2396_PARSER.escape(opts[:uri]))
     klass = storage_interface_classes[scheme]
 
     raise InvalidSchemeError, scheme if klass.nil?

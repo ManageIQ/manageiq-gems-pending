@@ -10,7 +10,7 @@ class MiqNfsSession < MiqGenericMountSession
   end
 
   def connect
-    scheme, userinfo, @host, port, registry, @mount_path, opaque, query, fragment = URI.split(URI::DEFAULT_PARSER.escape(@settings[:uri]))
+    scheme, userinfo, @host, port, registry, @mount_path, opaque, query, fragment = URI.split(URI::RFC2396_PARSER.escape(@settings[:uri]))
     super
   end
 

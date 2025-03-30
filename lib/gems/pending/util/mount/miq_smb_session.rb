@@ -12,7 +12,7 @@ class MiqSmbSession < MiqGenericMountSession
   end
 
   def connect
-    scheme, userinfo, @host, port, registry, @mount_root, opaque, query, fragment = URI.split(URI::DEFAULT_PARSER.escape(@settings[:uri]))
+    scheme, userinfo, @host, port, registry, @mount_root, opaque, query, fragment = URI.split(URI::RFC2396_PARSER.escape(@settings[:uri]))
     @mount_path = @mount_root.split("/")[0..1].join("/")
     super
   end

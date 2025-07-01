@@ -43,6 +43,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "ftpd",                      "~> 2.1.0"
   s.add_development_dependency "manageiq-style",            ">= 1.5.4"
 
+  s.add_development_dependency "rack",                      "~> 3.1.16" # this ensures manageiq-style's rack requirement is safe
   s.add_development_dependency "rake",                      ">= 12.3.3"
   s.add_development_dependency "rspec",                     "~> 3.13"
   s.add_development_dependency "simplecov",                 ">= 0.21.2"

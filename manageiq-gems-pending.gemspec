@@ -12,6 +12,12 @@ Gem::Specification.new do |s|
   s.description   = "Classes pending extraction to their own gems."
   s.homepage      = "https://github.com/ManageIQ/manageiq-gems-pending/"
   s.license       = "Apache-2.0"
+  s.metadata      = {
+    "homepage_uri"          => s.homepage,
+    "source_code_uri"       => "https://github.com/ManageIQ/manageiq-gems-pending",
+    "changelog_uri"         => "https://github.com/ManageIQ/manageiq-gems-pending/blob/master/CHANGELOG.md",
+    "rubygems_mfa_required" => "true"
+  }
 
   s.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   s.bindir        = "exe"

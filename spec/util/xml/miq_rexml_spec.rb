@@ -149,6 +149,13 @@ describe MIQRexml do
       expect(xml_new.to_xml.to_s.tr("\"", "'").chomp).to eq("<?xml version='1.0' encoding='UTF-8'?>")
     end
 
+    it "load" do
+      xml_new_nil = MiqXml.load(nil, @xml_klass)
+      expect(xml_new_nil.root).to be_nil
+      xml_new_empty_string = MiqXml.load("", @xml_klass) # test broken by rexml 3.4.3
+      expect(xml_new_empty_string.root).to be_nil
+    end
+
     it "create new node" do
       node = MiqXml.newNode("scan_item", @xml_klass)
       expect(node.to_xml.to_s).to eq("<scan_item/>")

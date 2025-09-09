@@ -34,7 +34,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "more_core_extensions",    "~> 4.5"
   s.add_runtime_dependency "net-ftp",                 "~> 0.1.2"
   s.add_runtime_dependency "nokogiri",                "~> 1.14", ">= 1.14.3"
-  s.add_runtime_dependency "rexml",                   ">= 3.3.6", "<= 3.4.2" # 3.4.3 raises a ParseException error 'No root element' with rexml documents created with empty strings, see: https://www.github.com/ruby/rexml/pull/291
+  s.add_runtime_dependency "rexml",                   ">= 3.3.6"
   s.add_runtime_dependency "sys-proctable",           "~> 1.2.5"
   s.add_runtime_dependency "sys-uname",               "~> 1.2.1"
   s.add_runtime_dependency "win32ole",                "~> 1.8.8" # this gem was extracted in ruby 3 - required if we use wmi on windows

@@ -314,7 +314,7 @@ module REXML
 
     def self.decode(encodedText)
       return REXML::Document.new(MIQEncode.decode(encodedText)) if encodedText
-      REXML::Document.new("")
+      REXML::Document.new(nil)
     end
 
     def find_first(xpath, ns = nil)

@@ -149,11 +149,14 @@ describe MIQRexml do
       expect(xml_new.to_xml.to_s.tr("\"", "'").chomp).to eq("<?xml version='1.0' encoding='UTF-8'?>")
     end
 
-    it "load" do
+    it "#load creates new document with nil arg" do
       xml_new_nil = MiqXml.load(nil, @xml_klass)
       expect(xml_new_nil.root).to be_nil
-      xml_new_empty_string = MiqXml.load("", @xml_klass) # test broken by rexml 3.4.3
-      expect(xml_new_empty_string.root).to be_nil
+    end
+
+    it "#decode creates new document with nil arg" do
+      xml_new = REXML::Document.decode(nil)
+      expect(xml_new.root).to be_nil
     end
 
     it "create new node" do

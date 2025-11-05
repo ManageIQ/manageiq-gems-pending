@@ -90,22 +90,16 @@ class MiqGenericMountSession < MiqFileStorage::Interface
     @mnt_point = settings_mount_point || Dir.mktmpdir("miq_")
   end
 
-  def get_ping_depot_options
-    @@ping_depot_options ||= begin
-      opts = ::VMDB::Config.new("vmdb").config[:log][:collection] if defined?(::VMDB) && defined?(::VMDB::CONFIG)
-      opts = {:ping_depot => false}
-      opts
-    end
+  private def ping_depot_options
+    @ping_depot_options ||= {:ping_depot => false, :ping_depot_timeout => 20}
   end
 
   def ping_timeout
-    get_ping_depot_options
-    @@ping_timeout ||= (@@ping_depot_options[:ping_depot_timeout] || 20)
+    @ping_timeout ||= (ping_depot_options[:ping_depot_timeout] || 20)
   end
 
   def do_ping?
-    get_ping_depot_options
-    @@do_ping ||= @@ping_depot_options[:ping_depot] == true
+    @do_ping ||= ping_depot_options[:ping_depot] == true
   end
 
   def pingable?

@@ -13,7 +13,7 @@ minimum_version =
   when "7.1"
     "~>7.1.4"
   when "7.2"
-    "~>7.2.1"
+    "~>7.2.3"
   end
 
 gem "activesupport", minimum_version

@@ -5,7 +5,10 @@ require 'sys-uname'
 require 'sys/proctable'
 
 class MiqSystem
-
+  # Returns the current process's CPU usage as a percentage, or nil if unavailable.
+  #
+  # Example:
+  #   MiqSystem.cpu_usage #=> 3
   def self.cpu_usage
     stat = Sys::ProcTable.ps(pid: Process.pid)
     return nil unless stat
@@ -15,14 +18,19 @@ class MiqSystem
 
   # Returns the number of logical processors on the system.
   #
+  # Example:
+  #   MiqSystem.num_cpus #=> 8
   def self.num_cpus
     require 'etc'
-    # cache it since it won't change during a process lifetime
     @num_cpus ||= Etc.nprocessors
   end
 
+  # Returns a hash of memory statistics for the system.
+  #
+  # Example:
+  #   MiqSystem.memory
+  #   #=> { MemTotal: 16777216, MemFree: 1234567, Buffers: 12345, Cached: 67890, SwapTotal: 2097152, SwapFree: 2097152 }
   def self.memory
-    # Use sys-memory for cross-platform memory info
     mem = Sys::Memory.memory
     {
       MemTotal: mem.total_bytes,
@@ -34,20 +42,32 @@ class MiqSystem
     }.compact
   end
 
+  # Returns the total system memory in bytes.
+  #
+  # Example:
+  #   MiqSystem.total_memory #=> 16777216
   def self.total_memory
     @total_memory ||= memory[:MemTotal]
   end
 
+  # Returns a hash with CPU and memory usage for the system.
+  #
+  # Example:
+  #   MiqSystem.status
+  #   #=> { cpu_usage: 3, memory: { MemTotal: 16777216, ... } }
   def self.status
-    # Not directly supported by sys-* gems, so return memory and cpu info
     {
       cpu_usage: cpu_usage,
       memory: memory
     }
   end
 
+  # Returns an array of disk usage statistics for each mount point.
+  #
+  # Example:
+  #   MiqSystem.disk_usage.first
+  #   #=> { filesystem: "/dev/disk1s5s1", type: "apfs", total_bytes: 499963174912, ... }
   def self.disk_usage(file = nil)
-    # Use sys-filesystem for cross-platform disk usage
     mounts = Sys::Filesystem.mounts
     stats = mounts.map do |mount|
       begin
@@ -75,11 +95,18 @@ class MiqSystem
     stats
   end
 
+  # Deprecated: No longer needed, kept for API compatibility.
+  #
+  # Example:
+  #   MiqSystem.normalize_df_file_argument("/tmp") #=> "/tmp"
   def self.normalize_df_file_argument(file = nil)
-    # No longer needed, kept for API compatibility
     file
   end
 
+  # Returns the system architecture as a symbol.
+  #
+  # Example:
+  #   MiqSystem.arch #=> :x86_64
   def self.arch
     arch = Sys::Platform::ARCH
     case Sys::Platform::OS
@@ -92,8 +119,11 @@ class MiqSystem
     arch
   end
 
+  # Returns the last N lines from a file as an array of strings.
+  #
+  # Example:
+  #   MiqSystem.tail("/var/log/system.log", 2) #=> ["...line1...", "...line2..."]
   def self.tail(filename, last)
-    # Use Ruby IO for tail
     return nil unless File.file?(filename)
     lines = []
     File.open(filename) do |f|
@@ -103,25 +133,34 @@ class MiqSystem
     end
     lines
   rescue LoadError, StandardError
-    # If file-tail gem is not available or error, fallback
     File.readlines(filename).last(last)
   end
 
+  # Returns an array of retryable IO error classes for non-blocking IO operations.
+  #
+  # Example:
+  #   MiqSystem.retryable_io_errors #=> [IO::WaitReadable]
   def self.retryable_io_errors
     @retryable_io_errors ||= defined?(IO::WaitReadable) ? [IO::WaitReadable] : [Errno::EAGAIN, Errno::EINTR]
   end
 
+  # Reads up to maxlen bytes from a file asynchronously, or nil if file does not exist.
+  #
+  # Example:
+  #   MiqSystem.readfile_async("/etc/hosts", 10) #=> "127.0.0.1"
   def self.readfile_async(filename, maxlen = 10000)
-    # Use Ruby IO for async read
     return nil unless File.exist?(filename)
     File.open(filename, 'r') { |f| f.read(maxlen) }
   end
 
+  # Opens the given URL in the default browser.
+  #
+  # Example:
+  #   MiqSystem.open_browser("http://example.com") #=> nil
   def self.open_browser(url)
     require 'launchy'
     Launchy.open(url)
   rescue LoadError
-    # fallback to shell if Launchy not available
     require 'shellwords'
     case Sys::Platform::IMPL
     when :macosx        then `open #{url.shellescape}`

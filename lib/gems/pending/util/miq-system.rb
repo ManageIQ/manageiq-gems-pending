@@ -70,7 +70,7 @@ class MiqSystem
   #   #=> { filesystem: "/dev/disk1s5s1", type: "apfs", total_bytes: 499963174912, ... }
   def self.disk_usage(file = nil)
     mounts = Sys::Filesystem.mounts
-    stats = mounts.map do |mount|
+    stats = mounts.filter_map do |mount|
       stat = Sys::Filesystem.stat(mount.mount_point)
       {
         :filesystem          => mount.name,
@@ -87,7 +87,7 @@ class MiqSystem
       }
     rescue
       nil
-    end.compact
+    end
     if file
       stats.select! { |s| s[:mount_point] == file || s[:filesystem] == file }
     end
@@ -150,7 +150,7 @@ class MiqSystem
       File.open(filename, 'rb') do |f|
         data = f.read_nonblock(maxlen)
       rescue *retryable_io_errors
-        IO.select([f])
+        f.wait_readable
         retry
       rescue EOFError
         # Not sure what the data variable contains

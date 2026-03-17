@@ -10,9 +10,10 @@ class MiqSystem
   # Example:
   #   MiqSystem.cpu_usage #=> 3
   def self.cpu_usage
-    stat = Sys::ProcTable.ps(pid: Process.pid)
+    stat = Sys::ProcTable.ps(:pid => Process.pid)
     return nil unless stat
     return (stat.pctcpu * 100).to_i if stat.respond_to?(:pctcpu) && stat.pctcpu
+
     nil
   end
 
@@ -33,12 +34,12 @@ class MiqSystem
   def self.memory
     mem = Sys::Memory.memory
     {
-      MemTotal: mem.total_bytes,
-      MemFree: mem.free_bytes,
-      Buffers: mem.buffer_bytes,
-      Cached: mem.cached_bytes,
-      SwapTotal: mem.total_swap_bytes,
-      SwapFree: mem.free_swap_bytes
+      :MemTotal  => mem.total_bytes,
+      :MemFree   => mem.free_bytes,
+      :Buffers   => mem.buffer_bytes,
+      :Cached    => mem.cached_bytes,
+      :SwapTotal => mem.total_swap_bytes,
+      :SwapFree  => mem.free_swap_bytes
     }.compact
   end
 
@@ -57,8 +58,8 @@ class MiqSystem
   #   #=> { cpu_usage: 3, memory: { MemTotal: 16777216, ... } }
   def self.status
     {
-      cpu_usage: cpu_usage,
-      memory: memory
+      :cpu_usage => cpu_usage,
+      :memory    => memory
     }
   end
 
@@ -70,31 +71,28 @@ class MiqSystem
   def self.disk_usage(file = nil)
     mounts = Sys::Filesystem.mounts
     stats = mounts.map do |mount|
-      begin
-        stat = Sys::Filesystem.stat(mount.mount_point)
-        {
-          filesystem: mount.name,
-          type: mount.mount_type,
-          total_bytes: stat.bytes_total,
-          used_bytes: stat.bytes_used,
-          available_bytes: stat.bytes_available,
-          used_bytes_percent: stat.bytes_total > 0 ? ((stat.bytes_used.to_f / stat.bytes_total) * 100).to_i : 0,
-          total_inodes: stat.files_total,
-          used_inodes: stat.files_used,
-          available_inodes: stat.files_available,
-          used_inodes_percent: stat.files_total > 0 ? ((stat.files_used.to_f / stat.files_total) * 100).to_i : 0,
-          mount_point: mount.mount_point
-        }
-      rescue StandardError
-        nil
-      end
+      stat = Sys::Filesystem.stat(mount.mount_point)
+      {
+        :filesystem          => mount.name,
+        :type                => mount.mount_type,
+        :total_bytes         => stat.bytes_total,
+        :used_bytes          => stat.bytes_used,
+        :available_bytes     => stat.bytes_available,
+        :used_bytes_percent  => stat.bytes_total > 0 ? ((stat.bytes_used.to_f / stat.bytes_total) * 100).to_i : 0,
+        :total_inodes        => stat.files_total,
+        :used_inodes         => stat.files_used,
+        :available_inodes    => stat.files_available,
+        :used_inodes_percent => stat.files_total > 0 ? ((stat.files_used.to_f / stat.files_total) * 100).to_i : 0,
+        :mount_point         => mount.mount_point
+      }
+    rescue
+      nil
     end.compact
     if file
       stats.select! { |s| s[:mount_point] == file || s[:filesystem] == file }
     end
     stats
   end
-
 
   # Returns the system architecture as a symbol.
   #
@@ -118,6 +116,7 @@ class MiqSystem
   #   MiqSystem.tail("/var/log/system.log", 2) #=> ["...line1...", "...line2..."]
   def self.tail(filename, last)
     return nil unless File.file?(filename)
+
     lines = []
     File.open(filename) do |f|
       f.extend(File::Tail)
@@ -149,14 +148,12 @@ class MiqSystem
     Thread.new do
       data = nil
       File.open(filename, 'rb') do |f|
-        begin
-          data = f.read_nonblock(maxlen)
-        rescue *retryable_io_errors
-          IO.select([f])
-          retry
-        rescue EOFError
-          # Not sure what the data variable contains
-        end
+        data = f.read_nonblock(maxlen)
+      rescue *retryable_io_errors
+        IO.select([f])
+        retry
+      rescue EOFError
+        # Not sure what the data variable contains
       end
       data
     end

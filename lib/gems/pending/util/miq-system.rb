@@ -4,8 +4,6 @@ require 'sys/memory'
 require 'sys-uname'
 
 class MiqSystem
-  @@cpu_usage_vmstat_output_mtime = nil
-  @@cpu_usage_computed_value      = nil
 
   def self.cpu_usage
     # Use sys-proctable for cross-platform CPU usage if needed, or fallback to nil

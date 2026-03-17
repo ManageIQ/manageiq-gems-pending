@@ -20,3 +20,4 @@ gem "activesupport", minimum_version
 gem 'sys-filesystem', '~> 1.4'
 gem 'sys-memory', '~> 0.2.0'
 gem 'ostruct', '~> 0.6.0'
+gem 'launchy', group: :test

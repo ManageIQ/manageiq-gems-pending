@@ -2,12 +2,12 @@ require 'active_support/core_ext/object/blank'
 require 'sys/filesystem'
 require 'sys/memory'
 require 'sys-uname'
+require 'sys/proctable'
 
 class MiqSystem
 
   def self.cpu_usage
     # Use sys-proctable for cross-platform CPU usage if needed, or fallback to nil
-    require 'sys/proctable'
     if Sys::Platform::IMPL == :linux || Sys::Platform::IMPL == :macosx
       # This is a simple average CPU usage (user+system) for the whole system
       stat = Sys::ProcTable.ps(Process.pid)
@@ -53,7 +53,6 @@ class MiqSystem
 
   def self.disk_usage(file = nil)
     # Use sys-filesystem for cross-platform disk usage
-    require 'sys/filesystem'
     mounts = Sys::Filesystem.mounts
     stats = mounts.map do |mount|
       begin

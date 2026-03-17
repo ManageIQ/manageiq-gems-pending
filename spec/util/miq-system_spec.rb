@@ -1,7 +1,6 @@
-require 'sys/proctable'
 require 'launchy'
 
-describe MiqSystem do
+RSpec.describe MiqSystem do
   context ".cpu_usage" do
     it "returns nil if stat is nil" do
       allow(Sys::ProcTable).to receive(:ps).with(pid: Process.pid).and_return(nil)

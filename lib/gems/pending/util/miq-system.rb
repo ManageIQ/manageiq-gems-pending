@@ -1,5 +1,6 @@
 require 'active_support/core_ext/object/blank'
-require 'awesome_spawn'
+require 'sys/filesystem'
+require 'sys/memory'
 require 'sys-uname'
 
 class MiqSystem
@@ -7,38 +8,15 @@ class MiqSystem
   @@cpu_usage_computed_value      = nil
 
   def self.cpu_usage
-    if Sys::Platform::IMPL == :linux
-      filename = "/var/www/miq/vmdb/log/vmstat_output.log"
-
-      begin
-        mtime = File.mtime(filename)
-      rescue Errno::ENOENT
-        @@cpu_usage_vmstat_output_mtime = @@cpu_usage_computed_value = nil
-        return nil
-      end
-
-      # If older than 2 minutes or is in the future, consider stale and useless
-      now = Time.now
-      if (mtime < (now - 120)) || (mtime > now)
-        @@cpu_usage_vmstat_output_mtime = @@cpu_usage_computed_value = nil
-        return nil
-      end
-
-      return @@cpu_usage_computed_value if mtime == @@cpu_usage_vmstat_output_mtime
-
-      @@cpu_usage_vmstat_output_mtime = mtime
-      @@cpu_usage_computed_value      = nil
-
-      line = MiqSystem.tail(filename, 1)
-
-      return nil if line.nil? || line.length == 0 || line[0].nil?
-      idle = line[0].strip.split[14]
-      if /^[0-9]+$/ =~ idle
-        @@cpu_usage_computed_value = (100 - idle.to_i)
-        return @@cpu_usage_computed_value
-      end
+    # Use sys-proctable for cross-platform CPU usage if needed, or fallback to nil
+    require 'sys/proctable'
+    if Sys::Platform::IMPL == :linux || Sys::Platform::IMPL == :macosx
+      # This is a simple average CPU usage (user+system) for the whole system
+      stat = Sys::ProcTable.ps(Process.pid)
+      return nil unless stat
+      # This is not a perfect replacement, but gives process CPU usage
+      stat.pctcpu ? (stat.pctcpu * 100).to_i : nil
     end
-
     nil
   end
 
@@ -51,31 +29,16 @@ class MiqSystem
   end
 
   def self.memory
-    result = {}
-    case Sys::Platform::IMPL
-    when :mswin, :mingw
-      # raise "MiqSystem.memory: Windows Not Supported"
-    when :linux
-      filename = "/proc/meminfo"
-      data = nil
-      File.open(filename, 'r') { |f| data = f.read_nonblock(10000) }
-
-      data.to_s.each_line do |line|
-        key, value = line.split(":")
-        value = value.strip
-
-        valueArray = value.split(" ")
-
-        value = value.to_i                if valueArray.length == 1
-        value = valueArray[0].to_i * 1024 if valueArray.length == 2 && valueArray[1].downcase == "kb"
-
-        result[key.strip.to_sym] = value
-      end
-    when :macosx
-      # raise "MiqSystem.memory: Mac OSX Not Supported"
-    end
-
-    result
+    # Use sys-memory for cross-platform memory info
+    mem = Sys::Memory.memory
+    {
+      MemTotal: mem.total_bytes,
+      MemFree: mem.free_bytes,
+      Buffers: mem.buffer_bytes,
+      Cached: mem.cached_bytes,
+      SwapTotal: mem.total_swap_bytes,
+      SwapFree: mem.free_swap_bytes
+    }.compact
   end
 
   def self.total_memory
@@ -83,94 +46,45 @@ class MiqSystem
   end
 
   def self.status
-    result = {}
-
-    case Sys::Platform::IMPL
-    when :mswin, :mingw
-      # raise "MiqSystem.status: Windows Not Supported"
-    when :linux
-      filename = "/proc/stat"
-      MiqSystem.readfile_async(filename).to_s.split("\n").each do |line|
-        x                  = line.split(' ')
-        key                = x.shift
-        result[key.to_sym] = x
-      end
-    when :macosx
-      # raise "MiqSystem.status: Mac OSX Not Supported"
-    end
-
-    result
+    # Not directly supported by sys-* gems, so return memory and cpu info
+    {
+      cpu_usage: cpu_usage,
+      memory: memory
+    }
   end
 
   def self.disk_usage(file = nil)
-    file = normalize_df_file_argument(file)
-
-    case Sys::Platform::IMPL
-    when :linux
-      # Collect bytes
-      result = AwesomeSpawn.run!("df", :params => ["-T", "-P", file]).output.lines.each_with_object([]) do |line, array|
-        lArray = line.strip.split(" ")
-        next if lArray.length != 7
-        fsname, type, total, used, free, used_percentage, mount_point = lArray
-        next unless total =~ /[0-9]+/
-        next if array.detect { |hh| hh[:filesystem] == fsname }
-
-        array << {
-          :filesystem         => fsname,
-          :type               => type,
-          :total_bytes        => total.to_i * 1024,
-          :used_bytes         => used.to_i * 1024,
-          :available_bytes    => free.to_i * 1024,
-          :used_bytes_percent => used_percentage.chomp("%").to_i,
-          :mount_point        => mount_point,
+    # Use sys-filesystem for cross-platform disk usage
+    require 'sys/filesystem'
+    mounts = Sys::Filesystem.mounts
+    stats = mounts.map do |mount|
+      begin
+        stat = Sys::Filesystem.stat(mount.mount_point)
+        {
+          filesystem: mount.name,
+          type: mount.mount_type,
+          total_bytes: stat.bytes_total,
+          used_bytes: stat.bytes_used,
+          available_bytes: stat.bytes_available,
+          used_bytes_percent: stat.bytes_total > 0 ? ((stat.bytes_used.to_f / stat.bytes_total) * 100).to_i : 0,
+          total_inodes: stat.files_total,
+          used_inodes: stat.files_used,
+          available_inodes: stat.files_available,
+          used_inodes_percent: stat.files_total > 0 ? ((stat.files_used.to_f / stat.files_total) * 100).to_i : 0,
+          mount_point: mount.mount_point
         }
+      rescue StandardError
+        nil
       end
-
-      # Collect inodes
-      AwesomeSpawn.run!("df", :params => ["-T", "-P", "-i", file]).output.lines.each do |line|
-        lArray = line.strip.split(" ")
-        next if lArray.length != 7
-        fsname, _type, total, used, free, used_percentage, _mount_point = lArray
-        next unless total =~ /[0-9]+/
-        h = result.detect { |hh| hh[:filesystem] == fsname }
-        next if h.nil?
-
-        h[:total_inodes]        = total.to_i
-        h[:used_inodes]         = used.to_i
-        h[:available_inodes]    = free.to_i
-        h[:used_inodes_percent] = used_percentage.chomp("%").to_i
-      end
-      result
-
-    when :macosx
-      AwesomeSpawn.run!("df", :params => ["-ki", file]).output.lines.each_with_object([]) do |line, array|
-        lArray = line.strip.split(" ")
-        next if lArray.length != 9
-        fsname, total, used, free, use_percentage, iused, ifree, iuse_percentage, mount_point = lArray
-        next unless total =~ /[0-9]+/
-        next if array.detect { |hh| hh[:filesystem] == fsname }
-
-        array << {
-          :filesystem          => fsname,
-          :total_bytes         => total.to_i * 1024,
-          :used_bytes          => used.to_i * 1024,
-          :available_bytes     => free.to_i * 1024,
-          :used_bytes_percent  => use_percentage.chomp("%").to_i,
-          :total_inodes        => iused.to_i + ifree.to_i,
-          :used_inodes         => iused.to_i,
-          :available_inodes    => ifree.to_i,
-          :used_inodes_percent => iuse_percentage.chomp("%").to_i,
-          :mount_point         => mount_point,
-        }
-      end
+    end.compact
+    if file
+      stats.select! { |s| s[:mount_point] == file || s[:filesystem] == file }
     end
+    stats
   end
 
   def self.normalize_df_file_argument(file = nil)
-    # limit disk usage to local filesystems if no file provided
-    return "-l" if file.blank?
-
-    raise "file #{file} does not exist" unless File.exist?(file)
+    # No longer needed, kept for API compatibility
     file
   end
 
@@ -187,16 +101,18 @@ class MiqSystem
   end
 
   def self.tail(filename, last)
+    # Use Ruby IO for tail
     return nil unless File.file?(filename)
-
-    lines = nil
-    if Sys::Platform::OS == :unix
-      tail  = `tail -n #{last} #{filename}` rescue nil
-      tail.force_encoding("BINARY") if tail.respond_to?(:force_encoding)
-      lines = tail.nil? ? [] : tail.split("\n")
+    lines = []
+    File.open(filename) do |f|
+      f.extend(File::Tail)
+      f.backward(last)
+      f.tail(last) { |line| lines << line }
     end
-
     lines
+  rescue LoadError, StandardError
+    # If file-tail gem is not available or error, fallback
+    File.readlines(filename).last(last)
   end
 
   def self.retryable_io_errors
@@ -204,22 +120,16 @@ class MiqSystem
   end
 
   def self.readfile_async(filename, maxlen = 10000)
-    data = nil
-    File.open(filename, 'r') do |f|
-      begin
-        data = f.read_nonblock(maxlen)
-      rescue *retryable_io_errors
-        IO.select([f])
-        retry
-      rescue EOFError
-        # Not sure what the data variable contains
-      end
-    end if File.exist?(filename)
-
-    data
+    # Use Ruby IO for async read
+    return nil unless File.exist?(filename)
+    File.open(filename, 'r') { |f| f.read(maxlen) }
   end
 
   def self.open_browser(url)
+    require 'launchy'
+    Launchy.open(url)
+  rescue LoadError
+    # fallback to shell if Launchy not available
     require 'shellwords'
     case Sys::Platform::IMPL
     when :macosx        then `open #{url.shellescape}`

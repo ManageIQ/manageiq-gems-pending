@@ -95,13 +95,6 @@ class MiqSystem
     stats
   end
 
-  # Deprecated: No longer needed, kept for API compatibility.
-  #
-  # Example:
-  #   MiqSystem.normalize_df_file_argument("/tmp") #=> "/tmp"
-  def self.normalize_df_file_argument(file = nil)
-    file
-  end
 
   # Returns the system architecture as a symbol.
   #

@@ -123,11 +123,14 @@ RSpec.describe MiqSystem do
     it "returns nil if file does not exist" do
       expect(described_class.readfile_async("/no/such/file")).to be_nil
     end
-    it "returns up to maxlen bytes from file" do
+
+    it "returns a thread that reads up to maxlen bytes" do
       Tempfile.open("miqsystem-read") do |f|
         f.write "abcdefg"
         f.close
-        expect(described_class.readfile_async(f.path, 3)).to eq("abc")
+        thread = described_class.readfile_async(f.path, 3)
+        expect(thread).to be_a(Thread)
+        expect(thread.value).to eq("abc")
       end
     end
   end

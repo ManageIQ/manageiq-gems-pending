@@ -137,13 +137,29 @@ class MiqSystem
     @retryable_io_errors ||= defined?(IO::WaitReadable) ? [IO::WaitReadable] : [Errno::EAGAIN, Errno::EINTR]
   end
 
-  # Reads up to maxlen bytes from a file asynchronously, or nil if file does not exist.
+  # Reads up to maxlen bytes from a file in a background thread.
+  # Returns a Thread (caller can call #value to get the read data) or nil if the file does not exist.
   #
   # Example:
-  #   MiqSystem.readfile_async("/etc/hosts", 10) #=> "127.0.0.1"
+  #   t = MiqSystem.readfile_async("/etc/hosts", 10)
+  #   t.value #=> "127.0.0.1"
   def self.readfile_async(filename, maxlen = 10000)
     return nil unless File.exist?(filename)
-    File.open(filename, 'r') { |f| f.read(maxlen) }
+
+    Thread.new do
+      data = nil
+      File.open(filename, 'r') do |f|
+        begin
+          data = f.read_nonblock(maxlen)
+        rescue *retryable_io_errors
+          IO.select([f])
+          retry
+        rescue EOFError
+          # Not sure what the data variable contains
+        end
+      end
+      data
+    end
   end
 
   # Opens the given URL in the default browser.

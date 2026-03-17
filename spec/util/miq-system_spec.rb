@@ -4,20 +4,21 @@ require 'launchy'
 describe MiqSystem do
   context ".cpu_usage" do
     it "returns nil if stat is nil" do
-      stub_const("Sys::Platform::IMPL", :linux)
-      allow(Sys::ProcTable).to receive(:ps).and_return(nil)
+      allow(Sys::ProcTable).to receive(:ps).with(pid: Process.pid).and_return(nil)
       expect(described_class.cpu_usage).to be_nil
     end
 
     it "returns integer cpu percent if stat.pctcpu is present" do
-      allow(Sys::Platform).to receive(:IMPL).and_return(:linux)
       fake_stat = double('Stat', pctcpu: 0.42)
-      allow(Sys::ProcTable).to receive(:ps).with(Process.pid).and_return(fake_stat)
+      allow(fake_stat).to receive(:respond_to?).with(:pctcpu).and_return(true)
+      allow(Sys::ProcTable).to receive(:ps).with(pid: Process.pid).and_return(fake_stat)
       expect(described_class.cpu_usage).to eq(42)
     end
 
-    it "returns nil if not linux or macosx" do
-      stub_const("Sys::Platform::IMPL", :mswin)
+    it "returns nil if stat does not respond to pctcpu" do
+      fake_stat = double('Stat')
+      allow(fake_stat).to receive(:respond_to?).with(:pctcpu).and_return(false)
+      allow(Sys::ProcTable).to receive(:ps).with(pid: Process.pid).and_return(fake_stat)
       expect(described_class.cpu_usage).to be_nil
     end
   end

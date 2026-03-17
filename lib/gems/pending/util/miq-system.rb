@@ -7,14 +7,9 @@ require 'sys/proctable'
 class MiqSystem
 
   def self.cpu_usage
-    # Use sys-proctable for cross-platform CPU usage if needed, or fallback to nil
-    if Sys::Platform::IMPL == :linux || Sys::Platform::IMPL == :macosx
-      # This is a simple average CPU usage (user+system) for the whole system
-      stat = Sys::ProcTable.ps(Process.pid)
-      return nil unless stat
-      # This is not a perfect replacement, but gives process CPU usage
-      stat.pctcpu ? (stat.pctcpu * 100).to_i : nil
-    end
+    stat = Sys::ProcTable.ps(pid: Process.pid)
+    return nil unless stat
+    return (stat.pctcpu * 100).to_i if stat.respond_to?(:pctcpu) && stat.pctcpu
     nil
   end
 

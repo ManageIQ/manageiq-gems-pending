@@ -148,7 +148,7 @@ class MiqSystem
 
     Thread.new do
       data = nil
-      File.open(filename, 'r') do |f|
+      File.open(filename, 'rb') do |f|
         begin
           data = f.read_nonblock(maxlen)
         rescue *retryable_io_errors

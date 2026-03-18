@@ -9,6 +9,7 @@ class MiqSystem
   #
   # Example:
   #   MiqSystem.cpu_usage #=> 3
+  #
   def self.cpu_usage
     stat = Sys::ProcTable.ps(:pid => Process.pid)
     return nil unless stat
@@ -21,6 +22,7 @@ class MiqSystem
   #
   # Example:
   #   MiqSystem.num_cpus #=> 8
+  #
   def self.num_cpus
     require 'etc'
     @num_cpus ||= Etc.nprocessors
@@ -29,8 +31,16 @@ class MiqSystem
   # Returns a hash of memory statistics for the system.
   #
   # Example:
-  #   MiqSystem.memory
-  #   #=> { MemTotal: 16777216, MemFree: 1234567, Buffers: 12345, Cached: 67890, SwapTotal: 2097152, SwapFree: 2097152 }
+  #   MiqSystem.memory #=>
+  #     {
+  #       MemTotal: 16777216,
+  #       MemFree: 1234567,
+  #       Buffers: 12345,
+  #       Cached: 67890,
+  #       SwapTotal: 2097152,
+  #       SwapFree: 2097152
+  #     }
+  #
   def self.memory
     mem = Sys::Memory.memory
     {
@@ -47,6 +57,7 @@ class MiqSystem
   #
   # Example:
   #   MiqSystem.total_memory #=> 16777216
+  #
   def self.total_memory
     @total_memory ||= memory[:MemTotal]
   end
@@ -54,8 +65,8 @@ class MiqSystem
   # Returns a hash with CPU and memory usage for the system.
   #
   # Example:
-  #   MiqSystem.status
-  #   #=> { cpu_usage: 3, memory: { MemTotal: 16777216, ... } }
+  #   MiqSystem.status #=> { cpu_usage: 3, memory: { MemTotal: 16777216, ... } }
+  #
   def self.status
     {
       :cpu_usage => cpu_usage,
@@ -66,8 +77,14 @@ class MiqSystem
   # Returns an array of disk usage statistics for each mount point.
   #
   # Example:
-  #   MiqSystem.disk_usage.first
-  #   #=> { filesystem: "/dev/disk1s5s1", type: "apfs", total_bytes: 499963174912, ... }
+  #   MiqSystem.disk_usage.first #=>
+  #     {
+  #       filesystem: "/dev/disk1s5s1",
+  #       type: "apfs",
+  #       total_bytes: 499963174912,
+  #       # ...
+  #     }
+  #
   def self.disk_usage(file = nil)
     mounts = Sys::Filesystem.mounts
     stats = mounts.filter_map do |mount|
@@ -98,6 +115,7 @@ class MiqSystem
   #
   # Example:
   #   MiqSystem.arch #=> :x86_64
+  #
   def self.arch
     arch = Sys::Platform::ARCH
     case Sys::Platform::OS
@@ -114,6 +132,7 @@ class MiqSystem
   #
   # Example:
   #   MiqSystem.tail("/var/log/system.log", 2) #=> ["...line1...", "...line2..."]
+  #
   def self.tail(filename, last)
     return nil unless File.file?(filename)
 
@@ -132,6 +151,7 @@ class MiqSystem
   #
   # Example:
   #   MiqSystem.retryable_io_errors #=> [IO::WaitReadable]
+  #
   def self.retryable_io_errors
     @retryable_io_errors ||= defined?(IO::WaitReadable) ? [IO::WaitReadable] : [Errno::EAGAIN, Errno::EINTR]
   end
@@ -142,6 +162,7 @@ class MiqSystem
   # Example:
   #   t = MiqSystem.readfile_async("/etc/hosts", 10)
   #   t.value #=> "127.0.0.1"
+  #
   def self.readfile_async(filename, maxlen = 10000)
     return nil unless File.exist?(filename)
 
@@ -163,6 +184,7 @@ class MiqSystem
   #
   # Example:
   #   MiqSystem.open_browser("http://example.com") #=> nil
+  #
   def self.open_browser(url)
     require 'launchy'
     Launchy.open(url)

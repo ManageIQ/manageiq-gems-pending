@@ -41,7 +41,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "zeitwerk",                "~> 2.6", ">= 2.6.8"
 
   s.add_development_dependency "ftpd",                      "~> 2.1.0"
-  s.add_development_dependency "manageiq-style",            ">= 1.5.4"
+  s.add_development_dependency "manageiq-style"
   s.add_development_dependency "rack",                      "~> 3.1.20" # transitive dependency of manageiq-style CVE-2026-22860 https://github.com/advisories/GHSA-mxw3-3hh2-x2mh
   s.add_development_dependency "rake",                      ">= 12.3.3"
   s.add_development_dependency "rspec",                     "~> 3.13"

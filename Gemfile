@@ -7,7 +7,7 @@ plugin "bundler-inject", "~> 1.1"
 require File.join(Bundler::Plugin.index.load_paths("bundler-inject")[0], "bundler-inject") rescue nil
 
 minimum_version =
-  case ENV['TEST_RAILS_VERSION']
+  case ENV.fetch('TEST_RAILS_VERSION', nil)
   when "7.0"
     "~>7.0.8"
   when "7.1"
@@ -17,3 +17,7 @@ minimum_version =
   end
 
 gem "activesupport", minimum_version
+gem 'launchy', :group => :test
+gem 'ostruct', '~> 0.6.0'
+gem 'sys-filesystem', '~> 1.4'
+gem 'sys-memory', '~> 0.2.0'

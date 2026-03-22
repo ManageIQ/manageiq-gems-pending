@@ -1,208 +1,143 @@
-describe MiqSystem do
-  context ".normalize_df_file_argument" do
-    it "nil" do
-      expect(described_class.normalize_df_file_argument).to eq("-l")
+require 'launchy'
+
+RSpec.describe MiqSystem do
+  context ".cpu_usage" do
+    it "returns nil if stat is nil" do
+      allow(Sys::ProcTable).to receive(:ps).with(:pid => Process.pid).and_return(nil)
+      expect(described_class.cpu_usage).to be_nil
     end
 
-    it "blank" do
-      expect(described_class.normalize_df_file_argument("  ")).to eq("-l")
+    it "returns integer cpu percent if stat.pctcpu is present" do
+      fake_stat = double('Stat', :pctcpu => 0.42)
+      allow(fake_stat).to receive(:respond_to?).with(:pctcpu).and_return(true)
+      allow(Sys::ProcTable).to receive(:ps).with(:pid => Process.pid).and_return(fake_stat)
+      expect(described_class.cpu_usage).to eq(42)
     end
 
-    it "file exists" do
-      file = "/dev/null"
-      allow(File).to receive(:exist?).with(file).and_return(true)
-      expect(described_class.normalize_df_file_argument(file)).to eq(file)
+    it "returns nil if stat does not respond to pctcpu" do
+      fake_stat = double('Stat')
+      allow(fake_stat).to receive(:respond_to?).with(:pctcpu).and_return(false)
+      allow(Sys::ProcTable).to receive(:ps).with(:pid => Process.pid).and_return(fake_stat)
+      expect(described_class.cpu_usage).to be_nil
     end
+  end
 
-    it "file missing" do
-      file = "/dev/null"
-      allow(File).to receive(:exist?).with(file).and_return(false)
-      expect { described_class.normalize_df_file_argument(file) }.to raise_error(RuntimeError, "file /dev/null does not exist")
+  context ".num_cpus" do
+    it "returns the number of logical processors" do
+      allow(Etc).to receive(:nprocessors).and_return(8)
+      expect(described_class.num_cpus).to eq(8)
+    end
+  end
+
+  context ".memory" do
+    it "returns memory hash from sys-memory" do
+      fake_mem = double('Memory',
+                        :total_bytes      => 1000,
+                        :free_bytes       => 200,
+                        :buffer_bytes     => 100,
+                        :cached_bytes     => 50,
+                        :total_swap_bytes => 300,
+                        :free_swap_bytes  => 150)
+      allow(Sys::Memory).to receive(:memory).and_return(fake_mem)
+      expect(described_class.memory).to eq({
+                                             :MemTotal  => 1000,
+                                             :MemFree   => 200,
+                                             :Buffers   => 100,
+                                             :Cached    => 50,
+                                             :SwapTotal => 300,
+                                             :SwapFree  => 150
+                                           })
+    end
+  end
+
+  context ".total_memory" do
+    it "returns total memory from memory hash" do
+      allow(described_class).to receive(:memory).and_return({:MemTotal => 1234})
+      expect(described_class.total_memory).to eq(1234)
+    end
+  end
+
+  context ".status" do
+    it "returns cpu_usage and memory" do
+      allow(described_class).to receive(:cpu_usage).and_return(55)
+      allow(described_class).to receive(:memory).and_return({:MemTotal => 100})
+      expect(described_class.status).to eq({:cpu_usage => 55, :memory => {:MemTotal => 100}})
     end
   end
 
   context ".disk_usage(file)" do
-    require 'fileutils'
-
-    let(:file) { Pathname.new(__dir__).join("empty file").to_s }
-
-    before do
-      FileUtils.touch(file)
-    end
-
-    after do
-      FileUtils.rm_f(file)
-    end
-
-    it "handles file with a space" do
-      usage_hash = described_class.disk_usage(file).first
-      expect(usage_hash[:filesystem]).to be_kind_of String
-      expect(usage_hash[:filesystem]).to be_present
-      expect(usage_hash[:total_bytes]).to be > 0
+    it "returns disk usage for a given mount" do
+      fake_mount = double('Mount', :name => '/dev/sda1', :mount_type => 'ext4', :mount_point => '/mnt')
+      fake_stat = double('Stat',
+                         :bytes_total     => 1000,
+                         :bytes_used      => 400,
+                         :bytes_available => 600,
+                         :files_total     => 100,
+                         :files_used      => 40,
+                         :files_available => 60)
+      allow(Sys::Filesystem).to receive(:mounts).and_return([fake_mount])
+      allow(Sys::Filesystem).to receive(:stat).with('/mnt').and_return(fake_stat)
+      result = described_class.disk_usage('/mnt')
+      expect(result).to eq([
+                             {
+                               :filesystem          => '/dev/sda1',
+                               :type                => 'ext4',
+                               :total_bytes         => 1000,
+                               :used_bytes          => 400,
+                               :available_bytes     => 600,
+                               :used_bytes_percent  => 40,
+                               :total_inodes        => 100,
+                               :used_inodes         => 40,
+                               :available_inodes    => 60,
+                               :used_inodes_percent => 40,
+                               :mount_point         => '/mnt'
+                             }
+                           ])
     end
   end
 
-  context ".disk_usage", :uses_awesome_spawn => true do
-    it "linux" do
-      linux_df_output_bytes = <<EOF
-Filesystem              Type     1024-blocks    Used Available Capacity Mounted on
-/dev/mapper/fedora-root ext4        40185208 5932800  32188024      16% /
-devtmpfs                devtmpfs     3961576       0   3961576       0% /dev
-tmpfs                   tmpfs        3969532    7332   3962200       1% /dev/shm
-tmpfs                   tmpfs        3969532    1144   3968388       1% /run
-tmpfs                   tmpfs        3969532       0   3969532       0% /sys/fs/cgroup
-tmpfs                   tmpfs        3969532     348   3969184       1% /tmp
-/dev/sda1               ext4          487652  131515    326441      29% /boot
-/dev/mapper/fedora-home ext4       192360020 9325732 173239936       6% /home
-EOF
-      linux_df_output_inodes = <<EOF
-Filesystem              Type       Inodes  IUsed    IFree IUse% Mounted on
-/dev/mapper/fedora-root ext4      2564096 146929  2417167    6% /
-devtmpfs                devtmpfs   990394    549   989845    1% /dev
-tmpfs                   tmpfs      992383     31   992352    1% /dev/shm
-tmpfs                   tmpfs      992383    726   991657    1% /run
-tmpfs                   tmpfs      992383     13   992370    1% /sys/fs/cgroup
-tmpfs                   tmpfs      992383     38   992345    1% /tmp
-/dev/sda1               ext4       128016    385   127631    1% /boot
-/dev/mapper/fedora-home ext4     12222464 488787 11733677    4% /home
-EOF
-      expected = [
-        {
-          :filesystem          => "/dev/mapper/fedora-root",
-          :type                => "ext4",
-          :total_bytes         => 41149652992,
-          :used_bytes          => 6075187200,
-          :available_bytes     => 32960536576,
-          :used_bytes_percent  => 16,
-          :mount_point         => "/",
-          :total_inodes        => 2564096,
-          :used_inodes         => 146929,
-          :available_inodes    => 2417167,
-          :used_inodes_percent => 6
-        },
-        {
-          :filesystem          => "devtmpfs",
-          :type                => "devtmpfs",
-          :total_bytes         => 4056653824,
-          :used_bytes          => 0,
-          :available_bytes     => 4056653824,
-          :used_bytes_percent  => 0,
-          :mount_point         => "/dev",
-          :total_inodes        => 990394,
-          :used_inodes         => 549,
-          :available_inodes    => 989845,
-          :used_inodes_percent => 1
-        },
-        {
-          :filesystem          => "tmpfs",
-          :type                => "tmpfs",
-          :total_bytes         => 4064800768,
-          :used_bytes          => 7507968,
-          :available_bytes     => 4057292800,
-          :used_bytes_percent  => 1,
-          :mount_point         => "/dev/shm",
-          :total_inodes        => 992383,
-          :used_inodes         => 38,
-          :available_inodes    => 992345,
-          :used_inodes_percent => 1
-        },
-        {
-          :filesystem          => "/dev/sda1",
-          :type                => "ext4",
-          :total_bytes         => 499355648,
-          :used_bytes          => 134671360,
-          :available_bytes     => 334275584,
-          :used_bytes_percent  => 29,
-          :mount_point         => "/boot",
-          :total_inodes        => 128016,
-          :used_inodes         => 385,
-          :available_inodes    => 127631,
-          :used_inodes_percent => 1
-        },
-        {
-          :filesystem          => "/dev/mapper/fedora-home",
-          :type                => "ext4",
-          :total_bytes         => 196976660480,
-          :used_bytes          => 9549549568,
-          :available_bytes     => 177397694464,
-          :used_bytes_percent  => 6,
-          :mount_point         => "/home",
-          :total_inodes        => 12222464,
-          :used_inodes         => 488787,
-          :available_inodes    => 11733677,
-          :used_inodes_percent => 4
-        }
-      ]
+  context ".arch" do
+    it "returns arch from Sys::Platform::ARCH" do
+      stub_const("Sys::Platform::ARCH", :x86_64)
+      stub_const("Sys::Platform::OS", :unix)
+      expect(described_class.arch).to eq(:x86_64)
+    end
+  end
 
-      stub_const("Sys::Platform::IMPL", :linux)
-      stub_good_run!("df", :params => ["-T", "-P", "-l"], :output => linux_df_output_bytes)
-      stub_good_run!("df", :params => ["-T", "-P", "-i", "-l"], :output => linux_df_output_inodes)
-      expect(described_class.disk_usage).to eq(expected)
+  context ".tail" do
+    it "returns last N lines from a file" do
+      Tempfile.open("miqsystem-tail") do |f|
+        f.puts "a"
+        f.puts "b"
+        f.puts "c"
+        f.close
+        result = described_class.tail(f.path, 2)
+        expect(result.map(&:strip)).to eq(["b", "c"])
+      end
+    end
+  end
+
+  context ".readfile_async" do
+    it "returns nil if file does not exist" do
+      expect(described_class.readfile_async("/no/such/file")).to be_nil
     end
 
-    it "macosx" do
-      mac_df_output = <<EOF
-Filesystem    1024-blocks      Used Available Capacity  iused    ifree %iused  Mounted on
-/dev/disk0s2    731734976 399664356 331814620    55% 99980087 82953655   55%   /
-devfs                 191       191         0   100%      662        0  100%   /dev
-map auto_home           0         0         0   100%        0        0  100%   /home
-/dev/disk1s2            0         0         0   100%        0        0  100%   /Volumes/Adobe Flash Player Installer
-EOF
-      expected = [
-        {
-          :filesystem          => "/dev/disk0s2",
-          :total_bytes         => 749296615424,
-          :used_bytes          => 409256300544,
-          :available_bytes     => 339778170880,
-          :used_bytes_percent  => 55,
-          :total_inodes        => 182933742,
-          :used_inodes         => 99980087,
-          :available_inodes    => 82953655,
-          :used_inodes_percent => 55,
-          :mount_point         => "/"
-        },
-        {
-          :filesystem          => "devfs",
-          :total_bytes         => 195584,
-          :used_bytes          => 195584,
-          :available_bytes     => 0,
-          :used_bytes_percent  => 100,
-          :total_inodes        => 662,
-          :used_inodes         => 662,
-          :available_inodes    => 0,
-          :used_inodes_percent => 100,
-          :mount_point         => "/dev"
-        },
-        # TODO: Modify splitting on spaces to accept :filesystem or :mount_point with spaces
-        # {
-        #   :filesystem          => "map auto_home",
-        #   :total_bytes         => 0,
-        #   :used_bytes          => 0,
-        #   :available_bytes     => 0,
-        #   :used_bytes_percent  => 100,
-        #   :total_inodes        => 0,
-        #   :used_inodes         => 0,
-        #   :available_inodes    => 0,
-        #   :used_inodes_percent => 100,
-        #   :mount_point         => "/home"
-        # },
-        # {
-        #   :filesystem          => "/dev/disk1s2",
-        #   :total_bytes         => 0,
-        #   :used_bytes          => 0,
-        #   :available_bytes     => 0,
-        #   :used_bytes_percent  => 100,
-        #   :total_inodes        => 0,
-        #   :used_inodes         => 0,
-        #   :available_inodes    => 0,
-        #   :used_inodes_percent => 100,
-        #   :mount_point         => "/Volumes/Adobe Flash Player Installer"
-        # }
-      ]
+    it "returns a thread that reads up to maxlen bytes" do
+      Tempfile.open("miqsystem-read") do |f|
+        f.write "abcdefg"
+        f.close
+        thread = described_class.readfile_async(f.path, 3)
+        expect(thread).to be_a(Thread)
+        expect(thread.value).to eq("abc")
+      end
+    end
+  end
 
-      stub_const("Sys::Platform::IMPL", :macosx)
-      stub_good_run!("df", :params => ["-ki", "-l"], :output => mac_df_output)
-      expect(described_class.disk_usage).to eq(expected)
+  context ".open_browser" do
+    it "calls Launchy.open with the url" do
+      allow(Launchy).to receive(:open)
+      described_class.open_browser("http://example.com")
+      expect(Launchy).to have_received(:open).with("http://example.com")
     end
   end
 end

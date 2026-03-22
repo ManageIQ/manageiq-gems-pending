@@ -39,6 +39,9 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "sys-uname",               "~> 1.2.1"
   s.add_runtime_dependency "win32ole",                "~> 1.8.8" # this gem was extracted in ruby 3 - required if we use wmi on windows
   s.add_runtime_dependency "zeitwerk",                "~> 2.6", ">= 2.6.8"
+  s.add_runtime_dependency "sys-filesystem",           "~> 1.4"
+  s.add_runtime_dependency "sys-memory",               "~> 0.2.0"
+  s.add_runtime_dependency "ostruct",                  "~> 0.6.0"
 
   s.add_development_dependency "ftpd",                      "~> 2.1.0"
   s.add_development_dependency "manageiq-style"
@@ -48,4 +51,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency "simplecov",                 ">= 0.21.2"
   s.add_development_dependency "timecop",                   "~> 0.9.1"
   s.add_development_dependency "xml-simple",                "~> 1.1.0"
+  s.add_development_dependency "launchy", "~> 3.0"
 end

@@ -31,7 +31,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "aws-sdk-s3",              "~> 1.0"
   s.add_runtime_dependency "bundler",                 ">= 2.1.4", "!= 2.2.10"
   s.add_runtime_dependency "fog-openstack",           "~> 1.0"
-  s.add_runtime_dependency "more_core_extensions",    "~> 4.5"
+  s.add_runtime_dependency "more_core_extensions",    "~> 4.6"
   s.add_runtime_dependency "net-ftp",                 "~> 0.1.2"
   s.add_runtime_dependency "nokogiri",                "~> 1.14", ">= 1.14.3"
   s.add_runtime_dependency "rexml",                   ">= 3.4.4"

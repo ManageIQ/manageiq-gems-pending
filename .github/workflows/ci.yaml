@@ -21,9 +21,8 @@ jobs:
         ruby-version:
         - '3.3'
         rails-version:
-        - '7.0'
-        - '7.1'
         - '7.2'
+        - '8.0'
     env:
       TEST_RAILS_VERSION: "${{ matrix.rails-version }}"
     steps:

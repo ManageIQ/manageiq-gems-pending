@@ -8,12 +8,10 @@ require File.join(Bundler::Plugin.index.load_paths("bundler-inject")[0], "bundle
 
 minimum_version =
   case ENV['TEST_RAILS_VERSION']
-  when "7.2"
-    "~>7.2.3"
   when "8.0"
     "~>8.0.5"
   else
-    "~>8.0.5"
+    "~>8.1.4"
   end
 
 gem "activesupport", minimum_version
